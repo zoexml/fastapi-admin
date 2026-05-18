@@ -409,11 +409,14 @@ const initCharts = () => {
         name: "命令",
         type: "pie",
         roseType: "radius",
-        radius: [15, 95],
-        center: ["50%", "38%"],
+        radius: ["20%", "70%"],
+        center: ["50%", "50%"],
         data: cache.value.command_stats || [],
         animationEasing: "cubicInOut",
         animationDuration: 1000,
+        label: {
+          fontSize: 14,
+        },
       },
     ],
   });
@@ -427,8 +430,12 @@ const initCharts = () => {
         type: "gauge",
         min: 0,
         max: 1000,
-        detail: { formatter: usedMemory },
+        radius: "70%",
+        detail: { formatter: usedMemory, fontSize: 16 },
         data: [{ value: parseFloat(usedMemory) || 0, name: "内存消耗" }],
+        axisLabel: {
+          fontSize: 12,
+        },
       },
     ],
   });
@@ -491,17 +498,22 @@ onUnmounted(() => {
 }
 
 .chart-card {
+  height: 100%;
+
   :deep(.el-card__body) {
     display: flex;
-    flex: 1;
     flex-direction: column;
+    height: 100%;
     min-height: 0;
   }
 }
 
 .chart-container {
   flex: 1;
-  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
 }
 
 // === 缓存管理三栏 ===

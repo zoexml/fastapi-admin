@@ -350,18 +350,23 @@ const logExportContentConfig = computed(() => ({
 const formData = ref<LogTable>({});
 
 const logDetailItems: import("@/components/others/fa-descriptions/index.vue").DescriptionsItem[] = [
+  // 基础信息
   { label: "日志类型", prop: "type", slot: "type" },
+  { label: "描述", prop: "description", span: 4 },
+  // 请求信息
   { label: "请求路径", prop: "request_path" },
   { label: "请求方法", prop: "request_method", slot: "request_method" },
-  { label: "响应状态码", prop: "response_code", slot: "response_code" },
   { label: "请求IP", prop: "request_ip" },
-  { label: "处理时间", prop: "process_time" },
+  { label: "登录地点", prop: "login_location" },
   { label: "浏览器", prop: "request_browser" },
   { label: "操作系统", prop: "request_os" },
-  { label: "请求参数", prop: "request_payload", slot: "request_payload", span: 4 },
-  { label: "响应数据", prop: "response_json", slot: "response_json", span: 4 },
-  { label: "登录地点", prop: "login_location" },
-  { label: "描述", prop: "description", span: 4 },
+  // 响应信息
+  { label: "响应状态码", prop: "response_code", slot: "response_code" },
+  { label: "处理时间", prop: "process_time" },
+  // 详细数据（各占一行）
+  { label: "请求参数", prop: "request_payload", slot: "request_payload", span: 8 },
+  { label: "响应数据", prop: "response_json", slot: "response_json", span: 8 },
+  // 元信息
   { label: "创建人", prop: "created_by.name" },
   { label: "更新人", prop: "updated_by.name" },
   { label: "创建时间", prop: "created_time" },
@@ -416,7 +421,7 @@ function onResetSearch() {
 }
 
 async function resetForm() {
-  Object.assign(formData, {});
+  Object.assign(formData.value, {});
 }
 
 async function handleCloseDialog() {
@@ -427,7 +432,7 @@ async function handleCloseDialog() {
 async function handleOpenDialog(id: number) {
   dialogVisible.title = "日志详情";
   const response = await LogAPI.detailLog(id);
-  Object.assign(formData, response.data.data ?? {});
+  Object.assign(formData.value, response.data.data ?? {});
   dialogVisible.visible = true;
 }
 
