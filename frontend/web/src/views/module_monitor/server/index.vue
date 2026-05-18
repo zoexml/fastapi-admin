@@ -98,7 +98,7 @@
               <span class="font-medium">服务器基本信息</span>
             </div>
           </template>
-          <FaDescriptions :column="2" size="small" :scrollbar="false">
+          <FaDescriptions :column="1" size="small" :scrollbar="false">
             <ElDescriptionsItem label="服务器名称">
               {{ server.sys?.computer_name || "-" }}
             </ElDescriptionsItem>

@@ -125,7 +125,7 @@
           :items="memoryDialogFormItems"
           :rules="rules"
           label-suffix=":"
-          :label-width="'70px'"
+          :label-width="100"
           label-position="right"
           :span="24"
           :gutter="16"

@@ -125,6 +125,7 @@
         </ElTable>
         <!-- 分页 -->
         <FaPagination
+          class="mt-2"
           v-model:total="total"
           v-model:page="queryParams.page_no"
           v-model:limit="queryParams.page_size"
@@ -134,7 +135,7 @@
           <ElButton type="primary" size="small" @click="handleConfirm">
             {{ confirmText }}
           </ElButton>
-          <ElButton size="small" @click="handleClear">清 空</ElButton>
+          <ElButton type="danger" size="small" @click="handleClear">清 空</ElButton>
           <ElButton size="small" @click="handleClose">关 闭</ElButton>
         </div>
       </div>
@@ -351,6 +352,8 @@ const popoverContentRef = ref();
 </script>
 
 <style scoped lang="scss">
+@use "@styles/fa-table";
+
 .reference :deep(.el-input__wrapper),
 .reference :deep(.el-input__inner) {
   cursor: pointer;
