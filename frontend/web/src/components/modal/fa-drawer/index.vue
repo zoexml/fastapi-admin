@@ -15,9 +15,11 @@
         <span class="core-overlay-drawer__title">{{ title }}</span>
         <div class="core-overlay-drawer__actions">
           <ElTooltip content="关闭" placement="top">
-            <ElButton class="core-overlay-icon-btn" text @click="visible = false">
-              <ElIcon><Close /></ElIcon>
-            </ElButton>
+            <FaIconButton
+              class="core-overlay-icon-btn"
+              icon="ri:close-line"
+              @click="visible = false"
+            />
           </ElTooltip>
         </div>
       </div>
@@ -40,9 +42,9 @@
 </template>
 
 <script setup lang="ts">
-import { Close } from "@element-plus/icons-vue";
 import type { DrawerProps } from "element-plus";
 import { computed, useAttrs } from "vue";
+import FaIconButton from "@/components/widget/fa-icon-button/index.vue";
 
 defineOptions({ name: "FaDrawer", inheritAttrs: false });
 
@@ -121,6 +123,15 @@ const drawerAttrs = computed(() => {
   gap: 8px;
   justify-content: flex-end;
   padding-top: 4px;
+
+  :deep(.el-button) {
+    transition: all 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
+      transform: translateY(-2px);
+    }
+  }
 }
 
 .core-overlay-drawer__actions {
@@ -130,13 +141,13 @@ const drawerAttrs = computed(() => {
   align-items: center;
   margin-left: auto;
 
-  :deep(.core-overlay-icon-btn.el-button) {
+  :deep(.core-overlay-icon-btn) {
     min-width: 32px;
     padding: 6px;
     border-radius: var(--el-border-radius-base);
 
-    &.is-text:not(.is-disabled):hover {
-      border-radius: var(--el-border-radius-base);
+    &:hover {
+      color: var(--theme-color);
     }
   }
 }

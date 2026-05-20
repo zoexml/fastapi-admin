@@ -90,7 +90,7 @@
             :items="dictDataDialogFormItems"
             :rules="rules"
             label-suffix=":"
-            :label-width="'auto'"
+            :label-width="100"
             label-position="right"
             :span="24"
             :gutter="16"
