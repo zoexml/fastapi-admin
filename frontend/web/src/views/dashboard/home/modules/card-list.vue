@@ -1,5 +1,5 @@
 <template>
-  <ElRow :gutter="16" class="flex card-row">
+  <ElRow :gutter="16">
     <ElCol v-for="(item, index) in dataList" :key="index" :sm="12" :md="8" :lg="8">
       <div class="fa-card relative flex flex-col justify-center h-30 px-5">
         <!-- 顶部标题行 -->
@@ -144,29 +144,11 @@ const dataList = ref<CardDataItem[]>([
     icon: "ri:eye-line",
     iconBg: "bg-primary/10",
     iconColor: "text-primary",
-    num: 0,
+    num: 9999,
     rich: true,
     animatedCount: 0,
     totalLabel: "总浏览量",
     totalValue: 0,
-  },
-  {
-    des: "总访问次数",
-    icon: "ri:pie-chart-line",
-    num: 9120,
-    change: "+20%",
-  },
-  {
-    des: "点击量",
-    icon: "ri:fire-line",
-    num: 9520,
-    change: "-12%",
-  },
-  {
-    des: "新用户",
-    icon: "ri:progress-2-line",
-    num: 156,
-    change: "+30%",
   },
 ]);
 

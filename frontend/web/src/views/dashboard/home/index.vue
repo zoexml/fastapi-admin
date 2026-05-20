@@ -5,20 +5,86 @@
       <ElCol :xs="24" class="mb-5">
         <Banner />
       </ElCol>
-      <ElCol :xs="24" :sm="12" :md="12" class="mb-5">
-        <CardList />
+
+      <ElCol :xs="24" :md="18">
+        <ElRow :gutter="20">
+          <ElCol :xs="24" :sm="8" :md="24" class="mb-5">
+            <CardList />
+          </ElCol>
+          <ElCol :xs="24" :sm="8" :md="8" class="mb-5">
+            <FaStatsCard
+              :icon="'ri:money-cny-box-line'"
+              :iconStyle="'bg-theme'"
+              :boxStyle="'bg-theme/10!'"
+              :title="'总收入'"
+              :description="'月收入超过¥350,000+'"
+              :count="35000"
+              :textColor="'var(--theme-color)'"
+              :decimals="0"
+              :showArrow="false"
+              separator=","
+              customIconStyle="'text-theme! text-3xl!''"
+            />
+          </ElCol>
+          <ElCol :xs="24" :sm="12" :md="8" class="mb-5">
+            <FaProgressCard :percentage="65" :title="'任务进度'" :color="'var(--theme-color)'" />
+          </ElCol>
+          <ElCol :xs="24" :sm="12" :md="8" class="mb-5">
+            <FaProgressCard
+              :percentage="80"
+              :title="'任务进度'"
+              :color="'var(--theme-color)'"
+              :icon="'ri:twitch-line'"
+              :iconStyle="'bg-theme/12 text-theme'"
+            />
+          </ElCol>
+          <ElCol :xs="24" :sm="8" :md="8" class="mb-5">
+            <FaBarChartCard
+              :isMiniChart="true"
+              :value="15480"
+              label="浏览量"
+              date="过去14天"
+              :percentage="-4.15"
+              :height="9.5"
+              barWidth="45%"
+              :chartData="[120, 100, 150, 140, 90, 120, 130]"
+            />
+          </ElCol>
+          <ElCol :xs="24" :sm="8" :md="8" class="mb-5">
+            <FaLineChartCard
+              :isMiniChart="true"
+              :value="2545"
+              label="粉丝数"
+              date="过去30天"
+              :percentage="1.2"
+              :height="9.5"
+              :showAreaColor="true"
+              :chartData="[150, 180, 160, 200, 180, 220, 240]"
+            />
+          </ElCol>
+          <ElCol :xs="24" :sm="8" :md="8" class="mb-5">
+            <FaDonutChartCard
+              :value="36358"
+              title="粉丝量"
+              :percentage="18"
+              percentageLabel="较去年"
+              :data="[50, 40]"
+              :height="9.5"
+              currentValue="2022"
+              previousValue="2021"
+              :radius="['50%', '70%']"
+            />
+          </ElCol>
+        </ElRow>
       </ElCol>
-      <ElCol :xs="24" :sm="12" :md="12" class="mb-5">
-        <ElCard shadow="hover" class="flex flex-col h-full">
+      <ElCol :xs="24" :md="6">
+        <ElCard shadow="hover" class="flex flex-col h-108">
           <template #header>
             <div class="workplace-bookmarks-card__header">
               <div>
                 <span class="workplace-panel-title workplace-bookmarks-card__title-line">
                   <ElIcon class="workplace-bookmarks-card__star" :size="18"><Star /></ElIcon>
                   我的收藏
-                  <p class="workplace-section-sub workplace-section-sub--inline">
-                    最多 {{ QUICK_LINK_MAX }} 个 · 标签栏星标添加 · 仅本机
-                  </p>
                   <ElTag
                     v-if="quickLinks.length > 0"
                     type="info"
@@ -50,50 +116,46 @@
               :key="item.id || `${item.href}-${index}`"
               :xs="24"
               :sm="12"
-              :md="6"
-              :lg="6"
-              :xl="6"
-              class="mb-1"
+              :md="12"
+              class="mb-2.5"
             >
-              <ElTooltip placement="top" :show-after="400" :content="item.title">
+              <div
+                class="workplace-quick-row workplace-quick-row--chip"
+                role="button"
+                tabindex="0"
+                @click="handleQuickLinkClick(item)"
+                @keydown.enter.prevent="handleQuickLinkClick(item)"
+                @keydown.space.prevent="handleQuickLinkClick(item)"
+              >
+                <span
+                  class="workplace-quick-row__accent"
+                  :style="{ backgroundColor: getQuickLinkColor(getQuickLinkStableIndex(item)) }"
+                />
                 <div
-                  class="workplace-quick-row workplace-quick-row--compact workplace-quick-row--chip"
-                  role="button"
-                  tabindex="0"
-                  @click="handleQuickLinkClick(item)"
-                  @keydown.enter.prevent="handleQuickLinkClick(item)"
-                  @keydown.space.prevent="handleQuickLinkClick(item)"
+                  class="workplace-quick-row__icon"
+                  :style="{ color: getQuickLinkColor(getQuickLinkStableIndex(item)) }"
                 >
-                  <span
-                    class="workplace-quick-row__accent"
-                    :style="{ backgroundColor: getQuickLinkColor(getQuickLinkStableIndex(item)) }"
-                  />
-                  <div
-                    class="workplace-quick-row__icon"
-                    :style="{ color: getQuickLinkColor(getQuickLinkStableIndex(item)) }"
-                  >
-                    <FaMenuRouteIcon :icon="item.icon || 'menu'" />
-                  </div>
-                  <div class="workplace-quick-row__text">
-                    <span class="workplace-quick-row__title">{{ item.title }}</span>
-                  </div>
-                  <div class="workplace-quick-row__actions">
-                    <button
-                      type="button"
-                      class="workplace-quick-row__remove"
-                      :disabled="!item.id && !item.href"
-                      :title="item.id || item.href ? '移除收藏' : '无法移除（缺少路径）'"
-                      :aria-label="`移除收藏 ${item.title}`"
-                      @click.stop="handleDeleteLink(item)"
-                    >
-                      <ElIcon><Close /></ElIcon>
-                    </button>
-                  </div>
+                  <FaMenuRouteIcon :icon="item.icon || 'menu'" />
                 </div>
-              </ElTooltip>
+                <div class="workplace-quick-row__text">
+                  <span class="workplace-quick-row__title">{{ item.title }}</span>
+                </div>
+                <div class="workplace-quick-row__actions">
+                  <button
+                    type="button"
+                    class="workplace-quick-row__remove"
+                    :disabled="!item.id && !item.href"
+                    :title="item.id || item.href ? '移除收藏' : '无法移除（缺少路径）'"
+                    :aria-label="`移除收藏 ${item.title}`"
+                    @click.stop="handleDeleteLink(item)"
+                  >
+                    <ElIcon><Close /></ElIcon>
+                  </button>
+                </div>
+              </div>
             </ElCol>
           </ElRow>
-          <ElEmpty v-else :image-size="100">
+          <ElEmpty v-else :image-size="80">
             <template #description>
               <p class="workplace-quick-empty__title">暂无收藏</p>
               <p class="workplace-quick-empty__hint">
@@ -127,9 +189,6 @@
         <NewUser />
       </ElCol>
 
-      <ElCol :xs="24" :sm="12" :md="6" class="mb-5">
-        <HotProductsList />
-      </ElCol>
       <ElCol :xs="24" :sm="12" :md="6" class="mb-5">
         <TodoList />
       </ElCol>
@@ -176,7 +235,7 @@
           @cancel="handleBannerDemoCancel"
         />
       </ElCol>
-      <ElCol :xs="24" :sm="12" :md="12" class="mb-5">
+      <ElCol :xs="24" :sm="12" :md="18" class="mb-5">
         <AboutProject />
       </ElCol>
     </ElRow>
@@ -198,7 +257,11 @@ import FaCardBanner from "@/components/banners/fa-card-banner/index.vue";
 import FaImageCard from "@/components/cards/fa-image-card/index.vue";
 import FaDataListCard from "@/components/cards/fa-data-list-card/index.vue";
 import FaTimelineListCard from "@/components/cards/fa-timeline-list-card/index.vue";
-import HotProductsList from "./modules/hot-products-list.vue";
+import FaStatsCard from "@/components/cards/fa-stats-card/index.vue";
+import FaLineChartCard from "@/components/cards/fa-line-chart-card/index.vue";
+import FaBarChartCard from "@/components/cards/fa-bar-chart-card/index.vue";
+import FaDonutChartCard from "@/components/cards/fa-donut-chart-card/index.vue";
+import FaProgressCard from "@/components/cards/fa-progress-card/index.vue";
 import Banner from "./modules/banner.vue";
 import NewUser from "./modules/new-user.vue";
 import TodoList from "./modules/todo-list.vue";
@@ -314,6 +377,13 @@ const dataList = [
     time: "20分钟",
     class: "bg-success/12 text-success",
     icon: "ri:message-3-line",
+  },
+  {
+    title: "筛选任务团队",
+    status: "进行中",
+    time: "20分钟",
+    class: "bg-error/12 text-error",
+    icon: "ri:account-circle-line",
   },
 ];
 const timelineData = [
@@ -518,12 +588,6 @@ onUnmounted(() => {
   flex-shrink: 0;
   color: var(--el-text-color-secondary);
   cursor: help;
-}
-
-.workplace-quick-row--compact {
-  gap: 12px;
-  min-height: 24px;
-  padding: 0 6px;
 }
 
 .workplace-quick-row {

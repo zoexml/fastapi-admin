@@ -1,5 +1,5 @@
 <template>
-  <div class="fa-card p-5 overflow-hidden flex flex-col h-full">
+  <div class="fa-card flex flex-col p-5 h-[34.2rem] overflow-hidden">
     <div class="fa-card-header">
       <div class="title">
         <h4>新用户</h4>
@@ -24,15 +24,23 @@
     >
       <template #default>
         <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn label="头像" prop="avatar" width="150px">
+        <ElTableColumn label="头像" prop="avatar" width="130px">
           <template #default="scope">
             <div class="flex items-center">
               <img class="size-9 rounded-lg" :src="scope.row.avatar" alt="avatar" loading="eager" />
-              <span class="ml-2">{{ scope.row.username }}</span>
+              <div class="flex flex-col ml-3">
+                <div class="font-medium">{{ scope.row.username }}</div>
+                <div class="text-xs text-slate-500">{{ scope.row.province }}</div>
+              </div>
             </div>
           </template>
         </ElTableColumn>
-        <ElTableColumn label="地区" prop="province" />
+        <ElTableColumn label="价格" prop="price">
+          <template #default="scope">
+            <span class="font-semibold">¥{{ scope.row.price.toLocaleString() }}</span>
+          </template>
+        </ElTableColumn>
+
         <ElTableColumn label="性别" prop="avatar">
           <template #default="scope">
             <div class="flex items-center">
@@ -40,6 +48,17 @@
             </div>
           </template>
         </ElTableColumn>
+        <ElTableColumn label="库存" prop="stock" width="100px">
+          <template #default="scope">
+            <div
+              class="inline-block px-2 py-1 text-xs font-medium rounded"
+              :class="getStockClass(scope.row.stock)"
+            >
+              {{ getStockStatus(scope.row.stock) }}
+            </div>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn label="销量" prop="sales" />
         <ElTableColumn label="进度" width="240">
           <template #default="scope">
             <ElProgress
@@ -67,6 +86,9 @@ interface UserTableItem {
   username: string;
   province: string;
   sex: 0 | 1;
+  price: number;
+  stock: number;
+  sales: number;
   age: number;
   percentage: number;
   pro: number;
@@ -87,6 +109,9 @@ const tableData = reactive<UserTableItem[]>([
     username: "中小鱼",
     province: "北京",
     sex: 0,
+    price: 1299,
+    stock: 89,
+    sales: 652,
     age: 22,
     percentage: 60,
     pro: 0,
@@ -97,6 +122,9 @@ const tableData = reactive<UserTableItem[]>([
     username: "何小荷",
     province: "深圳",
     sex: 1,
+    price: 299,
+    stock: 12,
+    sales: 238,
     age: 21,
     percentage: 20,
     pro: 0,
@@ -107,6 +135,9 @@ const tableData = reactive<UserTableItem[]>([
     username: "誶誶淰",
     province: "上海",
     sex: 1,
+    price: 99,
+    stock: 0,
+    sales: 126,
     age: 23,
     percentage: 60,
     pro: 0,
@@ -117,6 +148,9 @@ const tableData = reactive<UserTableItem[]>([
     username: "发呆草",
     province: "长沙",
     sex: 0,
+    price: 399,
+    stock: 45,
+    sales: 321,
     age: 28,
     percentage: 50,
     pro: 0,
@@ -127,6 +161,9 @@ const tableData = reactive<UserTableItem[]>([
     username: "甜筒",
     province: "浙江",
     sex: 1,
+    price: 1599,
+    stock: 78,
+    sales: 489,
     age: 26,
     percentage: 70,
     pro: 0,
@@ -137,6 +174,35 @@ const tableData = reactive<UserTableItem[]>([
     username: "冷月呆呆",
     province: "湖北",
     sex: 1,
+    price: 1059,
+    stock: 0,
+    sales: 0,
+    age: 25,
+    percentage: 90,
+    pro: 0,
+    color: "var(--fa-success)",
+    avatar: avatar6,
+  },
+  {
+    username: "冷呆呆",
+    province: "湖北",
+    sex: 1,
+    price: 1059,
+    stock: 0,
+    sales: 0,
+    age: 25,
+    percentage: 90,
+    pro: 0,
+    color: "var(--fa-success)",
+    avatar: avatar6,
+  },
+  {
+    username: "冷月呆呆",
+    province: "湖北",
+    sex: 1,
+    price: 1059,
+    stock: 0,
+    sales: 0,
     age: 25,
     percentage: 90,
     pro: 0,
@@ -144,6 +210,33 @@ const tableData = reactive<UserTableItem[]>([
     avatar: avatar6,
   },
 ]);
+
+const STOCK_THRESHOLD = {
+  LOW: 20,
+  MEDIUM: 50,
+} as const;
+
+/**
+ * 根据库存数量获取状态文本
+ */
+const getStockStatus = (stock: number): string => {
+  if (stock === 0) return "缺货";
+  if (stock < STOCK_THRESHOLD.LOW) return "低库存";
+  if (stock < STOCK_THRESHOLD.MEDIUM) return "适中";
+  return "充足";
+};
+
+/**
+ * 根据库存数量获取状态样式类名
+ * @param stock 库存数量
+ * @returns CSS 类名
+ */
+const getStockClass = (stock: number): string => {
+  if (stock === 0) return "text-danger bg-danger/12";
+  if (stock < STOCK_THRESHOLD.LOW) return "text-warning bg-warning/12";
+  if (stock < STOCK_THRESHOLD.MEDIUM) return "text-info bg-info/12";
+  return "text-success bg-success/12";
+};
 
 /**
  * 添加进度条动画效果

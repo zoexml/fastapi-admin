@@ -6,7 +6,7 @@
       <p class="text-sm text-g-600">{{ subtitle }}</p>
     </div>
     <ElScrollbar :style="{ height: maxHeight }">
-      <div v-for="(item, index) in list" :key="index" class="flex-c py-3">
+      <div v-for="(item, index) in list" :key="index" class="flex-c py-2">
         <div v-if="item.icon" class="flex-cc mr-3 size-10 rounded-lg" :class="item.class">
           <FaSvgIcon :icon="item.icon" class="text-xl" />
         </div>
@@ -57,7 +57,7 @@ interface Activity {
   icon: string;
 }
 
-const ITEM_HEIGHT = 66;
+const ITEM_HEIGHT = 70;
 const DEFAULT_MAX_COUNT = 5;
 
 const props = withDefaults(defineProps<Props>(), {

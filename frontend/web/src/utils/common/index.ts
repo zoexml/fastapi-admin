@@ -525,8 +525,8 @@ export async function fetchAllPages<T>(options: FetchAllPagesOptions<T>): Promis
 
 import { ElMessage } from "element-plus";
 
-/** 收藏数量上限（工作台「我的收藏」为 3 列 × 最多 5 排，共 15 个） */
-export const QUICK_LINK_MAX = 15;
+/** 收藏数量上限（工作台「我的收藏」为 2 列 × 最多 6 排，共 12 个） */
+export const QUICK_LINK_MAX = 12;
 
 /**
  * 快速链接数据类型
