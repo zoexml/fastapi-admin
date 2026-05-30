@@ -61,9 +61,19 @@ pull_code() {
         script_md5=$(md5 -q "$0")
     fi
     if [ -d ".git" ]; then
-        log "分支: $(git rev-parse --abbrev-ref HEAD)"
-        git fetch origin || true
-        git pull || { log "git pull 失败" "ERROR"; exit 1; }
+        local branch
+        branch=$(git rev-parse --abbrev-ref HEAD)
+        log "分支: ${branch}"
+        local old_head
+        old_head=$(git rev-parse HEAD 2>/dev/null || echo "")
+        git fetch origin || { log "git fetch 失败" "ERROR"; exit 1; }
+        git reset --hard "origin/${branch}" || { log "git reset 失败" "ERROR"; exit 1; }
+        local new_head
+        new_head=$(git rev-parse HEAD 2>/dev/null || echo "")
+        if [ -n "$old_head" ] && [ "$old_head" != "$new_head" ]; then
+            log "📋 本次拉取提交："
+            git log --oneline --no-decorate "${old_head}..${new_head}" 2>/dev/null | sed 's/^/    /' || true
+        fi
         # deploy.sh 自身有更新则重载
         if [ -n "$script_md5" ]; then
             local new_md5=""
@@ -83,7 +93,7 @@ pull_code() {
 build_image() {
     cd "${DOCKER_DIR}"
     export DOCKER_BUILDKIT=1
-    docker compose build --no-cache || { log "镜像构建失败" "ERROR"; exit 1; }
+    docker compose build || { log "镜像构建失败" "ERROR"; exit 1; }
     log "✅ 镜像构建完成" "SUCCESS"
 }
 
