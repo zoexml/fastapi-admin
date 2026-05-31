@@ -65,23 +65,5 @@ const qrPayload = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import "@styles/fa-login.css";
-
-.login-qr-flow {
-  margin-top: 1rem;
-}
-
-.login-qr-card {
-  box-sizing: border-box;
-}
-
-/* EP：相邻按钮横向间距；单列返回按钮无需处理 */
-.login-mobile-actions {
-  :deep(.el-button) {
-    box-sizing: border-box;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-  }
-}
+@use "@styles/custom/fa-login";
 </style>

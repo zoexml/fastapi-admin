@@ -23,6 +23,13 @@ module.exports = {
     "no-empty-source": null,
     "property-no-vendor-prefix": null,
     "at-rule-empty-line-before": null,
+    // 允许 placeholder mixin 中必要的浏览器前缀（:-ms-input-placeholder、::-webkit-input-placeholder）
+    "selector-no-vendor-prefix": [
+      true,
+      {
+        ignoreSelectors: ["::-webkit-input-placeholder", ":-ms-input-placeholder"],
+      },
+    ],
     // 允许 Vue SFC :deep() / ::deep / :global() / :slotted() 伪选择器
     "selector-pseudo-class-no-unknown": [
       true,

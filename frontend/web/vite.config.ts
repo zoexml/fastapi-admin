@@ -267,7 +267,7 @@ export default ({ mode }: { mode: string }) => {
       preprocessorOptions: {
         scss: {
           additionalData: `
-            @use "@styles/core/el-light.scss" as *; 
+            @use "@styles/core/variables.scss" as *;
             @use "@styles/core/mixin.scss" as *;
           `,
         },

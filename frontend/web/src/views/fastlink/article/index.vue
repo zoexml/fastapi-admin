@@ -27,7 +27,7 @@
           <FaSvgIcon icon="ri:message-3-line" class="mr-1" />
           留言墙
         </ElButton>
-        <ElButton type="primary" @click="toAddArticle" v-auth="'add'">新增文章</ElButton>
+        <ElButton type="primary" @click="toAddArticle">新增文章</ElButton>
       </ElCol>
     </ElRow>
 
@@ -65,7 +65,6 @@
               </div>
               <ElButton
                 class="opacity-0 group-hover:opacity-100"
-                v-auth="'edit'"
                 size="small"
                 @click.stop="toEdit(item)"
               >

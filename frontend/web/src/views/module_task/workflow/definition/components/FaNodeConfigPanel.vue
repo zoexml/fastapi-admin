@@ -207,7 +207,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .node-config-panel {
   display: flex;
   flex-direction: column;

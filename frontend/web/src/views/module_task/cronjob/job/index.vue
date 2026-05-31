@@ -18,7 +18,7 @@
     />
 
     <ElCard
-      class="flex flex-1 min-h-0 flex-col fa-table-card"
+      class="flex flex-1 min-h-0 flex-col fa-table-card job-page-card"
       :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
     >
       <FaTableHeader
@@ -29,30 +29,43 @@
         @refresh="refreshJobList"
       >
         <template #left>
-          <div class="status-content">
-            <span>调度器监控</span>
-            <div class="status-item">
-              <span class="label">状态：</span>
-              <ElTag :type="getSchedulerStatusType(schedulerStatus.status)" size="large">
-                {{ schedulerStatus.status }}
-              </ElTag>
+          <div class="scheduler-inline">
+            <div class="scheduler-metrics">
+              <div class="scheduler-metric">
+                <span class="scheduler-metric__label">调度器</span>
+                <ElTag
+                  :type="getSchedulerStatusType(schedulerStatus.status)"
+                  size="small"
+                  effect="dark"
+                >
+                  {{ schedulerStatus.status }}
+                </ElTag>
+              </div>
+              <ElDivider direction="vertical" />
+              <div class="scheduler-metric">
+                <span class="scheduler-metric__label">运行中</span>
+                <ElTag
+                  :type="schedulerStatus.is_running ? 'success' : 'info'"
+                  size="small"
+                  effect="dark"
+                >
+                  {{ schedulerStatus.is_running ? "是" : "否" }}
+                </ElTag>
+              </div>
+              <ElDivider direction="vertical" />
+              <div class="scheduler-metric">
+                <span class="scheduler-metric__label">任务</span>
+                <span class="scheduler-metric__count">{{ schedulerStatus.job_count }}</span>
+              </div>
             </div>
-            <div class="status-item">
-              <span class="label">运行中：</span>
-              <ElTag :type="schedulerStatus.is_running ? 'success' : 'danger'" size="large">
-                {{ schedulerStatus.is_running ? "是" : "否" }}
-              </ElTag>
-            </div>
-            <div class="status-item">
-              <span class="label">任务数量：</span>
-              <ElTag type="warning" size="large">{{ schedulerStatus.job_count }}</ElTag>
-            </div>
-            <div class="status-actions">
+            <ElDivider direction="vertical" />
+            <div class="scheduler-actions">
               <ElButton
                 v-hasPerm="['module_task:cronjob:job:scheduler']"
                 type="success"
                 icon="VideoPlay"
                 :disabled="schedulerStatus.status !== '停止'"
+                size="small"
                 @click="handleStartScheduler"
               >
                 启动
@@ -62,6 +75,7 @@
                 type="warning"
                 icon="VideoPause"
                 :disabled="schedulerStatus.status !== '运行中'"
+                size="small"
                 @click="handlePauseScheduler"
               >
                 暂停
@@ -71,6 +85,7 @@
                 type="primary"
                 icon="RefreshRight"
                 :disabled="schedulerStatus.status !== '暂停'"
+                size="small"
                 @click="handleResumeScheduler"
               >
                 恢复
@@ -80,15 +95,19 @@
                 type="danger"
                 icon="SwitchButton"
                 :disabled="schedulerStatus.status === '停止'"
+                size="small"
                 @click="handleShutdownScheduler"
               >
                 关闭
               </ElButton>
+              <ElDivider direction="vertical" />
               <ElButton
                 v-hasPerm="['module_task:cronjob:job:task']"
                 type="danger"
                 icon="Delete"
                 :disabled="schedulerStatus.job_count === 0"
+                size="small"
+                plain
                 @click="handleClearAllJobs"
               >
                 清空任务
@@ -97,6 +116,7 @@
                 v-hasPerm="['module_task:cronjob:job:query']"
                 type="info"
                 icon="Monitor"
+                size="small"
                 @click="handleOpenConsole"
               >
                 控制台
@@ -105,24 +125,18 @@
                 v-hasPerm="['module_task:cronjob:job:scheduler']"
                 type="primary"
                 icon="Refresh"
+                size="small"
+                plain
                 @click="handleSyncJobs"
               >
                 同步
-              </ElButton>
-              <ElButton
-                v-hasPerm="['module_task:cronjob:job:update']"
-                type="warning"
-                icon="Refresh"
-                @click="refreshJobList"
-              >
-                刷新
               </ElButton>
             </div>
           </div>
         </template>
       </FaTableHeader>
 
-      <div v-loading="jobLoading" class="job-cards-container min-h-0 flex-1 overflow-auto">
+      <div v-loading="jobLoading" class="job-cards-container mt-3 min-h-0 flex-1 overflow-auto">
         <ElEmpty
           v-if="!jobLoading && (!jobList || jobList.length === 0)"
           :image-size="80"
@@ -130,123 +144,99 @@
         />
         <ElRow v-else :gutter="16">
           <ElCol
-            v-for="(job, index) in jobList"
+            v-for="job in jobList"
             :key="job.id"
             :xs="24"
             :sm="12"
-            :md="8"
-            :lg="6"
+            :md="6"
+            :lg="4"
             class="job-card-col"
           >
-            <ElCard class="job-card" shadow="hover">
+            <ElCard shadow="hover" :class="`job-card job-card--${getJobStatusClass(job.status)}`">
               <template #header>
-                <div class="job-card-header">
-                  <div class="job-card-title">
-                    <span class="job-index">{{ index + 1 }}</span>
-                    <span class="job-name" :title="job.name">{{ job.name }}</span>
-                  </div>
-                  <ElTag :type="getJobStatusType(job.status)" size="small">
+                <div class="job-card-title">
+                  <span
+                    class="job-card-dot"
+                    :class="`job-card-dot--${getJobStatusClass(job.status)}`"
+                  />
+                  <span class="job-card-name" :title="job.name">{{ job.name }}</span>
+                  <ElTag :type="getJobStatusType(job.status)" size="small" effect="dark">
                     {{ getJobStatusLabel(job.status) }}
                   </ElTag>
                 </div>
               </template>
 
               <div class="job-card-body">
-                <div class="job-info-item">
-                  <span class="job-info-label">任务ID:</span>
-                  <span class="job-info-value">{{ job.id }}</span>
+                <div class="job-card-body-row">
+                  <FaSvgIcon :icon="getTriggerIcon(job.trigger)" class="job-card-meta-icon" />
+                  <span class="job-card-meta-text">{{ formatTrigger(job.trigger) }}</span>
                 </div>
-                <div class="job-info-item">
-                  <span class="job-info-label">触发器:</span>
-                  <ElTag
-                    v-if="String(job.trigger ?? '').includes('cron')"
-                    type="primary"
-                    size="small"
-                    class="job-trigger-tag"
-                  >
-                    <ElIcon><Clock /></ElIcon>
-                    {{ formatTrigger(job.trigger) }}
-                  </ElTag>
-                  <ElTag
-                    v-else-if="String(job.trigger ?? '').includes('interval')"
-                    type="success"
-                    size="small"
-                    class="job-trigger-tag"
-                  >
-                    <ElIcon><Timer /></ElIcon>
-                    {{ formatTrigger(job.trigger) }}
-                  </ElTag>
-                  <ElTag
-                    v-else-if="String(job.trigger ?? '').includes('date')"
-                    type="warning"
-                    size="small"
-                    class="job-trigger-tag"
-                  >
-                    <ElIcon><Calendar /></ElIcon>
-                    {{ formatTrigger(job.trigger) }}
-                  </ElTag>
-                  <ElTag v-else type="info" size="small" class="job-trigger-tag">
-                    {{ formatTrigger(job.trigger) }}
-                  </ElTag>
-                </div>
-                <div class="job-info-item">
-                  <span class="job-info-label">下次执行:</span>
-                  <span class="job-info-value">{{ job.next_run_time || "无" }}</span>
+                <div class="job-card-body-row">
+                  <FaSvgIcon icon="ri:time-line" class="job-card-meta-icon" />
+                  <span class="job-card-meta-text">{{ job.next_run_time || "暂无" }}</span>
                 </div>
               </div>
 
               <template #footer>
-                <div class="job-card-footer">
-                  <ElButton
-                    v-if="job.status === '暂停中'"
-                    v-hasPerm="['module_task:cronjob:job:task']"
-                    type="primary"
-                    size="small"
-                    icon="VideoPlay"
-                    @click="handleResumeJob(job.id)"
-                  >
-                    恢复
-                  </ElButton>
-                  <ElButton
-                    v-if="job.status === '运行中'"
-                    v-hasPerm="['module_task:cronjob:job:task']"
-                    type="warning"
-                    size="small"
-                    icon="VideoPause"
-                    @click="handlePauseJob(job.id)"
-                  >
-                    暂停
-                  </ElButton>
-                  <ElButton
-                    v-if="job.status !== '已停止' && job.status !== '未知'"
-                    v-hasPerm="['module_task:cronjob:job:task']"
-                    type="success"
-                    size="small"
-                    icon="CaretRight"
-                    @click="handleRunJobNow(job.id)"
-                  >
-                    调试
-                  </ElButton>
-                  <ElButton
-                    v-if="job.status !== '未知'"
-                    v-hasPerm="['module_task:cronjob:job:task']"
-                    type="danger"
-                    size="small"
-                    icon="Close"
-                    @click="handleRemoveJob(job.id)"
-                  >
-                    移除
-                  </ElButton>
-                  <ElButton
-                    v-hasPerm="['module_task:cronjob:job:query']"
-                    type="info"
-                    size="small"
-                    icon="List"
-                    @click="handleOpenExecutionLogDrawer(job)"
-                  >
-                    记录
-                  </ElButton>
-                </div>
+                <ElRow :gutter="8">
+                  <ElCol :span="6">
+                    <ElButton
+                      v-hasPerm="['module_task:cronjob:job:task']"
+                      :type="job.status === '暂停中' ? 'primary' : 'warning'"
+                      size="small"
+                      plain
+                      class="w-full"
+                      :icon="job.status === '暂停中' ? 'VideoPlay' : 'VideoPause'"
+                      :disabled="job.status !== '暂停中' && job.status !== '运行中'"
+                      @click="
+                        job.status === '暂停中' ? handleResumeJob(job.id) : handlePauseJob(job.id)
+                      "
+                    >
+                      {{ job.status === "暂停中" ? "恢复" : "暂停" }}
+                    </ElButton>
+                  </ElCol>
+                  <ElCol :span="6">
+                    <ElButton
+                      v-hasPerm="['module_task:cronjob:job:task']"
+                      type="success"
+                      size="small"
+                      plain
+                      class="w-full"
+                      icon="CaretRight"
+                      :disabled="job.status === '已停止' || job.status === '未知'"
+                      @click="handleRunJobNow(job.id)"
+                    >
+                      调试
+                    </ElButton>
+                  </ElCol>
+                  <ElCol :span="6">
+                    <ElButton
+                      v-hasPerm="['module_task:cronjob:job:query']"
+                      type="info"
+                      size="small"
+                      plain
+                      class="w-full"
+                      icon="List"
+                      @click="handleOpenExecutionLogDrawer(job)"
+                    >
+                      记录
+                    </ElButton>
+                  </ElCol>
+                  <ElCol :span="6">
+                    <ElButton
+                      v-hasPerm="['module_task:cronjob:job:task']"
+                      type="danger"
+                      size="small"
+                      plain
+                      class="w-full"
+                      icon="Close"
+                      :disabled="job.status === '未知'"
+                      @click="handleRemoveJob(job.id)"
+                    >
+                      移除
+                    </ElButton>
+                  </ElCol>
+                </ElRow>
               </template>
             </ElCard>
           </ElCol>
@@ -362,8 +352,7 @@ import FaTableHeaderLeft from "@/components/tables/fa-table-header-left/index.vu
 import FaJsonPretty from "@/components/others/fa-json-pretty/index.vue";
 import { useTable } from "@/hooks/core/useTable";
 import type { ColumnOption } from "@/types/component";
-import { Calendar, Clock, Timer } from "@element-plus/icons-vue";
-import { ElMessage, ElMessageBox, ElTag } from "element-plus";
+import { ElDivider, ElMessage, ElMessageBox, ElTag } from "element-plus";
 import { computed, h, nextTick, onMounted, ref } from "vue";
 import { Terminal, TerminalApi } from "vue-web-terminal";
 
@@ -996,6 +985,27 @@ function getTriggerTypeLabel(type: string | undefined) {
   return map[type || ""] || type || "-";
 }
 
+function getJobStatusClass(status: string) {
+  switch (status) {
+    case "运行中":
+      return "running";
+    case "暂停中":
+      return "paused";
+    case "已停止":
+      return "stopped";
+    default:
+      return "unknown";
+  }
+}
+
+function getTriggerIcon(trigger: string | undefined) {
+  const t = (trigger ?? "").toLowerCase();
+  if (t.includes("cron")) return "ri:timer-line";
+  if (t.includes("interval")) return "ri:repeat-line";
+  if (t.includes("date")) return "ri:calendar-event-line";
+  return "ri:flashlight-line";
+}
+
 function getLogStatusType(status: string): "primary" | "success" | "warning" | "info" | "danger" {
   const map: Record<string, "primary" | "success" | "warning" | "info" | "danger"> = {
     pending: "info",
@@ -1033,108 +1043,163 @@ function handleViewJobState(row: JobLogTable) {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .job-page :deep(.data-table) {
   height: 100%;
-}
-
-.status-content {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-}
-
-.status-item {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.status-item .label {
-  font-weight: 500;
-}
-
-.status-actions {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
 }
 
 .terminal-wrapper {
   height: 500px;
 }
 
-.job-card-header {
+.scheduler-inline {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 4px;
   align-items: center;
-  justify-content: space-between;
+
+  .el-divider--vertical {
+    height: 18px;
+    margin: 0 2px;
+  }
+}
+
+.scheduler-metrics {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.scheduler-metric {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  white-space: nowrap;
+
+  &__label {
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+  }
+
+  &__count {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--el-color-warning);
+  }
+}
+
+.scheduler-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+
+  .el-divider--vertical {
+    height: 18px;
+    margin: 0 2px;
+  }
+}
+
+.job-page-card {
+  :deep(.el-card__body) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+.job-card-col {
+  margin-bottom: 16px;
+}
+
+.job-card {
+  transition: box-shadow 0.25s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgb(0 0 0 / 6%);
+  }
+
+  :deep(.el-card__header) {
+    padding: 8px 14px;
+  }
+
+  :deep(.el-card__body) {
+    padding: 8px 14px;
+  }
+
+  :deep(.el-card__footer) {
+    padding: 8px 14px;
+  }
 }
 
 .job-card-title {
   display: flex;
-  flex: 1;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   min-width: 0;
 }
 
-.job-index {
-  display: inline-flex;
+.job-card-dot {
   flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #fff;
-  background: linear-gradient(
-    135deg,
-    var(--el-color-primary) 0%,
-    var(--el-color-primary-dark-2) 100%
-  );
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+
+  &--running {
+    background: var(--el-color-success);
+  }
+
+  &--paused {
+    background: var(--el-color-warning);
+  }
+
+  &--stopped {
+    background: var(--el-color-danger);
+  }
+
+  &--unknown {
+    background: var(--el-color-info);
+  }
 }
 
-.job-name {
+.job-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+
+  &-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+  }
+}
+
+.job-card-name {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
 }
 
-.job-info-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 13px;
-}
-
-.job-info-item:last-child {
-  margin-bottom: 0;
-}
-
-.job-info-label {
+.job-card-meta-icon {
   flex-shrink: 0;
-  width: 70px;
+  font-size: 13px;
+  color: var(--el-color-primary-light-3);
 }
 
-.job-info-value {
-  flex: 1;
+.job-card-meta-text {
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
   white-space: nowrap;
-}
-
-.job-card-footer {
-  display: flex;
-  justify-content: space-between;
-}
-
-.job-card-footer .el-button {
-  flex: 1;
 }
 
 .execution-log-drawer {

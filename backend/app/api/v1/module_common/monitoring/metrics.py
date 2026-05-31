@@ -10,6 +10,8 @@
 """
 
 from fastapi import FastAPI
+from fastapi.responses import Response
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from prometheus_fastapi_instrumentator import Instrumentator, metrics
 
 
@@ -72,11 +74,11 @@ def setup_metrics(app: FastAPI) -> None:
         )
     )
 
-    # 启动采集并暴露 /metrics 端点
-    instrumentator.instrument(app).expose(
-        app,
-        endpoint="/metrics",
-        include_in_schema=True,
-        tags=["Metrics"],
-        response_class=None,  # 返回原生 Prometheus 文本格式
-    )
+    # 启动采集
+    instrumentator.instrument(app)
+
+    # 手动注册 /metrics 端点，避免 prometheus_fastapi_instrumentator.expose()
+    # 的 response_class=None 与 FastAPI OpenAPI 生成不兼容的问题
+    @app.get("/metrics", include_in_schema=False)
+    async def metrics_endpoint():
+        return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)

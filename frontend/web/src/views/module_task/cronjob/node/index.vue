@@ -932,7 +932,8 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
+<!-- popover 挂载到 body，需单独写；修复 vue3-cron-plus 全局 .el-tag--info { margin-left: -60px } 误伤多选下拉里 tag -->
+<style scoped lang="scss">
 .code-editor-container {
   display: flex;
   flex-direction: column;
@@ -1004,10 +1005,7 @@ onMounted(async () => {
   padding-right: 10px;
   padding-left: 10px;
 }
-</style>
 
-<!-- popover 挂载到 body，需单独写；修复 vue3-cron-plus 全局 .el-tag--info { margin-left: -60px } 误伤多选下拉里 tag -->
-<style lang="scss">
 .node-cron-popover-fix {
   .vue3-cron-plus-container .el-select .el-tag {
     margin-left: 0 !important;
