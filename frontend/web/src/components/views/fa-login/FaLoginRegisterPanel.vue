@@ -133,6 +133,6 @@ defineExpose({
 });
 </script>
 
-<style scoped>
-@import "@styles/fa-login.css";
+<style scoped lang="scss">
+@use "@styles/custom/fa-login";
 </style>

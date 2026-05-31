@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watchEffect } from "vue";
+import DOMPurify from "dompurify";
 
 interface Props {
   size?: string | number;
@@ -68,7 +69,7 @@ const loadSvgContent = async () => {
     }
 
     const content = await response.text();
-    svgContent.value = applyThemeToSvg(content);
+    svgContent.value = DOMPurify.sanitize(applyThemeToSvg(content));
   } catch (error) {
     console.error("Failed to load SVG:", error);
     svgContent.value = "";

@@ -521,12 +521,4 @@ async function submitForm() {
 }
 </script>
 
-<style scoped lang="scss">
-.crud-dialog-art-form :deep(.el-row > .el-col:last-child) {
-  display: none;
-}
-
-.crud-dialog-art-form :deep(.el-form-item__content) {
-  max-width: 100%;
-}
-</style>
+<style scoped lang="scss"></style>

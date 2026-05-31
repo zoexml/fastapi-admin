@@ -6,16 +6,16 @@
     @mouseleave="showHandles = false"
   >
     <div class="node-content">
-      <span class="node-label">{{ data.label }}</span>
-      <span v-if="data.config && Object.keys(data.config).length > 0" class="node-badge">
-        {{ Object.keys(data.config).length }}
+      <span class="node-label">{{ nodeData.label }}</span>
+      <span v-if="nodeData.config && Object.keys(nodeData.config).length > 0" class="node-badge">
+        {{ Object.keys(nodeData.config).length }}
       </span>
     </div>
     <Handle
       v-if="nodeType.code !== 'input'"
       :id="'top-' + id"
       type="target"
-      position="top"
+      :position="Position.Top"
       :class="{ 'handle-visible': showHandles }"
       :style="{ background: nodeType.color || '#3b82f6' }"
     />
@@ -23,7 +23,7 @@
       v-if="nodeType.code !== 'input'"
       :id="'left-' + id"
       type="target"
-      position="left"
+      :position="Position.Left"
       :class="{ 'handle-visible': showHandles }"
       :style="{ background: nodeType.color || '#3b82f6' }"
     />
@@ -31,7 +31,7 @@
       v-if="nodeType.code !== 'output'"
       :id="'right-' + id"
       type="source"
-      position="right"
+      :position="Position.Right"
       :class="{ 'handle-visible': showHandles }"
       :style="{ background: nodeType.color || '#3b82f6' }"
     />
@@ -39,16 +39,16 @@
       v-if="nodeType.code !== 'output'"
       :id="'bottom-' + id"
       type="source"
-      position="bottom"
+      :position="Position.Bottom"
       :class="{ 'handle-visible': showHandles }"
       :style="{ background: nodeType.color || '#3b82f6' }"
     />
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, computed } from "vue";
-import { Handle } from "@vue-flow/core";
+import { Handle, Position } from "@vue-flow/core";
 
 const props = defineProps({
   id: String,
@@ -58,36 +58,40 @@ const props = defineProps({
 
 const showHandles = ref(false);
 
+const nodeData = computed(
+  () => props.data ?? { label: "", config: {}, type: undefined, category: undefined }
+);
+
 const nodeType = computed(() => {
   return {
-    code: props.data?.type || "custom",
-    name: props.data?.label || "自定义节点",
-    color: getCategoryColor(props.data?.category),
+    code: nodeData.value?.type || "custom",
+    name: nodeData.value?.label || "自定义节点",
+    color: getCategoryColor(nodeData.value?.category),
   };
 });
 
-function getCategoryColor(category) {
+function getCategoryColor(category: string | undefined) {
   const colorMap = {
     trigger: "#e6a23c",
     action: "#409eff",
     condition: "#67c23a",
     control: "#909399",
   };
-  return colorMap[category] || "#409eff";
+  return colorMap[category as keyof typeof colorMap] || "#409eff";
 }
 
 const nodeClass = computed(() => {
-  if (props.data?.type === "input") {
+  if (nodeData.value?.type === "input") {
     return "start-node";
   }
-  if (props.data?.type === "output") {
+  if (nodeData.value?.type === "output") {
     return "end-node";
   }
   return "custom-node";
 });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .vue-flow__node-input {
   display: flex !important;
   align-items: center !important;

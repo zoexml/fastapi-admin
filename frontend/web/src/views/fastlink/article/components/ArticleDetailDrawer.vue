@@ -25,9 +25,7 @@
           留言讨论
         </ElButton>
         <ElButton @click="visible = false">关闭</ElButton>
-        <ElButton v-if="articleId != null" v-auth="'edit'" type="primary" @click="onEditClick">
-          编辑
-        </ElButton>
+        <ElButton v-if="articleId != null" type="primary" @click="onEditClick"> 编辑 </ElButton>
       </div>
     </template>
   </ElDrawer>
@@ -37,6 +35,7 @@
 import "@styles/core/md.scss";
 import "@styles/custom/one-dark-pro.scss";
 import axios from "axios";
+import DOMPurify from "dompurify";
 
 defineOptions({ name: "ArticleDetailDrawer" });
 
@@ -91,7 +90,7 @@ const fetchDetail = async () => {
 
     if (data.code === 200) {
       articleTitle.value = data.data.title;
-      articleHtml.value = data.data.html_content;
+      articleHtml.value = DOMPurify.sanitize(data.data.html_content);
     } else {
       error.value = "文章加载失败";
     }

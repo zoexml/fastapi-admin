@@ -112,7 +112,7 @@
           </template>
           <template #reply_content>
             <div v-if="detailFormData.reply" class="ticket-html-preview">
-              <div v-html="detailFormData.reply" />
+              <div v-html="sanitizedReply" />
             </div>
             <p v-else class="ticket-html-empty">暂无回复</p>
           </template>
@@ -217,6 +217,7 @@ import FaForm from "@/components/forms/fa-form/index.vue";
 import FaWangEditor from "@/components/forms/fa-wang-editor/index.vue";
 import { ElTag, ElMessage, ElSelect, ElOption, ElRadioGroup, ElRadio } from "element-plus";
 import { h } from "vue";
+import DOMPurify from "dompurify";
 
 defineOptions({
   name: "Ticket",
@@ -384,12 +385,21 @@ const ticketDetailItems: import("@/components/others/fa-descriptions/index.vue")
     { label: "更新时间", prop: "updated_time" },
   ];
 
-/** 详情富文本 HTML（用于预览） */
+/** 详情富文本 HTML（用于预览，已做 XSS 净化） */
 const detailContentHtml = computed({
-  get: () => detailFormData.value.ticket_content ?? "",
+  get: () => {
+    const raw = detailFormData.value.ticket_content ?? "";
+    return DOMPurify.sanitize(raw);
+  },
   set: (v: string) => {
     detailFormData.value.ticket_content = v;
   },
+});
+
+/** 回复富文本 HTML（已做 XSS 净化） */
+const sanitizedReply = computed(() => {
+  const raw = detailFormData.value.reply ?? "";
+  return raw ? DOMPurify.sanitize(raw) : "";
 });
 
 /** 详情是否有可视文本 */

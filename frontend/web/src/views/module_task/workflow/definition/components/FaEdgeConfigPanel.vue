@@ -33,7 +33,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { ElButton, ElColorPicker, ElMessage, ElIcon } from "element-plus";
 import { Close } from "@element-plus/icons-vue";
@@ -156,7 +156,7 @@ function handleDelete() {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .edge-config-panel {
   display: flex;
   flex-direction: column;

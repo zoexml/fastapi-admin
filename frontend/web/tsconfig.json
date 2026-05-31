@@ -27,7 +27,7 @@
       "@styles": ["./src/styles"],
       "@api/*": ["./src/api/*"],
       "@fa_imgs/*": ["./src/assets/fa_imgs/*"],
-      "@fa_imgs": ["./src/assets/fa_imgs"],
+      "@fa_imgs": ["./src/assets/fa_imgs"]
     }
   },
   "include": [

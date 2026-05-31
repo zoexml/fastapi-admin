@@ -55,7 +55,6 @@
   -o-animation: $animate;
   animation: $animate;
 
-  /* stylelint-disable-next-line at-rule-prelude-no-invalid */
   @keyframes #{$name} {
     from {
       @each $key, $value in $from {
@@ -66,6 +65,20 @@
     to {
       @each $key, $value in $to {
         #{$key}: #{$value};
+      }
+    }
+  }
+
+  @keyframes #{$name} {
+    from {
+      @each $key, $value in $from {
+        $key: $value;
+      }
+    }
+
+    to {
+      @each $key, $value in $to {
+        $key: $value;
       }
     }
   }
@@ -83,19 +96,44 @@
 
 // placeholder
 @mixin placeholder($color: #bbb) {
+  // Firefox
   &::placeholder {
     color: $color;
     opacity: 1;
   }
 
-  // Safari and Chrome (legacy)
-  /* stylelint-disable-next-line selector-no-vendor-prefix */
+  // Internet Explorer 10+
+  &:-ms-input-placeholder {
+    color: $color;
+  }
+
+  // Safari and Chrome
   &::-webkit-input-placeholder {
     color: $color;
   }
 
   &:placeholder-shown {
     text-overflow: ellipsis;
+  }
+}
+
+//背景透明，文字不透明。兼容IE8
+@mixin betterTransparentize($color, $alpha) {
+  $c: rgba($color, $alpha);
+  $ie_c: ie_hex_str($c);
+
+  zoom: 1;
+  background: rgba($color, 1);
+  background: $c;
+  background: transparent \9;
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#{$ie_c}, endColorstr=#{$ie_c})";
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#{$ie_c}, endColorstr=#{$ie_c});
+}
+
+//添加浏览器前缀
+@mixin browserPrefix($propertyName, $value) {
+  @each $prefix in -webkit-, -moz-, -ms-, -o-, "" {
+    #{$prefix}#{$propertyName}: $value;
   }
 }
 

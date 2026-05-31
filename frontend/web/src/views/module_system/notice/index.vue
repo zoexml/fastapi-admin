@@ -170,6 +170,7 @@ import FaUserTableSelect from "@/components/forms/fa-search-bar/FaUserTableSelec
 import FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import FaForm from "@/components/forms/fa-form/index.vue";
 import { ElTag, ElMessage } from "element-plus";
+import DOMPurify from "dompurify";
 
 defineOptions({
   name: "Notice",
@@ -307,9 +308,12 @@ const noticeDetailItems: import("@/components/others/fa-descriptions/index.vue")
     { label: "更新时间", prop: "updated_time" },
   ];
 
-/** 详情富文本 HTML（用于预览） */
+/** 详情富文本 HTML（用于预览，已做 XSS 净化） */
 const detailContentHtml = computed({
-  get: () => detailFormData.value.notice_content ?? "",
+  get: () => {
+    const raw = detailFormData.value.notice_content ?? "";
+    return DOMPurify.sanitize(raw);
+  },
   set: (v: string) => {
     detailFormData.value.notice_content = v;
   },
