@@ -7,10 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.base_model import MappedBase, ModelMixin, TenantMixin, UserMixin
 
 if TYPE_CHECKING:
+    from app.api.v1.module_platform.tenant.model import TenantModel
     from app.api.v1.module_system.dept.model import DeptModel
     from app.api.v1.module_system.position.model import PositionModel
     from app.api.v1.module_system.role.model import RoleModel
-    from app.api.v1.module_system.tenant.model import TenantModel
 
 
 class UserRolesModel(MappedBase):
@@ -142,3 +142,9 @@ class UserModel(ModelMixin, TenantMixin, UserMixin):
         uselist=False,
         viewonly=True,  # 防止级联操作
     )
+
+
+# 修复 Pydantic 循环引用问题
+from app.core.auth_schema import AuthSchema
+
+AuthSchema.model_rebuild()

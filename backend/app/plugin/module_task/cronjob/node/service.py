@@ -254,3 +254,25 @@ class NodeService:
             raise CustomException(msg=f"不支持的触发方式: {trigger}")
 
         return {"job_id": id, "status": "executed", "trigger": trigger}
+
+    @classmethod
+    async def batch_set_status_service(cls, auth: AuthSchema, ids: list[int], status: str) -> None:
+        """
+        批量设置节点状态
+
+        参数:
+        - auth (AuthSchema): 认证信息模型
+        - ids (list[int]): 节点ID列表
+        - status (str): 状态值
+
+        返回:
+        - None
+        """
+        if not ids:
+            raise CustomException(msg="请选择要操作的数据")
+
+        await NodeCRUD(auth).update_obj_crud(
+            ids=ids,
+            data={"status": status},
+        )
+        log.info(f"批量设置节点状态成功: ids={ids}, status={status}")

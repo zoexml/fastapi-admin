@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Integer, SmallInteger, String, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from app.common.enums import PermissionFilterStrategy
 from app.core.base_model import MappedBase, ModelMixin
@@ -9,13 +9,14 @@ from app.core.base_model import MappedBase, ModelMixin
 
 class TenantModel(ModelMixin):
     """
-    租户模型
+    租户模型 - 单一大表设计
 
     - 系统租户(id=1)：平台管理，由超级管理员维护
     - 普通租户(id>1)：独立组织数据，通过业务表的 tenant_id 隔离
+    - 配额字段直接集成到主表，简化结构便于管理
     """
 
-    __tablename__: str = "sys_tenant"
+    __tablename__: str = "platform_tenant"
     __table_args__: dict[str, str] = {"comment": "租户表"}
     __permission_strategy__: PermissionFilterStrategy = PermissionFilterStrategy.DATA_SCOPE
 
@@ -42,7 +43,7 @@ class TenantModel(ModelMixin):
     sort: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment="排序")
     package_id: Mapped[int | None] = mapped_column(
         Integer,
-        ForeignKey("sys_tenant_package.id", ondelete="SET NULL", onupdate="CASCADE"),
+        ForeignKey("platform_package.id", ondelete="SET NULL", onupdate="CASCADE"),
         nullable=True,
         default=None,
         index=True,
@@ -53,6 +54,19 @@ class TenantModel(ModelMixin):
     )
     end_time: Mapped[datetime | None] = mapped_column(
         DateTime, nullable=True, default=None, comment="结束时间"
+    )
+    # 配额字段 - 直接集成到主表
+    max_users: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=50, comment="最大用户数"
+    )
+    max_roles: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=20, comment="最大角色数"
+    )
+    max_storage_mb: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=500, comment="最大存储(MB)"
+    )
+    max_depts: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=50, comment="最大部门数"
     )
 
     @validates("name")
@@ -69,6 +83,12 @@ class TenantModel(ModelMixin):
             raise ValueError("编码只能包含字母和数字")
         return code
 
+    @validates("max_users", "max_roles", "max_storage_mb", "max_depts")
+    def validate_quota(self, key: str, value: int) -> int:
+        if value < 1:
+            raise ValueError(f"{key} 不能小于 1")
+        return value
+
 
 class TenantUserModel(MappedBase):
     """
@@ -78,7 +98,7 @@ class TenantUserModel(MappedBase):
     每个用户有一个默认租户（is_default=1），用于登录后的默认上下文。
     """
 
-    __tablename__: str = "sys_user_tenant"
+    __tablename__: str = "platform_user_tenant"
     __table_args__ = (
         UniqueConstraint("user_id", "tenant_id", name="uq_user_tenant"),
         {"comment": "用户租户关联表"},
@@ -94,7 +114,7 @@ class TenantUserModel(MappedBase):
     )
     tenant_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("sys_tenant.id", ondelete="CASCADE", onupdate="CASCADE"),
+        ForeignKey("platform_tenant.id", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=False,
         index=True,
         comment="租户ID",
@@ -119,41 +139,10 @@ class TenantUserModel(MappedBase):
     )
 
 
-class TenantQuotaModel(MappedBase):
-    """租户配额模型 — 限制租户资源使用上限"""
-
-    __tablename__: str = "sys_tenant_quota"
-    __table_args__: dict[str, str] = {"comment": "租户配额表"}
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID")
-    tenant_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("sys_tenant.id", ondelete="CASCADE", onupdate="CASCADE"),
-        nullable=False,
-        unique=True,
-        index=True,
-        comment="租户ID",
-    )
-    max_users: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=50, comment="最大用户数"
-    )
-    max_roles: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=20, comment="最大角色数"
-    )
-    max_storage_mb: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=500, comment="最大存储(MB)"
-    )
-    max_depts: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=50, comment="最大部门数"
-    )
-
-    tenant: Mapped["TenantModel"] = relationship("TenantModel", lazy="selectin")
-
-
 class TenantConfigModel(MappedBase):
     """租户个性化配置模型 — 键值对存储"""
 
-    __tablename__: str = "sys_tenant_config"
+    __tablename__: str = "platform_tenant_config"
     __table_args__ = (
         UniqueConstraint("tenant_id", "config_key", name="uq_tenant_config_key"),
         {"comment": "租户配置表"},
@@ -162,7 +151,7 @@ class TenantConfigModel(MappedBase):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID")
     tenant_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("sys_tenant.id", ondelete="CASCADE", onupdate="CASCADE"),
+        ForeignKey("platform_tenant.id", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=False,
         index=True,
         comment="租户ID",
@@ -177,7 +166,7 @@ class TenantConfigModel(MappedBase):
 class TenantMenuModel(MappedBase):
     """租户菜单权限模型 — 控制租户可见的菜单项"""
 
-    __tablename__: str = "sys_tenant_menu"
+    __tablename__: str = "platform_tenant_menu"
     __table_args__ = (
         UniqueConstraint("tenant_id", "menu_id", name="uq_tenant_menu"),
         {"comment": "租户菜单权限表"},
@@ -186,60 +175,10 @@ class TenantMenuModel(MappedBase):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID")
     tenant_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("sys_tenant.id", ondelete="CASCADE", onupdate="CASCADE"),
+        ForeignKey("platform_tenant.id", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=False,
         index=True,
         comment="租户ID",
-    )
-    menu_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("sys_menu.id", ondelete="CASCADE", onupdate="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="菜单ID",
-    )
-
-
-class TenantPackageModel(MappedBase):
-    """租户套餐表 — 预定义的功能套餐，简化租户授权"""
-
-    __tablename__: str = "sys_tenant_package"
-    __table_args__: dict[str, str] = {"comment": "租户套餐表"}
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID")
-    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True, comment="套餐名称")
-    code: Mapped[str] = mapped_column(String(100), nullable=False, unique=True, comment="套餐编码")
-    status: Mapped[str] = mapped_column(
-        String(10), nullable=False, default="0", comment="状态(0:正常 1:禁用)"
-    )
-    sort: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment="排序")
-    description: Mapped[str | None] = mapped_column(
-        String(255), nullable=True, default=None, comment="描述"
-    )
-    create_time: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now, nullable=False, comment="创建时间"
-    )
-    update_time: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now, onupdate=datetime.now, nullable=False, comment="更新时间"
-    )
-
-
-class TenantPackageMenuModel(MappedBase):
-    """套餐-菜单关联表 — 定义套餐包含的菜单资源"""
-
-    __tablename__: str = "sys_tenant_package_menu"
-    __table_args__ = (
-        UniqueConstraint("package_id", "menu_id", name="uq_package_menu"),
-        {"comment": "套餐菜单关联表"},
-    )
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID")
-    package_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("sys_tenant_package.id", ondelete="CASCADE", onupdate="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="套餐ID",
     )
     menu_id: Mapped[int] = mapped_column(
         Integer,

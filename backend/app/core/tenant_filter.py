@@ -24,7 +24,7 @@ from app.core.tenant import get_current_tenant_id, get_is_super_admin
 logger = logging.getLogger(__name__)
 
 # 系统表名集合（不对这些表进行租户过滤，避免死循环）
-_SYSTEM_TABLE_NAMES: frozenset[str] = frozenset({"sys_tenant"})
+_SYSTEM_TABLE_NAMES: frozenset[str] = frozenset({"platform_tenant"})
 
 
 def _has_tenant_column(mapper_or_entity) -> bool:

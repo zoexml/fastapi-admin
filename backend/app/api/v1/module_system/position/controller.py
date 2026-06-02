@@ -162,7 +162,7 @@ async def delete_obj_controller(
 
 
 @PositionRouter.patch(
-    "/available/setting",
+    "/status/batch",
     summary="批量修改岗位状态",
     description="批量修改岗位状态",
     response_model=ResponseSchema[None],
@@ -186,10 +186,10 @@ async def batch_set_available_obj_controller(
     return SuccessResponse(msg="批量修改岗位状态成功")
 
 
-@PositionRouter.post(
+@PositionRouter.get(
     "/export",
     summary="导出岗位",
-    description="导出岗位",
+    description="导出岗位列表",
     response_model=ResponseSchema[None],
 )
 async def export_obj_list_controller(

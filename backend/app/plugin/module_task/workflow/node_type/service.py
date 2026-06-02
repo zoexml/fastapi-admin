@@ -195,3 +195,17 @@ class WorkflowNodeTypeService:
         if not ids:
             raise CustomException(msg="删除ID不能为空")
         await WorkflowNodeTypeCRUD(auth).delete_obj_crud(ids=ids)
+
+    @classmethod
+    async def get_select_service(cls, auth: AuthSchema) -> list[dict]:
+        """
+        获取编排节点类型选择列表。
+
+        参数:
+        - auth (AuthSchema): 认证信息。
+
+        返回:
+        - list[dict]: 选择列表，包含 id 和 name。
+        """
+        objs = await WorkflowNodeTypeCRUD(auth).get_obj_list_crud()
+        return [{"id": o.id, "name": o.name} for o in objs]

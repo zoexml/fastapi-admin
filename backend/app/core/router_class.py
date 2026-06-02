@@ -8,8 +8,8 @@ from fastapi.routing import APIRoute
 from user_agents import parse
 
 from app.api.v1.module_system.auth.schema import AuthSchema
-from app.api.v1.module_system.log.schema import OperationLogCreateSchema
-from app.api.v1.module_system.log.service import OperationLogService
+from app.api.v1.module_system.operationlog.schema import OperationLogCreateSchema
+from app.api.v1.module_system.operationlog.service import OperationLogService
 from app.config.setting import settings
 from app.core.database import async_db_session
 from app.utils.ip_local_util import IpLocalUtil

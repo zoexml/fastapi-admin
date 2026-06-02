@@ -211,7 +211,7 @@ async def delete_type_controller(
 
 
 @DictRouter.patch(
-    "/type/available/setting",
+    "/type/status/batch",
     summary="批量修改字典类型状态",
     description="批量修改字典类型状态",
     response_model=ResponseSchema[None],
@@ -433,7 +433,7 @@ async def delete_data_controller(
 
 
 @DictRouter.patch(
-    "/data/available/setting",
+    "/data/status/batch",
     summary="批量修改字典数据状态",
     description="批量修改字典数据状态",
     response_model=ResponseSchema[None],

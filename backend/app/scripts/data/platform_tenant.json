@@ -5,6 +5,11 @@
     "status": "0",
     "description": "平台默认租户，id 固定为 1",
     "start_time": null,
-    "end_time": null
+    "end_time": null,
+    "package_id": null,
+    "max_users": 9999,
+    "max_roles": 999,
+    "max_storage_mb": 99999,
+    "max_depts": 999
   }
 ]

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class TicketModel(ModelMixin, TenantMixin, UserMixin):
     """工单模型 — 用户提交的建议和反馈"""
 
-    __tablename__: str = "sys_ticket"
+    __tablename__: str = "platform_ticket"
     __table_args__: dict[str, str] = {"comment": "工单表"}
     __loader_options__: list[str] = ["created_by", "updated_by", "assigned_by"]
 

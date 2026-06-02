@@ -37,7 +37,7 @@ class TestModels:
     """核心业务模型表名与字段完整性。"""
 
     def test_tenant_model(self) -> None:
-        from app.api.v1.module_system.tenant.model import TenantModel
+        from app.api.v1.module_platform.tenant.model import TenantModel
 
         assert TenantModel.__tablename__ == "sys_tenant"
         assert hasattr(TenantModel, "name")
@@ -45,27 +45,29 @@ class TestModels:
         assert hasattr(TenantModel, "status")
         assert hasattr(TenantModel, "end_time")
 
-    def test_tenant_quota_model(self) -> None:
-        from app.api.v1.module_system.tenant.model import TenantQuotaModel
+    def test_tenant_quota_fields(self) -> None:
+        """测试租户模型中的配额字段（单一大表设计）"""
+        from app.api.v1.module_platform.tenant.model import TenantModel
 
-        assert TenantQuotaModel.__tablename__ == "sys_tenant_quota"
-        assert hasattr(TenantQuotaModel, "max_users")
-        assert hasattr(TenantQuotaModel, "max_roles")
+        assert hasattr(TenantModel, "max_users")
+        assert hasattr(TenantModel, "max_roles")
+        assert hasattr(TenantModel, "max_storage_mb")
+        assert hasattr(TenantModel, "max_depts")
 
     def test_tenant_config_model(self) -> None:
-        from app.api.v1.module_system.tenant.model import TenantConfigModel
+        from app.api.v1.module_platform.tenant.model import TenantConfigModel
 
         assert TenantConfigModel.__tablename__ == "sys_tenant_config"
         assert hasattr(TenantConfigModel, "config_key")
 
     def test_tenant_menu_model(self) -> None:
-        from app.api.v1.module_system.tenant.model import TenantMenuModel
+        from app.api.v1.module_platform.tenant.model import TenantMenuModel
 
         assert TenantMenuModel.__tablename__ == "sys_tenant_menu"
         assert hasattr(TenantMenuModel, "menu_id")
 
     def test_tenant_user_model(self) -> None:
-        from app.api.v1.module_system.tenant.model import TenantUserModel
+        from app.api.v1.module_platform.tenant.model import TenantUserModel
 
         assert TenantUserModel.__tablename__ == "sys_user_tenant"
         assert hasattr(TenantUserModel, "role")
@@ -83,11 +85,12 @@ class TestModels:
         assert hasattr(RoleModel, "tenant_id")
         assert hasattr(RoleModel, "menus")
 
-    def test_menu_model_has_tenant_id(self) -> None:
+    def test_menu_model_has_type(self) -> None:
         from app.api.v1.module_system.menu.model import MenuModel
 
-        assert hasattr(MenuModel, "tenant_id")
         assert hasattr(MenuModel, "type")
+        assert hasattr(MenuModel, "name")
+        assert hasattr(MenuModel, "permission")
 
     def test_notice_model(self) -> None:
         from app.api.v1.module_system.notice.model import NoticeModel
@@ -97,18 +100,18 @@ class TestModels:
         assert hasattr(NoticeModel, "status")
 
     def test_plugin_model(self) -> None:
-        from app.api.v1.module_system.plugin.model import PluginModel
+        from app.api.v1.module_platform.plugin.model import PluginModel
 
         assert PluginModel.__tablename__ == "sys_plugin"
         assert hasattr(PluginModel, "code")
 
     def test_tenant_plugin_model(self) -> None:
-        from app.api.v1.module_system.plugin.model import TenantPluginModel
+        from app.api.v1.module_platform.plugin.model import TenantPluginModel
 
         assert TenantPluginModel.__tablename__ == "sys_tenant_plugin"
 
     def test_ticket_model(self) -> None:
-        from app.plugin.module_ticket.ticket.model import TicketModel
+        from app.api.v1.module_platform.ticket.model import TicketModel
 
         assert TicketModel.__tablename__ == "sys_ticket"
         assert hasattr(TicketModel, "ticket_type")
@@ -122,21 +125,21 @@ class TestSchemas:
     """请求/响应Schema字段验证。"""
 
     def test_tenant_create_schema(self) -> None:
-        from app.api.v1.module_system.tenant.schema import TenantCreateSchema
+        from app.api.v1.module_platform.tenant.schema import TenantCreateSchema
 
         s = TenantCreateSchema(name="test", code="test001", status="0")
         assert s.name == "test"
         assert s.code == "test001"
 
     def test_tenant_update_schema_partial(self) -> None:
-        from app.api.v1.module_system.tenant.schema import TenantUpdateSchema
+        from app.api.v1.module_platform.tenant.schema import TenantUpdateSchema
 
         s = TenantUpdateSchema(name="renamed")
         assert s.name == "renamed"
         assert s.code is None  # 未传则为 None
 
     def test_tenant_quota_schema_validation(self) -> None:
-        from app.api.v1.module_system.tenant.schema import TenantQuotaUpdateSchema
+        from app.api.v1.module_platform.tenant.schema import TenantQuotaUpdateSchema
 
         s = TenantQuotaUpdateSchema(max_users=100, max_roles=30)
         assert s.max_users == 100
@@ -146,9 +149,9 @@ class TestSchemas:
             TenantQuotaUpdateSchema(max_users=-1)
 
     def test_ticket_schema(self) -> None:
-        from app.plugin.module_ticket.ticket.schema import TicketCreateSchema
+        from app.api.v1.module_platform.ticket.schema import TicketCreateSchema
 
-        s = TicketCreateSchema(title="test", content="content", ticket_type="suggestion")
+        s = TicketCreateSchema(title="test", ticket_type="suggestion")
         assert s.title == "test"
         assert s.ticket_type == "suggestion"
 

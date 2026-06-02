@@ -156,7 +156,7 @@ async def delete_obj_controller(
 
 
 @Demo01Router.patch(
-    "/available/setting",
+    "/status/batch",
     summary="批量修改示例01状态",
     description="批量修改示例01状态",
     response_model=ResponseSchema[None],

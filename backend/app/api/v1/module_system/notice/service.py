@@ -282,7 +282,7 @@ class NoticeService:
         # 2. 消息：最近的操作日志（作为系统消息）
         messages = []
         try:
-            from app.api.v1.module_system.log.model import OperationLogModel
+            from app.api.v1.module_system.operationlog.model import OperationLogModel
 
             stmt = select(OperationLogModel).order_by(desc(OperationLogModel.created_time)).limit(5)
             result = await auth.db.execute(stmt)

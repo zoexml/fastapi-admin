@@ -154,7 +154,7 @@ async def delete_obj_controller(
 
 
 @NoticeRouter.patch(
-    "/available/setting",
+    "/status/batch",
     summary="批量修改公告状态",
     description="批量修改公告状态",
     response_model=ResponseSchema[None],
@@ -178,10 +178,10 @@ async def batch_set_available_obj_controller(
     return SuccessResponse(msg="批量修改公告状态成功")
 
 
-@NoticeRouter.post(
+@NoticeRouter.get(
     "/export",
     summary="导出公告",
-    description="导出公告",
+    description="导出公告列表",
     response_model=ResponseSchema[None],
 )
 async def export_obj_list_controller(

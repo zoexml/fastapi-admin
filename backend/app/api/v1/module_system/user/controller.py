@@ -79,7 +79,7 @@ async def update_current_user_info_controller(
 
 
 @UserRouter.put(
-    "/current/password/change",
+    "/password/change",
     summary="修改当前用户密码",
     description="修改当前用户密码",
     response_model=ResponseSchema[UserOutSchema],
@@ -103,10 +103,10 @@ async def change_current_user_password_controller(
     return SuccessResponse(data=result_dict, msg="修改密码成功, 请重新登录")
 
 
-@UserRouter.post(
-    "/{id}/reset-password",
-    summary="重置密码",
-    description="重置密码",
+@UserRouter.put(
+    "/password/reset/{id}",
+    summary="重置用户密码",
+    description="重置指定用户密码",
     response_model=ResponseSchema[UserOutSchema],
 )
 async def reset_password_controller(
@@ -158,9 +158,9 @@ async def register_user_controller(
 
 
 @UserRouter.post(
-    "/forget/password",
+    "/password/forget",
     summary="忘记密码",
-    description="忘记密码",
+    description="忘记密码找回",
     response_model=ResponseSchema[UserOutSchema],
 )
 async def forget_password_controller(
@@ -323,7 +323,7 @@ async def delete_obj_controller(
 
 
 @UserRouter.patch(
-    "/available/setting",
+    "/status/batch",
     summary="批量修改用户状态",
     description="批量修改用户状态",
     response_model=ResponseSchema[None],
@@ -347,7 +347,7 @@ async def batch_set_available_obj_controller(
     return SuccessResponse(msg="批量修改用户状态成功")
 
 
-@UserRouter.post(
+@UserRouter.get(
     "/import/template",
     summary="获取用户导入模板",
     description="获取用户导入模板",
@@ -374,10 +374,10 @@ async def export_obj_template_controller() -> StreamingResponse:
     )
 
 
-@UserRouter.post(
+@UserRouter.get(
     "/export",
     summary="导出用户",
-    description="导出用户",
+    description="导出用户列表",
     response_model=ResponseSchema[None],
 )
 async def export_obj_list_controller(

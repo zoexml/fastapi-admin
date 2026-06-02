@@ -1,0 +1,30 @@
+[
+  {
+    "name": "基础版",
+    "code": "BASIC",
+    "status": "0",
+    "sort": 1,
+    "description": "基础功能套餐，包含用户、角色、部门管理"
+  },
+  {
+    "name": "标准版",
+    "code": "STANDARD",
+    "status": "0",
+    "sort": 2,
+    "description": "标准功能套餐，包含基础功能+菜单+字典+参数配置"
+  },
+  {
+    "name": "专业版",
+    "code": "PROFESSIONAL",
+    "status": "0",
+    "sort": 3,
+    "description": "专业功能套餐，包含标准功能+日志+通知+工单"
+  },
+  {
+    "name": "企业版",
+    "code": "ENTERPRISE",
+    "status": "0",
+    "sort": 4,
+    "description": "企业功能套餐，包含所有功能+插件+多租户"
+  }
+]

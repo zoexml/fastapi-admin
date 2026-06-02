@@ -78,7 +78,7 @@ class RoleCRUD(CRUDBase[RoleModel, RoleCreateSchema, RoleUpdateSchema]):
         )
 
         # 租户菜单约束：只允许分配租户菜单权限内的菜单
-        from app.api.v1.module_system.tenant.service import TenantService
+        from app.api.v1.module_platform.tenant.service import TenantService
 
         if self.auth.user and not self.auth.user.is_superuser and self.auth.tenant_id:
             allowed_menu_ids = await TenantService.get_tenant_menu_ids(

@@ -1,18 +1,17 @@
 from fastapi import Query
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.common.enums import QueueEnum
 from app.core.base_schema import BaseSchema
-from app.core.validator import DateTimeStr
 
 
-class TenantPackageCreateSchema(BaseModel):
-    """新增租户套餐"""
+class PackageCreateSchema(BaseModel):
+    """新增套餐"""
 
-    name: str = Field(..., max_length=100, description="套餐名称")
-    code: str = Field(..., max_length=100, description="套餐编码")
-    status: str = Field(default="0", description="状态(0:正常 1:禁用)")
-    sort: int = Field(default=0, description="排序")
+    name: str = Field(..., min_length=1, max_length=100, description="套餐名称")
+    code: str = Field(..., min_length=2, max_length=100, description="套餐编码")
+    status: str = Field(default="0", max_length=1, description="状态(0:正常 1:禁用)")
+    sort: int = Field(default=0, ge=0, description="排序")
     description: str | None = Field(default=None, max_length=255, description="描述")
 
     @field_validator("name")
@@ -20,7 +19,7 @@ class TenantPackageCreateSchema(BaseModel):
     def _validate_name(cls, v: str) -> str:
         v = v.strip()
         if not v:
-            raise ValueError("名称不能为空")
+            raise ValueError("套餐名称不能为空")
         return v
 
     @field_validator("code")
@@ -28,19 +27,26 @@ class TenantPackageCreateSchema(BaseModel):
     def _validate_code(cls, v: str) -> str:
         v = v.strip()
         if not v:
-            raise ValueError("编码不能为空")
+            raise ValueError("套餐编码不能为空")
         if not v.isalnum():
-            raise ValueError("编码只能包含字母和数字")
+            raise ValueError("套餐编码仅允许字母和数字")
+        return v
+
+    @field_validator("status")
+    @classmethod
+    def _validate_status(cls, v: str) -> str:
+        if v not in {"0", "1"}:
+            raise ValueError("状态仅支持 0(正常) 或 1(禁用)")
         return v
 
 
-class TenantPackageUpdateSchema(BaseModel):
-    """更新租户套餐"""
+class PackageUpdateSchema(BaseModel):
+    """更新套餐"""
 
     name: str | None = Field(default=None, max_length=100, description="套餐名称")
     code: str | None = Field(default=None, max_length=100, description="套餐编码")
-    status: str | None = Field(default=None, description="状态(0:正常 1:禁用)")
-    sort: int | None = Field(default=None, description="排序")
+    status: str | None = Field(default=None, max_length=1, description="状态(0:正常 1:禁用)")
+    sort: int | None = Field(default=None, ge=0, description="排序")
     description: str | None = Field(default=None, max_length=255, description="描述")
 
     @field_validator("code")
@@ -50,24 +56,26 @@ class TenantPackageUpdateSchema(BaseModel):
             return v
         v = v.strip()
         if not v.isalnum():
-            raise ValueError("编码只能包含字母和数字")
+            raise ValueError("套餐编码仅允许字母和数字")
+        return v
+
+    @field_validator("status")
+    @classmethod
+    def _validate_status(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        if v not in {"0", "1"}:
+            raise ValueError("状态仅支持 0(正常) 或 1(禁用)")
         return v
 
 
-class TenantPackageOutSchema(BaseSchema):
+class PackageOutSchema(PackageCreateSchema, BaseSchema):
     """套餐响应"""
 
-    id: int
-    name: str
-    code: str
-    status: str
-    sort: int
-    description: str | None
-    create_time: DateTimeStr | None
-    update_time: DateTimeStr | None
+    model_config = ConfigDict(from_attributes=True)
 
 
-class TenantPackageQueryParam:
+class PackageQueryParam:
     """套餐查询参数"""
 
     def __init__(
@@ -84,7 +92,7 @@ class TenantPackageQueryParam:
             self.status = (QueueEnum.eq.value, status)
 
 
-class TenantPackageMenuSetSchema(BaseModel):
+class PackageMenuSetSchema(BaseModel):
     """批量设置套餐菜单权限"""
 
     menu_ids: list[int] = Field(..., description="菜单ID列表")

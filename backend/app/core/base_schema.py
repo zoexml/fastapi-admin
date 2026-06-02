@@ -72,3 +72,9 @@ class DownloadFileSchema(BaseModel):
 
     file_path: str = Field(..., description="新文件映射路径")
     file_name: str = Field(..., description="新文件名称")
+
+
+class BatchDelete(BaseModel):
+    """批量删除请求模型"""
+
+    ids: list[int] = Field(..., min_length=1, description="ID列表")

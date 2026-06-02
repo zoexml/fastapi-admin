@@ -22,7 +22,6 @@ from .model import (
     TenantConfigModel,
     TenantMenuModel,
     TenantModel,
-    TenantQuotaModel,
     TenantUserModel,
 )
 from .schema import (
@@ -115,11 +114,6 @@ class TenantService:
         await auth.db.refresh(tenant_obj)
         result = TenantOutSchema.model_validate(tenant_obj).model_dump()
 
-        # P1: 自动初始化租户配额
-        quota = TenantQuotaModel(tenant_id=tenant_obj.id)
-        auth.db.add(quota)
-        await auth.db.flush()
-
         return result
 
     @classmethod
@@ -159,11 +153,10 @@ class TenantService:
             from sqlalchemy import delete as sa_delete
             from sqlalchemy import select
 
+            from app.api.v1.module_platform.package.service import PackageService
             from app.api.v1.module_system.role.model import RoleMenusModel, RoleModel
 
-            from .package_service import TenantPackageService
-
-            available_ids = await TenantPackageService.get_tenant_available_menu_ids(auth, id)
+            available_ids = await PackageService.get_tenant_available_menu_ids(auth, id)
             if available_ids:
                 role_ids_stmt = select(RoleModel.id).where(RoleModel.tenant_id == id)
                 result = await auth.db.execute(role_ids_stmt)
@@ -369,39 +362,39 @@ class TenantService:
 
     @classmethod
     async def get_quota_service(cls, auth: AuthSchema, tenant_id: int) -> dict:
-        """获取租户配额"""
-        from sqlalchemy import select
-
-        stmt = select(TenantQuotaModel).where(TenantQuotaModel.tenant_id == tenant_id).limit(1)
-        result = await auth.db.execute(stmt)
-        quota = result.scalar_one_or_none()
-        if not quota:
-            quota = TenantQuotaModel(tenant_id=tenant_id)
-            auth.db.add(quota)
-            await auth.db.flush()
-        return TenantQuotaOutSchema.model_validate(quota).model_dump()
+        """获取租户配额（从租户主表读取）"""
+        tenant = await TenantCRUD(auth).get_by_id_crud(id=tenant_id)
+        if not tenant:
+            raise CustomException(msg="租户不存在")
+        return TenantQuotaOutSchema(
+            tenant_id=tenant.id,
+            max_users=tenant.max_users,
+            max_roles=tenant.max_roles,
+            max_storage_mb=tenant.max_storage_mb,
+            max_depts=tenant.max_depts,
+        ).model_dump()
 
     @classmethod
     async def update_quota_service(
         cls, auth: AuthSchema, tenant_id: int, data: TenantQuotaUpdateSchema
     ) -> dict:
-        """更新租户配额"""
-        from sqlalchemy import select
-
-        stmt = select(TenantQuotaModel).where(TenantQuotaModel.tenant_id == tenant_id).limit(1)
-        result = await auth.db.execute(stmt)
-        quota = result.scalar_one_or_none()
-        if not quota:
-            quota = TenantQuotaModel(tenant_id=tenant_id)
-            auth.db.add(quota)
-            await auth.db.flush()
+        """更新租户配额（直接更新租户主表）"""
+        tenant = await TenantCRUD(auth).get_by_id_crud(id=tenant_id)
+        if not tenant:
+            raise CustomException(msg="租户不存在")
 
         update_data = data.model_dump(exclude_unset=True)
         for k, v in update_data.items():
-            setattr(quota, k, v)
+            setattr(tenant, k, v)
         await auth.db.flush()
         log.info(f"租户[{tenant_id}]配额已更新: {update_data}")
-        return TenantQuotaOutSchema.model_validate(quota).model_dump()
+        return TenantQuotaOutSchema(
+            tenant_id=tenant.id,
+            max_users=tenant.max_users,
+            max_roles=tenant.max_roles,
+            max_storage_mb=tenant.max_storage_mb,
+            max_depts=tenant.max_depts,
+        ).model_dump()
 
     @classmethod
     async def check_quota_service(
@@ -413,7 +406,9 @@ class TenantService:
         """检查租户配额是否充足，不足时抛出异常"""
         from sqlalchemy import func, select
 
-        quota = await cls.get_quota_obj(auth, tenant_id)
+        tenant = await TenantCRUD(auth).get_by_id_crud(id=tenant_id)
+        if not tenant:
+            raise CustomException(msg="租户不存在")
 
         field_map = {
             "user": "max_users",
@@ -424,7 +419,7 @@ class TenantService:
             return
 
         max_field = field_map[resource_type]
-        max_limit = getattr(quota, max_field, 0)
+        max_limit = getattr(tenant, max_field, 0)
 
         # 根据资源类型动态获取当前数量
         if resource_type == "user":
@@ -454,20 +449,6 @@ class TenantService:
             raise CustomException(
                 msg=f"租户{resource_labels.get(resource_type, resource_type)}数量已达上限（{max_limit}），无法继续创建"
             )
-
-    @classmethod
-    async def get_quota_obj(cls, auth: AuthSchema, tenant_id: int) -> TenantQuotaModel:
-        """获取租户配额对象，不存在则自动初始化"""
-        from sqlalchemy import select
-
-        stmt = select(TenantQuotaModel).where(TenantQuotaModel.tenant_id == tenant_id).limit(1)
-        result = await auth.db.execute(stmt)
-        quota = result.scalar_one_or_none()
-        if not quota:
-            quota = TenantQuotaModel(tenant_id=tenant_id)
-            auth.db.add(quota)
-            await auth.db.flush()
-        return quota
 
     # ============ P1: 租户配置 ============
 
@@ -609,9 +590,9 @@ class TenantService:
 
         供角色/用户权限约束使用。
         """
-        from .package_service import TenantPackageService
+        from app.api.v1.module_platform.package.service import PackageService
 
-        return await TenantPackageService.get_tenant_available_menu_ids(auth, tenant_id)
+        return await PackageService.get_tenant_available_menu_ids(auth, tenant_id)
 
     # ============ P1: 初始化缓存 ============
 

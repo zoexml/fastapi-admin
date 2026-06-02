@@ -145,7 +145,7 @@ class UserService:
                 raise CustomException(msg="部门不存在")
 
         # 检查租户配额
-        from app.api.v1.module_system.tenant.service import TenantService
+        from app.api.v1.module_platform.tenant.service import TenantService
         await TenantService.check_quota_service(auth, auth.tenant_id, "user")
 
         # 创建用户
@@ -322,7 +322,7 @@ class UserService:
 
             # 租户菜单约束：非超管用户只能看到租户菜单权限内的菜单
             if menu_ids and auth.tenant_id:
-                from app.api.v1.module_system.tenant.service import TenantService
+                from app.api.v1.module_platform.tenant.service import TenantService
 
                 allowed_ids = await TenantService.get_tenant_menu_ids(auth, auth.tenant_id)
                 allowed_set = set(allowed_ids)

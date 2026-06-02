@@ -179,3 +179,26 @@ async def delete_workflow_node_type_controller(
     await WorkflowNodeTypeService.delete_service(auth=auth, ids=ids)
     log.info(f"删除编排节点类型成功 {ids}")
     return SuccessResponse(msg="删除编排节点类型成功")
+
+
+@WorkflowNodeTypeRouter.get(
+    "/select",
+    summary="编排节点类型选择列表",
+    description="获取编排节点类型选择列表，供下拉选择使用",
+    response_model=ResponseSchema[list[dict]],
+)
+async def get_workflow_node_type_select_controller(
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_task:workflow:node-type:query"]))],
+) -> JSONResponse:
+    """
+    获取编排节点类型选择列表。
+
+    参数:
+    - auth (AuthSchema): 认证信息。
+
+    返回:
+    - JSONResponse: 成功响应，data 为选择列表。
+    """
+    result = await WorkflowNodeTypeService.get_select_service(auth=auth)
+    log.info("获取编排节点类型选择列表成功")
+    return SuccessResponse(data=result, msg="获取编排节点类型选择列表成功")

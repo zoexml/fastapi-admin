@@ -5,17 +5,33 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.module_platform.loginlog.model import LoginLogModel
+from app.api.v1.module_platform.package.model import PackageModel
+from app.api.v1.module_platform.plugin.model import PluginModel
+from app.api.v1.module_platform.tenant.model import TenantConfigModel, TenantModel
+from app.api.v1.module_platform.ticket.model import TicketModel
 from app.api.v1.module_system.dept.model import DeptModel
 from app.api.v1.module_system.dict.model import DictDataModel, DictTypeModel
 from app.api.v1.module_system.menu.model import MenuModel
+from app.api.v1.module_system.notice.model import NoticeModel
+from app.api.v1.module_system.operationlog.model import OperationLogModel
 from app.api.v1.module_system.params.model import ParamsModel
 from app.api.v1.module_system.position.model import PositionModel
 from app.api.v1.module_system.role.model import RoleModel
-from app.api.v1.module_system.tenant.model import TenantConfigModel, TenantModel
 from app.api.v1.module_system.user.model import UserModel, UserRolesModel
 from app.config.path_conf import SCRIPT_DIR
 from app.core.database import async_db_session, create_tables
 from app.core.logger import log
+
+# 导入插件模块模型，确保 MappedBase.metadata 中包含所有表
+# 注意：必须在所有核心模块模型导入之后再导入，避免外键引用问题
+from app.plugin.module_example.demo.model import DemoModel  # noqa: F401
+from app.plugin.module_example.demo01.model import Demo01Model  # noqa: F401
+from app.plugin.module_generator.gencode.model import GenTableColumnModel, GenTableModel  # noqa: F401
+from app.plugin.module_task.cronjob.job.model import JobModel  # noqa: F401
+from app.plugin.module_task.cronjob.node.model import NodeModel  # noqa: F401
+from app.plugin.module_task.workflow.definition.model import WorkflowModel  # noqa: F401
+from app.plugin.module_task.workflow.node_type.model import WorkflowNodeTypeModel  # noqa: F401
 
 
 class InitializeData:
@@ -31,6 +47,8 @@ class InitializeData:
         self.prepare_init_models = [
             TenantModel,
             TenantConfigModel,
+            PackageModel,
+            PluginModel,
             MenuModel,
             ParamsModel,
             DeptModel,
@@ -40,6 +58,10 @@ class InitializeData:
             PositionModel,
             UserModel,
             UserRolesModel,
+            NoticeModel,
+            TicketModel,
+            LoginLogModel,
+            OperationLogModel,
         ]
 
     async def __init_create_table(self) -> None:
@@ -47,6 +69,16 @@ class InitializeData:
         初始化表结构（第一阶段）
         """
         try:
+            # 确保插件模型已导入到 MappedBase.metadata
+            # 这些导入已经在文件顶部执行，此处仅为确保
+            from app.plugin.module_example.demo.model import DemoModel  # noqa: F401
+            from app.plugin.module_example.demo01.model import Demo01Model  # noqa: F401
+            from app.plugin.module_generator.gencode.model import GenTableColumnModel, GenTableModel  # noqa: F401
+            from app.plugin.module_task.cronjob.job.model import JobModel  # noqa: F401
+            from app.plugin.module_task.cronjob.node.model import NodeModel  # noqa: F401
+            from app.plugin.module_task.workflow.definition.model import WorkflowModel  # noqa: F401
+            from app.plugin.module_task.workflow.node_type.model import WorkflowNodeTypeModel  # noqa: F401
+
             # 使用引擎创建所有表
             # await drop_tables()
             await create_tables()
@@ -193,7 +225,78 @@ class InitializeData:
         # 先创建表结构
         await self.__init_create_table()
 
-        # 再初始化数据
+        # 先初始化 Tenant 数据（需要先提交，因为其他表依赖它）
         async with async_db_session() as session:
             async with session.begin():
-                await self.__init_data(session)
+                table_name = TenantModel.__tablename__
+                count_result = await session.execute(select(func.count()).select_from(TenantModel))
+                existing_count = count_result.scalar()
+                if not existing_count or existing_count == 0:
+                    data = await self.__get_data(table_name)
+                    if data:
+                        objs = [TenantModel(**item) for item in data]
+                        session.add_all(objs)
+                        await session.flush()
+                        log.info(f"✅️ 已向 {table_name} 表写入初始化数据")
+
+        # 再初始化其他数据（每个表独立事务，避免回滚影响其他表）
+        for model in self.prepare_init_models[1:]:
+            table_name = model.__tablename__
+            async with async_db_session() as session:
+                async with session.begin():
+                    count_result = await session.execute(select(func.count()).select_from(model))
+                    existing_count = count_result.scalar()
+                    if existing_count and existing_count > 0:
+                        log.warning(
+                            f"⚠️  跳过 {table_name} 表数据初始化（表已存在 {existing_count} 条记录）"
+                        )
+                        continue
+
+                    data = await self.__get_data(table_name)
+                    if not data:
+                        log.warning(f"⚠️  跳过 {table_name} 表，无初始化数据")
+                        continue
+
+                    try:
+                        # 特殊处理具有嵌套 children 数据的表
+                        if table_name in ["sys_dept", "sys_menu"]:
+                            model_class = DeptModel if table_name == "sys_dept" else MenuModel
+                            objs = self.__create_objects_with_children(data, model_class)
+                        # 处理字典类型表，需要先保存获取ID
+                        elif table_name == "sys_dict_type":
+                            objs = []
+                            for item in data:
+                                obj = model(**item)
+                                objs.append(obj)
+                            session.add_all(objs)
+                            await session.flush()  # 先flush获取ID
+                            # 处理字典数据表，添加dict_type_id关联
+                            dict_type_mapping = {item["dict_type"]: obj for item, obj in zip(data, objs)}
+                            dict_data = await self.__get_data("sys_dict_data")
+                            if dict_data:
+                                dict_data_objs = []
+                                for item in dict_data:
+                                    dict_type = item.get("dict_type")
+                                    if dict_type in dict_type_mapping:
+                                        item["dict_type_id"] = dict_type_mapping[dict_type].id
+                                    else:
+                                        log.warning(f"⚠️  未找到字典类型 {dict_type}，跳过该字典数据")
+                                        continue
+                                    dict_data_objs.append(DictDataModel(**item))
+                                session.add_all(dict_data_objs)
+                            await session.flush()
+                            log.info(f"✅️ 已向 {table_name} 表写入初始化数据")
+                            log.info(f"✅️ 已向 sys_dict_data 表写入初始化数据")
+                            continue  # 跳过正常的flush和日志
+                        elif table_name == "sys_dict_data":
+                            continue  # 已在 sys_dict_type 处理中处理
+                        else:
+                            objs = [model(**item) for item in data]
+
+                        session.add_all(objs)
+                        await session.flush()
+                        log.info(f"✅️ 已向 {table_name} 表写入初始化数据")
+
+                    except Exception as e:
+                        log.error(f"❌️ 初始化 {table_name} 表数据失败: {e!s}")
+                        raise

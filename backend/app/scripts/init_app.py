@@ -35,9 +35,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     返回:
     - AsyncGenerator[Any, Any]: 生命周期上下文生成器。
     """
+    from app.api.v1.module_platform.tenant.service import TenantService
     from app.api.v1.module_system.dict.service import DictDataService
     from app.api.v1.module_system.params.service import ParamsService
-    from app.api.v1.module_system.tenant.service import TenantService
     from app.core.ap_scheduler import SchedulerUtil
 
     try:
@@ -57,9 +57,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
         log.info("✅ 定时任务调度器初始化完成")
 
         # 注册租户到期检查（每小时执行一次）
-        from app.api.v1.module_system.tenant.service import TenantService
-        from app.core.ap_scheduler import scheduler
         from apscheduler.triggers.interval import IntervalTrigger
+
+        from app.api.v1.module_platform.tenant.service import TenantService
+        from app.core.ap_scheduler import scheduler
         scheduler.add_job(
             TenantService.check_tenant_expiry,
             trigger=IntervalTrigger(hours=1),
@@ -161,11 +162,13 @@ def register_routers(app: FastAPI) -> None:
     """
     from app.api.v1.module_common import common_router
     from app.api.v1.module_monitor import monitor_router
+    from app.api.v1.module_platform import platform_router
     from app.api.v1.module_system import system_router
 
     # 业务路由（带速率限制）
     app.include_router(common_router, dependencies=[Depends(RateLimiter(times=60, seconds=10))])
     app.include_router(system_router, dependencies=[Depends(RateLimiter(times=60, seconds=10))])
+    app.include_router(platform_router, dependencies=[Depends(RateLimiter(times=60, seconds=10))])
     app.include_router(monitor_router, dependencies=[Depends(RateLimiter(times=60, seconds=10))])
 
     from app.plugin.module_ai.chat.ws import WS_AI

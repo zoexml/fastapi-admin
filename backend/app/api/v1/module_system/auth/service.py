@@ -109,7 +109,8 @@ class LoginService:
 
         # 检查用户的默认租户是否正常
         from sqlalchemy import select
-        from app.api.v1.module_system.tenant.model import TenantModel
+
+        from app.api.v1.module_platform.tenant.model import TenantModel
         tenant_stmt = (
             select(TenantModel)
             .where(TenantModel.id == user.tenant_id, TenantModel.status == "0", TenantModel.is_deleted.is_(False))
@@ -405,7 +406,7 @@ class LoginService:
         """
         from sqlalchemy import select
 
-        from app.api.v1.module_system.tenant.model import TenantModel, TenantUserModel
+        from app.api.v1.module_platform.tenant.model import TenantModel, TenantUserModel
 
         uid = user_id or (auth.user.id if auth.user else None)
         if not uid:
@@ -462,7 +463,7 @@ class LoginService:
         """
         from sqlalchemy import select
 
-        from app.api.v1.module_system.tenant.model import TenantModel, TenantUserModel
+        from app.api.v1.module_platform.tenant.model import TenantModel, TenantUserModel
 
         if not auth.user:
             raise CustomException(msg="未认证用户")

@@ -6,9 +6,7 @@ from redis.asyncio.client import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.v1.module_system.auth.schema import AuthSchema
-from app.api.v1.module_system.user.crud import UserCRUD
-from app.api.v1.module_system.user.model import UserModel
+from app.core.auth_schema import AuthSchema
 from app.common.enums import RedisInitKeyConfig
 from app.config.setting import settings
 from app.core.database import async_db_session
@@ -82,6 +80,10 @@ async def get_current_user(
     返回:
     - AuthSchema: 认证信息模型
     """
+    # 延迟导入避免循环依赖
+    from app.api.v1.module_system.user.crud import UserCRUD
+    from app.api.v1.module_system.user.model import UserModel
+    
     if not token:
         raise CustomException(msg="认证已失效", code=10401, status_code=401)
 
@@ -194,6 +196,10 @@ async def _verify_token(
     返回:
     - AuthSchema: 认证信息模型
     """
+    # 延迟导入避免循环依赖
+    from app.api.v1.module_system.user.crud import UserCRUD
+    from app.api.v1.module_system.user.model import UserModel
+    
     if not token:
         raise CustomException(msg="认证已失效", code=10401, status_code=401)
 

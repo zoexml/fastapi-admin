@@ -144,7 +144,7 @@ async def delete_{{ business_name_slug }}_controller(
     return SuccessResponse(msg="删除{{ function_name }}成功")
 
 @{{ class_name }}Router.patch(
-    "/available/setting",
+    "/status/batch",
     summary="批量修改{{ function_name }}状态",
     description="批量修改{{ function_name }}状态"
 )

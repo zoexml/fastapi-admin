@@ -199,7 +199,6 @@ class TenantQuotaOutSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
     tenant_id: int
     max_users: int
     max_roles: int

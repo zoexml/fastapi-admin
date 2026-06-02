@@ -93,7 +93,7 @@ class DeptService:
             raise CustomException(msg="创建失败，编码已存在")
 
         # 检查租户配额
-        from app.api.v1.module_system.tenant.service import TenantService
+        from app.api.v1.module_platform.tenant.service import TenantService
         await TenantService.check_quota_service(auth, auth.tenant_id, "dept")
 
         dept = await DeptCRUD(auth).create(data=data)
@@ -141,6 +141,7 @@ class DeptService:
 
         异常:
         - CustomException: 当删除对象为空时抛出。
+        - CustomException: 当存在子部门时抛出。
         """
         if len(ids) < 1:
             raise CustomException(msg="删除失败，删除对象不能为空")
@@ -151,19 +152,13 @@ class DeptService:
         # 构建子部门ID映射
         child_id_map = get_child_id_map(model_list=all_depts)
 
-        # 收集所有需要删除的部门ID，包括直接指定的ID和它们的所有子部门ID
-        delete_ids_set = set()
-
         for id in ids:
-            # 递归获取该ID的所有子部门ID
-            all_descendants = get_child_recursion(id=id, id_map=child_id_map)
-            delete_ids_set.update(all_descendants)
-
-        # 将集合转换为列表
-        delete_ids = list(delete_ids_set)
+            # 检查是否有子部门
+            if id in child_id_map and child_id_map[id]:
+                raise CustomException(msg="存在子部门，不允许删除父部门")
 
         # 执行批量删除操作
-        await DeptCRUD(auth).delete(ids=delete_ids)
+        await DeptCRUD(auth).delete(ids=ids)
 
     @classmethod
     async def batch_set_available_service(cls, auth: AuthSchema, data: BatchSetAvailable) -> None:

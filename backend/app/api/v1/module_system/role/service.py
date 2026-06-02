@@ -105,7 +105,7 @@ class RoleService:
             raise CustomException(msg="创建失败，编码已存在")
 
         # 检查租户配额
-        from app.api.v1.module_system.tenant.service import TenantService
+        from app.api.v1.module_platform.tenant.service import TenantService
         await TenantService.check_quota_service(auth, auth.tenant_id, "role")
 
         new_role = await RoleCRUD(auth).create(data=data)

@@ -116,7 +116,7 @@ async def delete_obj_controller(
 
 
 @TenantRouter.patch(
-    "/available/setting",
+    "/status/batch",
     summary="批量修改租户状态",
     description="批量修改租户状态",
 )

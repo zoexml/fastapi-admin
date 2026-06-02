@@ -1,0 +1,26 @@
+[
+  {
+    "notice_title": "系统上线公告",
+    "notice_content": "<p>欢迎使用 FastApiAdmin 系统！</p><p>这是一个功能强大的权限管理系统，支持多租户、角色权限控制等功能。</p>",
+    "notice_type": "2",
+    "status": "0",
+    "description": "系统上线公告",
+    "tenant_id": 1
+  },
+  {
+    "notice_title": "系统维护通知",
+    "notice_content": "<p>系统将于本周六凌晨2:00-4:00进行例行维护，请提前保存工作。</p>",
+    "notice_type": "1",
+    "status": "0",
+    "description": "系统维护通知",
+    "tenant_id": 1
+  },
+  {
+    "notice_title": "新功能发布",
+    "notice_content": "<p>本次更新新增了工作流引擎、代码生成器等功能，欢迎体验！</p>",
+    "notice_type": "2",
+    "status": "0",
+    "description": "新功能发布",
+    "tenant_id": 1
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "request_path": "/api/v1/auth/login",
+    "request_method": "POST",
+    "request_payload": "{\"username\": \"admin\", \"password\": \"******\"}",
+    "request_ip": "192.168.1.100",
+    "request_os": "Windows 10",
+    "request_browser": "Chrome 120.0",
+    "response_code": 200,
+    "response_json": "{\"code\": 200, \"message\": \"登录成功\"}",
+    "process_time": "0.125s",
+    "tenant_id": 1,
+    "created_id": 1
+  },
+  {
+    "request_path": "/api/v1/user/list",
+    "request_method": "GET",
+    "request_payload": null,
+    "request_ip": "192.168.1.100",
+    "request_os": "Windows 10",
+    "request_browser": "Chrome 120.0",
+    "response_code": 200,
+    "response_json": "{\"code\": 200, \"data\": [...]}",
+    "process_time": "0.052s",
+    "tenant_id": 1,
+    "created_id": 1
+  },
+  {
+    "request_path": "/api/v1/role/create",
+    "request_method": "POST",
+    "request_payload": "{\"name\": \"测试角色\", \"code\": \"TEST\"}",
+    "request_ip": "192.168.1.101",
+    "request_os": "macOS 14.0",
+    "request_browser": "Safari 17.0",
+    "response_code": 200,
+    "response_json": "{\"code\": 200, \"message\": \"创建成功\"}",
+    "process_time": "0.089s",
+    "tenant_id": 1,
+    "created_id": 2
+  }
+]

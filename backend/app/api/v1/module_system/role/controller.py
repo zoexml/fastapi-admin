@@ -163,7 +163,7 @@ async def delete_obj_controller(
 
 
 @RoleRouter.patch(
-    "/available/setting",
+    "/status/batch",
     summary="批量修改角色状态",
     description="批量修改角色状态",
     response_model=ResponseSchema[None],
@@ -187,10 +187,10 @@ async def batch_set_available_obj_controller(
     return SuccessResponse(msg="批量修改角色状态成功")
 
 
-@RoleRouter.patch(
-    "/permission/setting",
+@RoleRouter.put(
+    "/permission",
     summary="角色授权",
-    description="角色授权",
+    description="设置角色权限",
     response_model=ResponseSchema[None],
 )
 async def set_role_permission_controller(
@@ -212,10 +212,10 @@ async def set_role_permission_controller(
     return SuccessResponse(msg="授权角色成功")
 
 
-@RoleRouter.post(
+@RoleRouter.get(
     "/export",
     summary="导出角色",
-    description="导出角色",
+    description="导出角色列表",
     response_model=ResponseSchema[None],
 )
 async def export_obj_list_controller(

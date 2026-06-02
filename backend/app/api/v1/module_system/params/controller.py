@@ -211,10 +211,37 @@ async def delete_obj_controller(
     return SuccessResponse(msg="删除参数成功")
 
 
-@ParamsRouter.post(
+@ParamsRouter.patch(
+    "/status/batch",
+    summary="批量设置参数状态",
+    description="批量设置参数状态",
+    response_model=ResponseSchema,
+)
+async def batch_set_status_controller(
+    ids: Annotated[list[int], Body(description="参数ID列表")],
+    status: Annotated[str, Body(description="状态值")],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:patch"]))],
+) -> JSONResponse:
+    """
+    批量设置参数状态
+
+    参数:
+    - ids (list[int]): 参数ID列表
+    - status (str): 状态值
+    - auth (AuthSchema): 认证信息模型
+
+    返回:
+    - JSONResponse: 包含批量设置参数状态结果的 JSON 响应
+    """
+    await ParamsService.batch_set_status_service(auth=auth, ids=ids, status=status)
+    log.info(f"批量设置参数状态成功: ids={ids}, status={status}")
+    return SuccessResponse(msg="批量设置参数状态成功")
+
+
+@ParamsRouter.get(
     "/export",
     summary="导出参数",
-    description="导出参数",
+    description="导出参数列表",
     response_model=ResponseSchema[None],
 )
 async def export_obj_list_controller(

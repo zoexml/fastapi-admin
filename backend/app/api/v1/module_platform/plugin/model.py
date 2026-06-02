@@ -7,7 +7,7 @@ from app.core.base_model import MappedBase, ModelMixin
 class PluginModel(ModelMixin):
     """插件注册表 — 超管维护的插件市场列表"""
 
-    __tablename__: str = "sys_plugin"
+    __tablename__: str = "platform_plugin"
     __table_args__: dict[str, str] = {"comment": "插件注册表"}
 
     name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True, comment="插件名称")
@@ -53,7 +53,7 @@ class PluginModel(ModelMixin):
 class TenantPluginModel(MappedBase):
     """租户插件关联表 — 租户已安装的插件"""
 
-    __tablename__: str = "sys_tenant_plugin"
+    __tablename__: str = "platform_tenant_plugin"
     __table_args__ = (
         UniqueConstraint("tenant_id", "plugin_id", name="uq_tenant_plugin"),
         {"comment": "租户插件关联表"},
@@ -62,14 +62,14 @@ class TenantPluginModel(MappedBase):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键ID")
     tenant_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("sys_tenant.id", ondelete="CASCADE"),
+        ForeignKey("platform_tenant.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
         comment="租户ID",
     )
     plugin_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("sys_plugin.id", ondelete="CASCADE"),
+        ForeignKey("platform_plugin.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
         comment="插件ID",

@@ -228,3 +228,30 @@ async def execute_job_controller(
     result = await NodeService.execute_node_service(auth=auth, id=id, execute_data=data)
     log.info(f"调试节点成功: {id}")
     return SuccessResponse(data=result, msg="调试节点成功")
+
+
+@NodeRouter.patch(
+    "/status/batch",
+    summary="批量设置节点状态",
+    description="批量设置节点状态",
+    response_model=ResponseSchema[None],
+)
+async def batch_set_status_controller(
+    ids: Annotated[list[int], Body(description="节点ID列表")],
+    status: Annotated[str, Body(description="状态值")],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_task:cronjob:node:update"]))],
+) -> JSONResponse:
+    """
+    批量设置节点状态
+
+    参数:
+    - ids (list[int]): 节点ID列表
+    - status (str): 状态值
+    - auth (AuthSchema): 认证信息模型
+
+    返回:
+    - JSONResponse: 成功响应
+    """
+    await NodeService.batch_set_status_service(auth=auth, ids=ids, status=status)
+    log.info(f"批量设置节点状态成功: ids={ids}, status={status}")
+    return SuccessResponse(msg="批量设置节点状态成功")

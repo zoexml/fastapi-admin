@@ -142,7 +142,7 @@ async def delete_obj_controller(
 
 
 @MenuRouter.patch(
-    "/available/setting",
+    "/status/batch",
     summary="批量修改菜单状态",
     description="批量修改菜单状态",
     response_model=ResponseSchema[None],
