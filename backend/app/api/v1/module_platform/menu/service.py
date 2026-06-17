@@ -77,15 +77,24 @@ class MenuService:
         返回:
         - dict: 菜单详情对象。
         """
-        menu = await MenuCRUD(auth).get(id=id)
-        # 创建实例后再设置parent_name属性
-        menu_out = MenuOutSchema.model_validate(menu)
-        if menu and menu.parent_id:
+        from app.utils.common_util import SqlalchemyUtil
+
+        menu = await MenuCRUD(auth).get_with_convert(
+            id=id,
+            preload=["roles"],
+            converter=lambda m: SqlalchemyUtil.orm_to_schema(
+                m,
+                MenuOutSchema,
+                {"children": None, "parent_name": None, "roles": m.roles},
+            ),
+        )
+        if not menu:
+            raise CustomException(msg="菜单不存在")
+        if menu.parent_id:
             parent = await MenuCRUD(auth).get(id=menu.parent_id)
             if parent:
-                menu_out.parent_name = parent.name
-
-        return menu_out
+                menu.parent_name = parent.name
+        return menu
 
     @classmethod
     async def get_menu_tree_service(
@@ -172,6 +181,8 @@ class MenuService:
             parent_menu = await MenuCRUD(auth).get(id=data.parent_id)
             if not parent_menu:
                 raise CustomException(msg="更新失败，父级菜单不存在")
+        from app.utils.common_util import SqlalchemyUtil
+
         new_menu = await MenuCRUD(auth).update(id=id, data=data)
 
         if data.status is not None:
@@ -179,8 +190,16 @@ class MenuService:
                 auth=auth, data=BatchSetAvailable(ids=[id], status=data.status)
             )
 
-        new_menu_dict = MenuOutSchema.model_validate(new_menu)
-        return new_menu_dict
+        menu_out = SqlalchemyUtil.orm_to_schema(
+            new_menu,
+            MenuOutSchema,
+            {"children": None, "parent_name": None, "roles": new_menu.roles},
+        )
+        if menu_out.parent_id:
+            parent = await MenuCRUD(auth).get(id=menu_out.parent_id)
+            if parent:
+                menu_out.parent_name = parent.name
+        return menu_out
 
     @classmethod
     async def delete_menu_service(cls, auth: AuthSchema, ids: list[int]) -> None:

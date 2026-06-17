@@ -33,18 +33,24 @@ class DeptService:
         返回:
         - dict: 部门详情对象。
         """
-        dept = await DeptCRUD(auth).get(id=id)
+        from app.utils.common_util import SqlalchemyUtil
+
+        dept = await DeptCRUD(auth).get_with_convert(
+            id=id,
+            preload=[],
+            converter=lambda m: SqlalchemyUtil.orm_to_schema(
+                m,
+                DeptOutSchema,
+                {"children": None, "parent_name": None},
+            ),
+        )
         if not dept:
             raise CustomException(msg="部门不存在")
-        # 从列属性构建 dict，避免 Pydantic 访问 ORM 关系触发 async 惰性加载
-        dept_dict = {c.name: getattr(dept, c.name) for c in dept.__table__.columns}
-        dept_dict["children"] = None
-        dept_dict["parent_name"] = None
         if dept.parent_id:
             parent = await DeptCRUD(auth).get(id=dept.parent_id)
             if parent:
-                dept_dict["parent_name"] = parent.name
-        return DeptOutSchema(**dept_dict)
+                dept.parent_name = parent.name
+        return dept
 
     @classmethod
     async def get_dept_tree_service(
@@ -127,8 +133,19 @@ class DeptService:
         exist_code = await DeptCRUD(auth).get(code=data.code)
         if exist_code and exist_code.id != id:
             raise CustomException(msg="更新失败，部门编码已存在")
+        from app.utils.common_util import SqlalchemyUtil
+
         dept = await DeptCRUD(auth).update(id=id, data=data)
-        return DeptOutSchema.model_validate(dept)
+        dept_out = SqlalchemyUtil.orm_to_schema(
+            dept,
+            DeptOutSchema,
+            {"children": None, "parent_name": None},
+        )
+        if dept_out.parent_id:
+            parent = await DeptCRUD(auth).get(id=dept_out.parent_id)
+            if parent:
+                dept_out.parent_name = parent.name
+        return dept_out
 
     @classmethod
     async def delete_dept_service(cls, auth: AuthSchema, ids: list[int]) -> None:
