@@ -12,7 +12,7 @@ from app.core.router_class import OperationLogRoute
 
 from .service import CacheService
 
-CacheRouter = APIRouter(route_class=OperationLogRoute, prefix="/cache", tags=["系统监控/缓存监控"])
+CacheRouter = APIRouter(route_class=OperationLogRoute, prefix="/cache", tags=["缓存监控"])
 
 
 @CacheRouter.get(
@@ -60,9 +60,7 @@ async def get_monitor_cache_name_controller() -> JSONResponse:
     summary="获取缓存键名列表",
     response_model=ResponseSchema[list[CacheInfoSchema]],
 )
-async def get_monitor_cache_key_controller(
-    cache_name: str, redis: Annotated[Redis, Depends(redis_getter)]
-) -> JSONResponse:
+async def get_monitor_cache_key_controller(cache_name: str, redis: Annotated[Redis, Depends(redis_getter)]) -> JSONResponse:
     """
     获取指定缓存名称下的键名列表
 
@@ -72,9 +70,7 @@ async def get_monitor_cache_key_controller(
     返回:
     - JSONResponse: 包含缓存键名列表的JSON响应
     """
-    result = await CacheService.get_cache_monitor_cache_key_service(
-        redis=redis, cache_name=cache_name
-    )
+    result = await CacheService.get_cache_monitor_cache_key_service(redis=redis, cache_name=cache_name)
     return SuccessResponse(data=result, msg=f"获取缓存{cache_name}的键名列表成功")
 
 
@@ -99,9 +95,7 @@ async def get_monitor_cache_value_controller(
     返回:
     - JSONResponse: 包含缓存值的JSON响应
     """
-    result = await CacheService.get_cache_monitor_cache_value_service(
-        redis=redis, cache_name=cache_name, cache_key=cache_key
-    )
+    result = await CacheService.get_cache_monitor_cache_value_service(redis=redis, cache_name=cache_name, cache_key=cache_key)
     return SuccessResponse(data=result, msg=f"获取缓存{cache_name}:{cache_key}的值成功")
 
 
@@ -111,9 +105,7 @@ async def get_monitor_cache_value_controller(
     summary="清除指定缓存名称的所有缓存",
     response_model=ResponseSchema[None],
 )
-async def clear_monitor_cache_name_controller(
-    cache_name: str, redis: Annotated[Redis, Depends(redis_getter)]
-) -> JSONResponse:
+async def clear_monitor_cache_name_controller(cache_name: str, redis: Annotated[Redis, Depends(redis_getter)]) -> JSONResponse:
     """
     清除指定缓存名称下的所有缓存
 
@@ -123,9 +115,7 @@ async def clear_monitor_cache_name_controller(
     返回:
     - JSONResponse: 包含清除结果的JSON响应
     """
-    result = await CacheService.clear_cache_monitor_cache_name_service(
-        redis=redis, cache_name=cache_name
-    )
+    result = await CacheService.clear_cache_monitor_cache_name_service(redis=redis, cache_name=cache_name)
     if not result:
         raise CustomException(msg="清除缓存失败", data=result)
     return SuccessResponse(msg=f"{cache_name}对应键值清除成功", data=result)
@@ -137,9 +127,7 @@ async def clear_monitor_cache_name_controller(
     summary="清除指定缓存键",
     response_model=ResponseSchema[None],
 )
-async def clear_monitor_cache_key_controller(
-    cache_key: str, redis: Annotated[Redis, Depends(redis_getter)]
-) -> JSONResponse:
+async def clear_monitor_cache_key_controller(cache_key: str, redis: Annotated[Redis, Depends(redis_getter)]) -> JSONResponse:
     """
     清除指定缓存键
 
@@ -149,9 +137,7 @@ async def clear_monitor_cache_key_controller(
     返回:
     - JSONResponse: 包含清除结果的JSON响应
     """
-    result = await CacheService.clear_cache_monitor_cache_key_service(
-        redis=redis, cache_key=cache_key
-    )
+    result = await CacheService.clear_cache_monitor_cache_key_service(redis=redis, cache_key=cache_key)
     if not result:
         raise CustomException(msg="清除缓存失败", data=result)
     return SuccessResponse(msg=f"{cache_key}清除成功", data=result)

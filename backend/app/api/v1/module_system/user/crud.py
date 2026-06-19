@@ -16,15 +16,6 @@ class UserCRUD(CRUDBase[UserModel, UserCreateSchema, UserUpdateSchema]):
     """用户模块数据层"""
 
     def __init__(self, auth: AuthSchema) -> None:
-        """
-        初始化用户数据层。
-
-        参数:
-        - auth (AuthSchema): 认证信息模型（含 DB 会话等上下文）。
-
-        返回:
-        - None
-        """
         super().__init__(model=UserModel, auth=auth)
 
     async def update_last_login(self, id: int) -> None:
@@ -72,9 +63,7 @@ class UserCRUD(CRUDBase[UserModel, UserCreateSchema, UserUpdateSchema]):
         """
         user_objs = await self.list(search={"id": ("in", user_ids)})
         if position_ids:
-            position_objs = await PositionCRUD(self.auth).list(
-                search={"id": ("in", position_ids)}
-            )
+            position_objs = await PositionCRUD(self.auth).list(search={"id": ("in", position_ids)})
         else:
             position_objs = []
 

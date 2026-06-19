@@ -55,13 +55,8 @@ class NoticeService:
         返回:
         - list[dict]: 公告详情字典列表。
         """
-        notice_obj_list = await NoticeCRUD(auth).list(
-            search=search.__dict__ if search else {}, order_by=order_by
-        )
-        return [
-            NoticeOutSchema.model_validate(notice_obj)
-            for notice_obj in notice_obj_list
-        ]
+        notice_obj_list = await NoticeCRUD(auth).list(search=search.__dict__ if search else {}, order_by=order_by)
+        return [NoticeOutSchema.model_validate(notice_obj) for notice_obj in notice_obj_list]
 
     @classmethod
     async def get_notice_page_service(
@@ -135,9 +130,7 @@ class NoticeService:
         return NoticeOutSchema.model_validate(notice_obj)
 
     @classmethod
-    async def update_notice_service(
-        cls, auth: AuthSchema, id: int, data: NoticeUpdateSchema
-    ) -> NoticeOutSchema:
+    async def update_notice_service(cls, auth: AuthSchema, id: int, data: NoticeUpdateSchema) -> NoticeOutSchema:
         """
         更新公告。
 
@@ -244,12 +237,7 @@ class NoticeService:
         from .model import NoticeModel
         from .schema import NoticeOutSchema
 
-        stmt = (
-            select(NoticeModel)
-            .where(NoticeModel.status == 0)
-            .order_by(desc(NoticeModel.created_time))
-            .limit(limit)
-        )
+        stmt = select(NoticeModel).where(NoticeModel.status == 0).order_by(desc(NoticeModel.created_time)).limit(limit)
         result = await auth.db.execute(stmt)
         notices = result.scalars().all()
         return [NoticeOutSchema.model_validate(n) for n in notices]
@@ -293,9 +281,7 @@ class NoticeService:
         from sqlalchemy import select
 
         # 查询所有已启用但未读的公告
-        read_ids_stmt = select(NoticeReadModel.notice_id).where(
-            NoticeReadModel.user_id == auth.user.id
-        )
+        read_ids_stmt = select(NoticeReadModel.notice_id).where(NoticeReadModel.user_id == auth.user.id)
         read_ids_result = await auth.db.execute(read_ids_stmt)
         read_ids = {row[0] for row in read_ids_result.fetchall()}
 
@@ -324,16 +310,12 @@ class NoticeService:
         from sqlalchemy import func, select
 
         # 所有已启用公告总数
-        total_stmt = select(func.count()).select_from(NoticeModel).where(
-            NoticeModel.status == 0
-        )
+        total_stmt = select(func.count()).select_from(NoticeModel).where(NoticeModel.status == 0)
         total_result = await auth.db.execute(total_stmt)
         total_count = total_result.scalar() or 0
 
         # 已读数量
-        read_stmt = select(func.count()).select_from(NoticeReadModel).where(
-            NoticeReadModel.user_id == auth.user.id
-        )
+        read_stmt = select(func.count()).select_from(NoticeReadModel).where(NoticeReadModel.user_id == auth.user.id)
         read_result = await auth.db.execute(read_stmt)
         read_count = read_result.scalar() or 0
 
@@ -356,15 +338,15 @@ class NoticeService:
             result = await auth.db.execute(stmt)
             logs = result.scalars().all()
             for log_entry in logs:
-                messages.append(PanelMessageItem(
-                    id=log_entry.id,
-                    title=log_entry.request_path or "系统操作",
-                    content=f"{log_entry.request_method} {log_entry.request_path}",
-                    time=log_entry.created_time.strftime("%Y-%m-%d %H:%M")
-                    if log_entry.created_time
-                    else "",
-                    type="system",
-                ))
+                messages.append(
+                    PanelMessageItem(
+                        id=log_entry.id,
+                        title=log_entry.request_path or "系统操作",
+                        content=f"{log_entry.request_method} {log_entry.request_path}",
+                        time=log_entry.created_time.strftime("%Y-%m-%d %H:%M") if log_entry.created_time else "",
+                        type="system",
+                    )
+                )
         except Exception as e:
             logger.warning(f"获取面板消息数据失败（操作日志表可能不存在），已跳过: {e}")
 

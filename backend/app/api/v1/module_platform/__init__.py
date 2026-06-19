@@ -11,6 +11,7 @@
 - 租户自助服务 (self_service)
 - 菜单管理 (menu)
 """
+
 from fastapi import APIRouter
 
 from app.api.v1.module_platform.email.controller import EmailRouter

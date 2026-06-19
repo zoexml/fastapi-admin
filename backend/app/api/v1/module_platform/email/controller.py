@@ -24,28 +24,14 @@ from .schema import (
 )
 from .service import EmailConfigService, EmailLogService, EmailSendService, EmailTemplateService
 
-EmailRouter = APIRouter(
-    route_class=OperationLogRoute,
-    prefix="/email",
-    tags=["平台管理/邮件服务"],
-)
-
-# ──────────────────────────────────────────────────────────────
-# SMTP 配置接口
-# ──────────────────────────────────────────────────────────────
+EmailRouter = APIRouter(route_class=OperationLogRoute, prefix="/email", tags=["平台管理/邮件服务"])
 
 
-@EmailRouter.get(
-    "/config/list",
-    summary="SMTP 配置列表",
-    response_model=ResponseSchema[PageResultSchema[EmailConfigOutSchema]],
-)
+@EmailRouter.get("/config/list", summary="SMTP 配置列表", response_model=ResponseSchema[PageResultSchema[EmailConfigOutSchema]])
 async def email_config_list(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[EmailConfigQueryParam, Depends()],
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:query']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:query"]))],
 ):
     """
     SMTP 配置列表
@@ -67,16 +53,10 @@ async def email_config_list(
     return SuccessResponse(data=result, msg="查询成功")
 
 
-@EmailRouter.get(
-    "/config/detail/{id}",
-    summary="SMTP 配置详情",
-    response_model=ResponseSchema[EmailConfigOutSchema],
-)
+@EmailRouter.get("/config/detail/{id}", summary="SMTP 配置详情", response_model=ResponseSchema[EmailConfigOutSchema])
 async def email_config_detail(
     id: Annotated[int, Path()],
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:query']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:query"]))],
 ):
     """
     SMTP 配置详情
@@ -91,16 +71,10 @@ async def email_config_detail(
     return SuccessResponse(data=result, msg="查询成功")
 
 
-@EmailRouter.post(
-    "/config/create",
-    summary="创建 SMTP 配置",
-    response_model=ResponseSchema[EmailConfigOutSchema],
-)
+@EmailRouter.post("/config/create", summary="创建 SMTP 配置", response_model=ResponseSchema[EmailConfigOutSchema])
 async def email_config_create(
     data: EmailConfigCreateSchema,
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:update']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:update"]))],
 ):
     """
     创建 SMTP 配置
@@ -115,17 +89,11 @@ async def email_config_create(
     return SuccessResponse(data=result, msg="创建成功")
 
 
-@EmailRouter.put(
-    "/config/update/{id}",
-    summary="更新 SMTP 配置",
-    response_model=ResponseSchema[EmailConfigOutSchema],
-)
+@EmailRouter.put("/config/update/{id}", summary="更新 SMTP 配置", response_model=ResponseSchema[EmailConfigOutSchema])
 async def email_config_update(
     id: Annotated[int, Path()],
     data: EmailConfigUpdateSchema,
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:update']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:update"]))],
 ):
     """
     更新 SMTP 配置
@@ -144,9 +112,7 @@ async def email_config_update(
 @EmailRouter.delete("/config/delete", summary="删除 SMTP 配置", response_model=ResponseSchema[None])
 async def email_config_delete(
     ids: Annotated[list[int], Body()],
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:update']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:update"]))],
 ):
     """
     删除 SMTP 配置
@@ -164,9 +130,7 @@ async def email_config_delete(
 @EmailRouter.post("/config/test", summary="测试 SMTP 连接", response_model=ResponseSchema)
 async def email_config_test(
     data: EmailTestSchema,
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:update']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:update"]))],
 ):
     """
     测试 SMTP 连接
@@ -180,22 +144,12 @@ async def email_config_test(
     result = await EmailConfigService.test_service(auth=auth, data=data)
     return SuccessResponse(data=result, msg="测试邮件已发送")
 
-# ──────────────────────────────────────────────────────────────
-# 邮件模板接口
-# ──────────────────────────────────────────────────────────────
 
-
-@EmailRouter.get(
-    "/template/list",
-    summary="邮件模板列表",
-    response_model=ResponseSchema[PageResultSchema[EmailTemplateOutSchema]],
-)
+@EmailRouter.get("/template/list", summary="邮件模板列表", response_model=ResponseSchema[PageResultSchema[EmailTemplateOutSchema]])
 async def email_template_list(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[EmailTemplateQueryParam, Depends()],
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:query']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:query"]))],
 ):
     """
     邮件模板列表
@@ -217,16 +171,10 @@ async def email_template_list(
     return SuccessResponse(data=result, msg="查询成功")
 
 
-@EmailRouter.get(
-    "/template/detail/{id}",
-    summary="邮件模板详情",
-    response_model=ResponseSchema[EmailTemplateOutSchema],
-)
+@EmailRouter.get("/template/detail/{id}", summary="邮件模板详情", response_model=ResponseSchema[EmailTemplateOutSchema])
 async def email_template_detail(
     id: Annotated[int, Path()],
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:query']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:query"]))],
 ):
     """
     邮件模板详情
@@ -241,16 +189,10 @@ async def email_template_detail(
     return SuccessResponse(data=result, msg="查询成功")
 
 
-@EmailRouter.post(
-    "/template/create",
-    summary="创建邮件模板",
-    response_model=ResponseSchema[EmailTemplateOutSchema],
-)
+@EmailRouter.post("/template/create", summary="创建邮件模板", response_model=ResponseSchema[EmailTemplateOutSchema])
 async def email_template_create(
     data: EmailTemplateCreateSchema,
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:update']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:update"]))],
 ):
     """
     创建邮件模板
@@ -265,17 +207,11 @@ async def email_template_create(
     return SuccessResponse(data=result, msg="创建成功")
 
 
-@EmailRouter.put(
-    "/template/update/{id}",
-    summary="更新邮件模板",
-    response_model=ResponseSchema[EmailTemplateOutSchema],
-)
+@EmailRouter.put("/template/update/{id}", summary="更新邮件模板", response_model=ResponseSchema[EmailTemplateOutSchema])
 async def email_template_update(
     id: Annotated[int, Path()],
     data: EmailTemplateUpdateSchema,
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:update']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:update"]))],
 ):
     """
     更新邮件模板
@@ -294,9 +230,7 @@ async def email_template_update(
 @EmailRouter.delete("/template/delete", summary="删除邮件模板", response_model=ResponseSchema[None])
 async def email_template_delete(
     ids: Annotated[list[int], Body()],
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:update']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:update"]))],
 ):
     """
     删除邮件模板
@@ -310,21 +244,11 @@ async def email_template_delete(
     await EmailTemplateService.delete_service(auth=auth, ids=ids)
     return SuccessResponse(msg="删除成功")
 
-# ──────────────────────────────────────────────────────────────
-# 邮件发送接口
-# ──────────────────────────────────────────────────────────────
 
-
-@EmailRouter.post(
-    "/send",
-    summary="手动发送邮件（超管测试/补发）",
-    response_model=ResponseSchema,
-)
+@EmailRouter.post("/send", summary="手动发送邮件（超管测试/补发）", response_model=ResponseSchema)
 async def email_send(
     data: EmailSendSchema,
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:update']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:update"]))],
 ):
     """
     手动发送邮件
@@ -338,22 +262,12 @@ async def email_send(
     result = await EmailSendService.manual_send_service(auth=auth, data=data)
     return SuccessResponse(data=result, msg="发送成功")
 
-# ──────────────────────────────────────────────────────────────
-# 邮件发送日志接口
-# ──────────────────────────────────────────────────────────────
 
-
-@EmailRouter.get(
-    "/log/list",
-    summary="邮件发送日志",
-    response_model=ResponseSchema[PageResultSchema[EmailLogOutSchema]],
-)
+@EmailRouter.get("/log/list", summary="邮件发送日志", response_model=ResponseSchema[PageResultSchema[EmailLogOutSchema]])
 async def email_log_list(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[EmailLogQueryParam, Depends()],
-    auth: Annotated[
-        AuthSchema, Depends(AuthPermission(['module_platform:email:query']))
-    ],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:email:query"]))],
 ):
     """
     邮件发送日志

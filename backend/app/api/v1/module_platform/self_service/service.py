@@ -1,4 +1,5 @@
 """租户自助服务 Service"""
+
 from datetime import datetime, timedelta
 
 from sqlalchemy import func, select
@@ -56,20 +57,22 @@ async def get_available_packages(auth: AuthSchema, tenant_id: int) -> PackageAva
         elif current_price is not None:
             actions = ["upgrade"] if pkg.price > current_price else ["downgrade"]
 
-        items.append(PackageAvailableItem(
-            id=pkg.id,
-            name=pkg.name,
-            price=pkg.price,
-            period=pkg.period,
-            trial_days=pkg.trial_days,
-            max_users=pkg.max_users,
-            max_roles=pkg.max_roles,
-            max_depts=pkg.max_depts,
-            max_storage_mb=pkg.max_storage_mb,
-            description=pkg.description,
-            is_current=is_current,
-            available_actions=actions,
-        ))
+        items.append(
+            PackageAvailableItem(
+                id=pkg.id,
+                name=pkg.name,
+                price=pkg.price,
+                period=pkg.period,
+                trial_days=pkg.trial_days,
+                max_users=pkg.max_users,
+                max_roles=pkg.max_roles,
+                max_depts=pkg.max_depts,
+                max_storage_mb=pkg.max_storage_mb,
+                description=pkg.description,
+                is_current=is_current,
+                available_actions=actions,
+            )
+        )
 
     return PackageAvailableOut(
         current_package_id=current_pkg_id,
@@ -77,9 +80,7 @@ async def get_available_packages(auth: AuthSchema, tenant_id: int) -> PackageAva
     )
 
 
-async def preview_package_change(
-    auth: AuthSchema, tenant_id: int, target_package_id: int
-) -> PackagePreviewOut:
+async def preview_package_change(auth: AuthSchema, tenant_id: int, target_package_id: int) -> PackagePreviewOut:
     """套餐变更影响预览"""
     tenant = await auth.db.get(TenantModel, tenant_id)
     current_pkg_id = tenant.package_id if tenant else None
@@ -95,16 +96,12 @@ async def preview_package_change(
     # 获取当前套餐的菜单
     current_menus = set()
     if current_pkg_id:
-        cm_stmt = select(MenuModel).join(
-            PackageMenuModel, MenuModel.id == PackageMenuModel.menu_id
-        ).where(PackageMenuModel.package_id == current_pkg_id)
+        cm_stmt = select(MenuModel).join(PackageMenuModel, MenuModel.id == PackageMenuModel.menu_id).where(PackageMenuModel.package_id == current_pkg_id)
         result = await auth.db.execute(cm_stmt)
         current_menus = {m.id for m in result.scalars().all()}
 
     # 获取目标套餐的菜单
-    tm_stmt = select(MenuModel).join(
-        PackageMenuModel, MenuModel.id == PackageMenuModel.menu_id
-    ).where(PackageMenuModel.package_id == target_package_id)
+    tm_stmt = select(MenuModel).join(PackageMenuModel, MenuModel.id == PackageMenuModel.menu_id).where(PackageMenuModel.package_id == target_package_id)
     result = await auth.db.execute(tm_stmt)
     target_menus = {m.id for m in result.scalars().all()}
 
@@ -153,9 +150,7 @@ async def preview_package_change(
     )
 
 
-async def create_self_order(
-    auth: AuthSchema, tenant_id: int, data: SelfOrderCreate
-) -> SelfOrderOut:
+async def create_self_order(auth: AuthSchema, tenant_id: int, data: SelfOrderCreate) -> SelfOrderOut:
     """创建自助订单"""
     tenant = await auth.db.get(TenantModel, tenant_id)
     if not tenant:
@@ -195,6 +190,7 @@ async def create_self_order(
             OrderUpdateInternalSchema(status=1, pay_method="free", pay_time=datetime.now()),
         )
         from app.api.v1.module_platform.order.service import PaymentService
+
         await PaymentService._activate_tenant_package(auth, order)
 
     logger.info(f"自助订单创建: order_no={order.order_no} tenant={tenant_id} amount={amount}")
@@ -206,9 +202,7 @@ async def create_self_order(
     )
 
 
-async def create_plugin_purchase_order(
-    auth: AuthSchema, tenant_id: int, data: PluginPurchaseCreate
-) -> SelfOrderOut:
+async def create_plugin_purchase_order(auth: AuthSchema, tenant_id: int, data: PluginPurchaseCreate) -> SelfOrderOut:
     """创建插件购买订单（复用套餐订单流程）"""
     from app.api.v1.module_platform.order.schema import OrderCreateSchema
     from app.api.v1.module_platform.order.service import OrderService
@@ -224,10 +218,12 @@ async def create_plugin_purchase_order(
 
     # 校验未重复购买
     existing = await auth.db.execute(
-        select(TenantPluginModel).where(
+        select(TenantPluginModel)
+        .where(
             TenantPluginModel.tenant_id == tenant_id,
             TenantPluginModel.plugin_id == data.plugin_id,
-        ).limit(1)
+        )
+        .limit(1)
     )
     tp = existing.scalar_one_or_none()
     if tp and tp.purchased == "1":
@@ -263,46 +259,36 @@ async def get_self_order_list(
 
     from app.api.v1.module_platform.order.model import OrderModel
 
-    stmt = (
-        select(OrderModel)
-        .where(OrderModel.tenant_id == tenant_id)
-        .order_by(OrderModel.created_time.desc())
-        .offset((page_no - 1) * page_size)
-        .limit(page_size)
-    )
+    stmt = select(OrderModel).where(OrderModel.tenant_id == tenant_id).order_by(OrderModel.created_time.desc()).offset((page_no - 1) * page_size).limit(page_size)
     result = await auth.db.execute(stmt)
     orders = result.scalars().all()
 
     # 查总数
-    total = (
-        await auth.db.execute(
-            select(sa_func.count(OrderModel.id)).where(OrderModel.tenant_id == tenant_id)
-        )
-    ).scalar() or 0
+    total = (await auth.db.execute(select(sa_func.count(OrderModel.id)).where(OrderModel.tenant_id == tenant_id))).scalar() or 0
 
     # 批量查询关联套餐，避免 N+1
     package_ids = [o.package_id for o in orders if o.package_id]
     pkg_map: dict[int, str] = {}
     if package_ids:
-        pkg_result = await auth.db.execute(
-            select(PackageModel.id, PackageModel.name).where(PackageModel.id.in_(package_ids))
-        )
+        pkg_result = await auth.db.execute(select(PackageModel.id, PackageModel.name).where(PackageModel.id.in_(package_ids)))
         pkg_map = {row[0]: row[1] for row in pkg_result.all()}
 
     items = []
     for o in orders:
         pkg_name = pkg_map.get(o.package_id, "") if o.package_id else ""
-        items.append(SelfOrderListItem(
-            id=o.id,
-            order_no=o.order_no,
-            package_name=pkg_name,
-            order_type=o.order_type,
-            amount=o.amount,
-            status=o.status,
-            pay_method=o.pay_method,
-            pay_time=o.pay_time.isoformat() if o.pay_time else None,
-            created_at=o.created_time.isoformat() if o.created_time else None,
-        ))
+        items.append(
+            SelfOrderListItem(
+                id=o.id,
+                order_no=o.order_no,
+                package_name=pkg_name,
+                order_type=o.order_type,
+                amount=o.amount,
+                status=o.status,
+                pay_method=o.pay_method,
+                pay_time=o.pay_time.isoformat() if o.pay_time else None,
+                created_at=o.created_time.isoformat() if o.created_time else None,
+            )
+        )
 
     return SelfOrderListOut(
         items=items,
@@ -312,9 +298,7 @@ async def get_self_order_list(
     )
 
 
-async def get_self_order_detail(
-    auth: AuthSchema, tenant_id: int, order_id: int
-) -> SelfOrderDetailOut:
+async def get_self_order_detail(auth: AuthSchema, tenant_id: int, order_id: int) -> SelfOrderDetailOut:
     """订单详情"""
     from app.api.v1.module_platform.order.model import OrderModel
 
@@ -372,9 +356,13 @@ async def get_workspace_data(auth: AuthSchema, tenant_id: int) -> WorkspaceOut:
 
     # ── 用量计数 ──
     async def _count(model_cls) -> int:
-        stmt = select(func.count()).select_from(model_cls).where(
-            model_cls.tenant_id == tenant_id,
-            model_cls.is_deleted == False,
+        stmt = (
+            select(func.count())
+            .select_from(model_cls)
+            .where(
+                model_cls.tenant_id == tenant_id,
+                model_cls.is_deleted == False,
+            )
         )
         return (await auth.db.execute(stmt)).scalar() or 0
 
@@ -398,23 +386,20 @@ async def get_workspace_data(auth: AuthSchema, tenant_id: int) -> WorkspaceOut:
     # ── 近期订单 ──
     from app.api.v1.module_platform.order.model import OrderModel
 
-    orders_stmt = (
-        select(OrderModel)
-        .where(OrderModel.tenant_id == tenant_id)
-        .order_by(OrderModel.created_time.desc())
-        .limit(5)
-    )
+    orders_stmt = select(OrderModel).where(OrderModel.tenant_id == tenant_id).order_by(OrderModel.created_time.desc()).limit(5)
     orders_result = await auth.db.execute(orders_stmt)
     recent_orders = []
     for o in orders_result.scalars().all():
-        recent_orders.append(WorkspaceOrderItem(
-            id=o.id,
-            order_no=o.order_no,
-            amount=o.amount,
-            order_type=o.order_type,
-            status=o.status,
-            created_at=o.created_time.isoformat() if o.created_time else None,
-        ))
+        recent_orders.append(
+            WorkspaceOrderItem(
+                id=o.id,
+                order_no=o.order_no,
+                amount=o.amount,
+                order_type=o.order_type,
+                status=o.status,
+                created_at=o.created_time.isoformat() if o.created_time else None,
+            )
+        )
 
     return WorkspaceOut(
         tenant=WorkspaceTenantInfo(
@@ -435,7 +420,9 @@ async def get_workspace_data(auth: AuthSchema, tenant_id: int) -> WorkspaceOut:
             max_users=package.max_users,
             max_roles=package.max_roles,
             max_depts=package.max_depts,
-        ) if package else None,
+        )
+        if package
+        else None,
         quota=WorkspaceQuotaInfo(
             max_users=package.max_users if package else 0,
             max_roles=package.max_roles if package else 0,

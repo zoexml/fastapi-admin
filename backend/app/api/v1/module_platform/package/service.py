@@ -58,9 +58,7 @@ class PackageService:
         return result
 
     @classmethod
-    async def update_service(
-        cls, auth: AuthSchema, id: int, data: PackageUpdateSchema
-    ) -> PackageOutSchema:
+    async def update_service(cls, auth: AuthSchema, id: int, data: PackageUpdateSchema) -> PackageOutSchema:
         obj = await PackageCRUD(auth).get(id=id)
         if not obj:
             raise CustomException(msg="套餐不存在")
@@ -79,7 +77,7 @@ class PackageService:
             await cls.disable_cascade_service(auth=auth, package_id=id)
 
         updated = await PackageCRUD(auth).update(id=id, data=data)
-        
+
         return PackageOutSchema.model_validate(updated)
 
     @classmethod
@@ -117,10 +115,7 @@ class PackageService:
         return [row[0] for row in result.all()]
 
     @classmethod
-    async def set_menus_service(
-        cls, auth: AuthSchema, package_id: int, data: PackageMenuSetSchema
-    ) -> None:
-        
+    async def set_menus_service(cls, auth: AuthSchema, package_id: int, data: PackageMenuSetSchema) -> None:
         """批量设置套餐菜单权限（先清空再写入）"""
         await auth.db.execute(sa.delete(PackageMenuModel).where(PackageMenuModel.package_id == package_id))
         for menu_id in data.menu_ids:
@@ -185,29 +180,21 @@ class PackageService:
         if pkg_status != 0:
             return []
 
-        plugin_stmt = select(PackagePluginModel.plugin_id).where(
-            PackagePluginModel.package_id == tenant.package_id
-        )
+        plugin_stmt = select(PackagePluginModel.plugin_id).where(PackagePluginModel.package_id == tenant.package_id)
         result = await auth.db.execute(plugin_stmt)
         return [row[0] for row in result.all()]
 
     @classmethod
     async def get_plugins_service(cls, auth: AuthSchema, package_id: int) -> list[int]:
         """获取套餐插件权限（返回 plugin_id 列表）"""
-        stmt = select(PackagePluginModel.plugin_id).where(
-            PackagePluginModel.package_id == package_id
-        )
+        stmt = select(PackagePluginModel.plugin_id).where(PackagePluginModel.package_id == package_id)
         result = await auth.db.execute(stmt)
         return [row[0] for row in result.all()]
 
     @classmethod
-    async def set_plugins_service(
-        cls, auth: AuthSchema, package_id: int, data: PackagePluginSetSchema
-    ) -> None:
+    async def set_plugins_service(cls, auth: AuthSchema, package_id: int, data: PackagePluginSetSchema) -> None:
         """批量设置套餐插件（先清空再写入）"""
-        await auth.db.execute(
-            sa.delete(PackagePluginModel).where(PackagePluginModel.package_id == package_id)
-        )
+        await auth.db.execute(sa.delete(PackagePluginModel).where(PackagePluginModel.package_id == package_id))
         for plugin_id in data.plugin_ids:
             auth.db.add(PackagePluginModel(package_id=package_id, plugin_id=plugin_id))
         await auth.db.flush()

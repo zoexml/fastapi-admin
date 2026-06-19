@@ -195,9 +195,6 @@ class ResourceSearchQueryParam:
         name: str | None = Query(None, description="搜索关键词"),
         path: str | None = Query(None, description="目录路径"),
     ) -> None:
-
-        # 模糊查询字段
         self.name = (QueueEnum.like.value, name) if name else None
 
-        # 精确查询字段
         self.path = path

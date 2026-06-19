@@ -21,9 +21,7 @@ class JobCRUD(CRUDBase[JobModel, JobCreateSchema, JobUpdateSchema]):
         self.auth = auth
         super().__init__(model=JobModel, auth=auth)
 
-    async def get_obj_by_id_crud(
-        self, id: int, preload: list[str | Any] | None = None
-    ) -> JobModel | None:
+    async def get_obj_by_id_crud(self, id: int, preload: list[str | Any] | None = None) -> JobModel | None:
         """
         获取执行日志详情
 

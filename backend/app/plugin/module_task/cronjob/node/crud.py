@@ -23,9 +23,7 @@ class NodeCRUD(CRUDBase[NodeModel, NodeCreateSchema, NodeUpdateSchema]):
         """
         super().__init__(model=NodeModel, auth=auth)
 
-    async def get_obj_by_id_crud(
-        self, id: int, preload: list[str | Any] | None = None
-    ) -> NodeModel | None:
+    async def get_obj_by_id_crud(self, id: int, preload: list[str | Any] | None = None) -> NodeModel | None:
         """
         获取节点详情
 

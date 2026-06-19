@@ -119,12 +119,17 @@ import DeptAPI, {
 } from "@/api/module_system/dept";
 import { useAuth } from "@/hooks/core/useAuth";
 import { useUserStore } from "@stores";
-import { formatTree, renderTableOperationCell, type TableOperationAction } from "@utils";
+import {
+  formatTree,
+  renderTableOperationCell,
+  type TableOperationAction,
+  resolveStatusColumns,
+} from "@utils";
 import type { SearchFormItem } from "@/components/forms/fa-search-bar/index.vue";
+import type FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import type { FormItem } from "@/components/forms/fa-form/index.vue";
-import FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
-import FaForm from "@/components/forms/fa-form/index.vue";
-import { ElTag, ElMessage } from "element-plus";
+import type FaForm from "@/components/forms/fa-form/index.vue";
+import { ElMessage } from "element-plus";
 
 defineOptions({
   name: "Dept",
@@ -136,7 +141,7 @@ const userStore = useUserStore();
 
 type DeptSearchForm = {
   name?: string;
-  status?: string;
+  status?: number;
   created_time?: string[];
 };
 
@@ -381,33 +386,35 @@ const opCtx = {
   onDelete: deleteDeptRow,
 };
 
-const { columnChecks, columns } = useTableColumns<DeptTable>(() => [
-  { type: "selection", width: 48, fixed: "left" },
-  { type: "globalIndex", width: 56, label: "序号" },
-  { prop: "name", label: "部门名称", minWidth: 120, showOverflowTooltip: true },
-  { prop: "code", label: "部门编码", minWidth: 120, showOverflowTooltip: true },
-  {
-    prop: "status",
-    label: "状态",
-    width: 88,
-    formatter: (row: DeptTable) =>
-      h(ElTag, { type: row.status === 0 ? "success" : "danger" }, () =>
-        row.status === 0 ? "启用" : "停用"
-      ),
-  },
-  { prop: "order", label: "排序", width: 88, showOverflowTooltip: true },
-  { prop: "description", label: "描述", minWidth: 100, showOverflowTooltip: true },
-  { prop: "created_time", label: "创建时间", width: 168, showOverflowTooltip: true },
-  { prop: "updated_time", label: "更新时间", width: 168, showOverflowTooltip: true },
-  {
-    prop: "operation",
-    label: "操作",
-    width: 220,
-    fixed: "right",
-    align: "right",
-    formatter: (row: DeptTable) => formatDeptOperationCell(row, opCtx),
-  },
-]);
+const { columnChecks, columns } = useTableColumns<DeptTable>(
+  resolveStatusColumns(() => [
+    { type: "selection", width: 48, fixed: "left" },
+    { type: "globalIndex", width: 56, label: "序号" },
+    { prop: "name", label: "部门名称", minWidth: 120, showOverflowTooltip: true },
+    { prop: "code", label: "部门编码", minWidth: 120, showOverflowTooltip: true },
+    {
+      prop: "status",
+      label: "状态",
+      width: 88,
+      status: {
+        0: { type: "success", text: "启用" },
+        1: { type: "danger", text: "停用" },
+      },
+    },
+    { prop: "order", label: "排序", width: 88, showOverflowTooltip: true },
+    { prop: "description", label: "描述", minWidth: 100, showOverflowTooltip: true },
+    { prop: "created_time", label: "创建时间", width: 168, showOverflowTooltip: true },
+    { prop: "updated_time", label: "更新时间", width: 168, showOverflowTooltip: true },
+    {
+      prop: "operation",
+      label: "操作",
+      width: 220,
+      fixed: "right",
+      align: "right",
+      formatter: (row: DeptTable) => formatDeptOperationCell(row, opCtx),
+    },
+  ])
+);
 
 const deptDialogFormItems = computed<FormItem[]>(() => [
   {

@@ -21,7 +21,7 @@ from .schema import (
 )
 from .service import RoleService
 
-RoleRouter = APIRouter(route_class=OperationLogRoute, prefix="/role", tags=["系统管理/角色管理"])
+RoleRouter = APIRouter(route_class=OperationLogRoute, prefix="/role", tags=["角色管理"])
 
 _ROLE_NS = "role"
 
@@ -35,7 +35,7 @@ _ROLE_NS = "role"
 async def get_obj_list_controller(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[RoleQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:role:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:role:query"]))],
 ) -> JSONResponse:
     """
     查询角色
@@ -68,7 +68,7 @@ async def get_obj_list_controller(
 )
 async def get_obj_detail_controller(
     id: Annotated[int, Path(description="角色ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:role:detail']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:role:detail"]))],
 ) -> JSONResponse:
     """
     查询角色详情
@@ -91,7 +91,7 @@ async def get_obj_detail_controller(
 )
 async def create_obj_controller(
     data: RoleCreateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:role:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:role:create"]))],
 ) -> JSONResponse:
     """
     创建角色
@@ -116,7 +116,7 @@ async def create_obj_controller(
 async def update_obj_controller(
     data: RoleUpdateSchema,
     id: Annotated[int, Path(description="角色ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:role:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:role:update"]))],
 ) -> JSONResponse:
     """
     修改角色
@@ -141,7 +141,7 @@ async def update_obj_controller(
 )
 async def delete_obj_controller(
     ids: Annotated[list[int], Body(description="ID列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:role:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:role:delete"]))],
 ) -> JSONResponse:
     """
     删除角色
@@ -165,7 +165,7 @@ async def delete_obj_controller(
 )
 async def batch_set_available_obj_controller(
     data: BatchSetAvailable,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:role:patch']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:role:patch"]))],
 ) -> JSONResponse:
     """
     批量修改角色状态
@@ -189,7 +189,7 @@ async def batch_set_available_obj_controller(
 )
 async def set_role_permission_controller(
     data: RolePermissionSettingSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:role:permission']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:role:permission"]))],
 ) -> JSONResponse:
     """
     角色授权
@@ -213,7 +213,7 @@ async def set_role_permission_controller(
 )
 async def export_obj_list_controller(
     search: Annotated[RoleQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:role:export']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:role:export"]))],
 ) -> StreamingResponse:
     """
     导出角色

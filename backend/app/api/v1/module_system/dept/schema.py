@@ -2,8 +2,9 @@ from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.common.enums import QueueEnum
-from app.core.base_schema import BaseSchema
-from app.core.validator import DateTimeStr, validate_required_code
+from app.core.base_params import BaseQueryParam, TenantByQueryParam, UserByQueryParam
+from app.core.base_schema import BaseSchema, TenantBySchema, UserBySchema
+from app.core.validator import validate_required_code
 
 
 class DeptCreateSchema(BaseModel):
@@ -16,7 +17,7 @@ class DeptCreateSchema(BaseModel):
     phone: str | None = Field(default=None, max_length=20, description="联系电话")
     email: str | None = Field(default=None, max_length=128, description="邮箱")
     parent_id: int | None = Field(default=None, ge=0, description="父部门ID")
-    status: int = Field(default=0, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, max_length=255, description="备注")
 
     @field_validator("name")
@@ -46,7 +47,7 @@ class DeptUpdateSchema(DeptCreateSchema):
     """部门更新模型"""
 
 
-class DeptDetailOutSchema(DeptCreateSchema, BaseSchema):
+class DeptDetailOutSchema(DeptCreateSchema, BaseSchema, UserBySchema, TenantBySchema):
     """部门详情响应模型（不含 children，用于详情和更新）"""
 
     model_config = ConfigDict(from_attributes=True)
@@ -64,33 +65,14 @@ class DeptTreeOutSchema(DeptDetailOutSchema):
 DeptOutSchema = DeptDetailOutSchema
 
 
-class DeptQueryParam:
+class DeptQueryParam(BaseQueryParam, UserByQueryParam, TenantByQueryParam):
     """部门管理查询参数"""
 
     def __init__(
         self,
         name: str | None = Query(None, description="部门名称"),
-        status: str | None = Query(None, description="部门状态(True正常 False停用)"),
-        created_time: list[DateTimeStr] | None = Query(
-            None,
-            description="创建时间范围",
-            examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"],
-        ),
-        updated_time: list[DateTimeStr] | None = Query(
-            None,
-            description="更新时间范围",
-            examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"],
-        ),
+        *args,
+        **kwargs,
     ) -> None:
-
-        # 模糊查询字段
+        super().__init__(*args, **kwargs)
         self.name = (QueueEnum.like.value, name)
-
-        # 精确查询字段
-        self.status = (QueueEnum.eq.value, status)
-
-        # 时间范围查询
-        if created_time and len(created_time) == 2:
-            self.created_time = (QueueEnum.between.value, (created_time[0], created_time[1]))
-        if updated_time and len(updated_time) == 2:
-            self.updated_time = (QueueEnum.between.value, (updated_time[0], updated_time[1]))

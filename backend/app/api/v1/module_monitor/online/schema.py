@@ -33,10 +33,6 @@ class OnlineQueryParam:
         ipaddr: str | None = Query(None, description="登陆IP地址"),
         login_location: str | None = Query(None, description="登录所属地"),
     ) -> None:
-
-        # 模糊查询字段
         self.name = (QueueEnum.like.value, f"%{name}%") if name else None
-        self.login_location = (
-            (QueueEnum.like.value, f"%{login_location}%") if login_location else None
-        )
+        self.login_location = (QueueEnum.like.value, f"%{login_location}%") if login_location else None
         self.ipaddr = (QueueEnum.like.value, f"%{ipaddr}%") if ipaddr else None

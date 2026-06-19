@@ -18,7 +18,7 @@ from .schema import (
 )
 from .service import NodeService
 
-NodeRouter = APIRouter(route_class=OperationLogRoute, prefix="/cronjob/node", tags=["定时任务/节点管理"])
+NodeRouter = APIRouter(route_class=OperationLogRoute, prefix="/cronjob/node", tags=["节点管理"])
 
 
 @NodeRouter.get(

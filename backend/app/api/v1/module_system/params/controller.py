@@ -14,7 +14,7 @@ from app.utils.common_util import bytes2file_response
 from .schema import ParamsCreateSchema, ParamsOutSchema, ParamsQueryParam, ParamsUpdateSchema
 from .service import ParamsService
 
-ParamsRouter = APIRouter(route_class=OperationLogRoute, prefix="/param", tags=["系统管理/参数管理"])
+ParamsRouter = APIRouter(route_class=OperationLogRoute, prefix="/param", tags=["参数管理"])
 
 
 @ParamsRouter.get(
@@ -24,7 +24,7 @@ ParamsRouter = APIRouter(route_class=OperationLogRoute, prefix="/param", tags=["
 )
 async def get_type_detail_controller(
     id: Annotated[int, Path(description="参数ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:param:detail']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:detail"]))],
 ) -> JSONResponse:
     """
     获取参数详情
@@ -47,7 +47,7 @@ async def get_type_detail_controller(
 )
 async def get_obj_by_key_controller(
     config_key: Annotated[str, Path(description="配置键")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:param:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:query"]))],
 ) -> JSONResponse:
     """
     根据配置键获取参数详情
@@ -70,7 +70,7 @@ async def get_obj_by_key_controller(
 )
 async def get_config_value_by_key_controller(
     config_key: Annotated[str, Path(description="配置键")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:param:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:query"]))],
 ) -> JSONResponse:
     """
     根据配置键获取参数值
@@ -82,9 +82,7 @@ async def get_config_value_by_key_controller(
     返回:
     - JSONResponse: 包含参数值的 JSON 响应
     """
-    result_value = await ParamsService.get_config_value_by_key_service(
-        config_key=config_key, auth=auth
-    )
+    result_value = await ParamsService.get_config_value_by_key_service(config_key=config_key, auth=auth)
     return SuccessResponse(data=result_value, msg="根据配置键获取参数值成功")
 
 
@@ -94,7 +92,7 @@ async def get_config_value_by_key_controller(
     response_model=ResponseSchema[PageResultSchema[ParamsOutSchema]],
 )
 async def get_obj_list_controller(
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:param:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:query"]))],
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[ParamsQueryParam, Depends()],
 ) -> JSONResponse:
@@ -127,7 +125,7 @@ async def get_obj_list_controller(
 async def create_obj_controller(
     data: ParamsCreateSchema,
     redis: Annotated[Redis, Depends(redis_getter)],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:param:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:create"]))],
 ) -> JSONResponse:
     """
     创建参数
@@ -153,7 +151,7 @@ async def update_objs_controller(
     data: ParamsUpdateSchema,
     id: Annotated[int, Path(description="参数ID")],
     redis: Annotated[Redis, Depends(redis_getter)],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:param:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:update"]))],
 ) -> JSONResponse:
     """
     修改参数
@@ -179,7 +177,7 @@ async def update_objs_controller(
 async def delete_obj_controller(
     redis: Annotated[Redis, Depends(redis_getter)],
     ids: Annotated[list[int], Body(description="ID列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:param:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:delete"]))],
 ) -> JSONResponse:
     """
     删除参数
@@ -204,7 +202,7 @@ async def delete_obj_controller(
 async def batch_set_status_controller(
     ids: Annotated[list[int], Body(description="参数ID列表")],
     status: Annotated[str, Body(description="状态值")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:param:patch']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:patch"]))],
 ) -> JSONResponse:
     """
     批量设置参数状态
@@ -228,7 +226,7 @@ async def batch_set_status_controller(
 )
 async def export_obj_list_controller(
     search: Annotated[ParamsQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:param:export']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:param:export"]))],
 ) -> StreamingResponse:
     """
     导出参数

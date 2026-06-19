@@ -32,7 +32,7 @@ const OnlineAPI = {
 
 export default OnlineAPI;
 
-export interface OnlineUserPageQuery extends PageQuery {
+export interface OnlineUserPageQuery extends PageQuery, UserByQueryParams, TenantByQueryParams {
   ipaddr?: string;
   name?: string;
   login_location?: string;

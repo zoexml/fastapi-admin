@@ -98,9 +98,7 @@ class ParamsService:
         返回:
         - list[ParamsOutSchema]: 配置管理型模型实例
         """
-        obj_list = await ParamsCRUD(auth).list(
-            search=search.__dict__ if search else {}, order_by=order_by
-        )
+        obj_list = await ParamsCRUD(auth).list(search=search.__dict__ if search else {}, order_by=order_by)
         return [ParamsOutSchema.model_validate(obj) for obj in obj_list]
 
     @classmethod
@@ -135,9 +133,7 @@ class ParamsService:
         )
 
     @classmethod
-    async def create_obj_service(
-        cls, auth: AuthSchema, redis: Redis, data: ParamsCreateSchema
-    ) -> ParamsOutSchema:
+    async def create_obj_service(cls, auth: AuthSchema, redis: Redis, data: ParamsCreateSchema) -> ParamsOutSchema:
         """
         创建配置管理型
 
@@ -157,9 +153,7 @@ class ParamsService:
         out = ParamsOutSchema.model_validate(obj)
 
         # 同步redis
-        redis_key = (
-            f"{RedisInitKeyConfig.SYSTEM_CONFIG.key}:{auth.user.tenant_id}:{data.config_key}"
-        )
+        redis_key = f"{RedisInitKeyConfig.SYSTEM_CONFIG.key}:{auth.user.tenant_id}:{data.config_key}"
         try:
             redis_payload = out.model_dump(mode="json")
             value = json.dumps(redis_payload, ensure_ascii=False)
@@ -178,9 +172,7 @@ class ParamsService:
         return out
 
     @classmethod
-    async def update_obj_service(
-        cls, auth: AuthSchema, redis: Redis, id: int, data: ParamsUpdateSchema
-    ) -> ParamsOutSchema:
+    async def update_obj_service(cls, auth: AuthSchema, redis: Redis, id: int, data: ParamsUpdateSchema) -> ParamsOutSchema:
         """
         更新配置管理型
 
@@ -206,9 +198,7 @@ class ParamsService:
         redis_payload = out.model_dump(mode="json")
 
         # 同步redis
-        redis_key = (
-            f"{RedisInitKeyConfig.SYSTEM_CONFIG.key}:{auth.user.tenant_id}:{new_obj.config_key}"
-        )
+        redis_key = f"{RedisInitKeyConfig.SYSTEM_CONFIG.key}:{auth.user.tenant_id}:{new_obj.config_key}"
         try:
             value = json.dumps(redis_payload, ensure_ascii=False)
             result = await RedisCURD(redis).set(
@@ -248,9 +238,7 @@ class ParamsService:
             if not obj:
                 raise CustomException(msg="删除失败，该数据字典类型不存在")
             if obj.config_type:
-                raise CustomException(
-                    msg=f"{obj.config_name} 删除失败，系统初始化配置不可以删除"
-                )
+                raise CustomException(msg=f"{obj.config_name} 删除失败，系统初始化配置不可以删除")
 
         await ParamsCRUD(auth).delete(ids=ids)
 
@@ -361,9 +349,7 @@ class ParamsService:
         返回:
         - list[dict]: 系统配置模型实例字典列表表示
         """
-        redis_keys = await RedisCURD(redis).get_keys(
-            f"{RedisInitKeyConfig.SYSTEM_CONFIG.key}:{tenant_id}:*"
-        )
+        redis_keys = await RedisCURD(redis).get_keys(f"{RedisInitKeyConfig.SYSTEM_CONFIG.key}:{tenant_id}:*")
         redis_configs = await RedisCURD(redis).mget(redis_keys)
         configs = []
         for config in redis_configs:
@@ -450,11 +436,7 @@ class ParamsService:
         if config_values[0]:
             try:
                 demo_config = json.loads(config_values[0])
-                config_result["demo_enable"] = (
-                    demo_config.get("config_value", False)
-                    if isinstance(demo_config, dict)
-                    else False
-                )
+                config_result["demo_enable"] = demo_config.get("config_value", False) if isinstance(demo_config, dict) else False
             except json.JSONDecodeError:
                 logger.error("解析演示模式配置失败")
 
@@ -472,9 +454,7 @@ class ParamsService:
             try:
                 white_api_config = json.loads(config_values[2])
                 # 确保是列表类型
-                config_result["white_api_list_path"] = json.loads(
-                    white_api_config.get("config_value", [])
-                )
+                config_result["white_api_list_path"] = json.loads(white_api_config.get("config_value", []))
             except json.JSONDecodeError:
                 logger.error("解析API白名单配置失败")
 

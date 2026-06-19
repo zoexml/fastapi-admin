@@ -26,9 +26,7 @@ class MenuService:
     """
 
     @classmethod
-    async def _validate_parent_child_type(
-        cls, auth: AuthSchema, parent_id: int | None, child_type: int
-    ) -> None:
+    async def _validate_parent_child_type(cls, auth: AuthSchema, parent_id: int | None, child_type: int) -> None:
         """
         父子类型约束：目录下仅允许目录/菜单/外链；菜单下仅允许按钮；按钮与外链下不可挂子级。
         无父级时仅允许目录、菜单、外链（与前端一致）。
@@ -53,9 +51,7 @@ class MenuService:
             raise CustomException(msg="菜单或链接类型下不允许新增子菜单")
 
     @classmethod
-    async def _validate_parent_child_client(
-        cls, auth: AuthSchema, parent_id: int | None, client: str
-    ) -> None:
+    async def _validate_parent_child_client(cls, auth: AuthSchema, parent_id: int | None, client: str) -> None:
         """子菜单终端须与父菜单一致。"""
         if parent_id is None or client is None:
             return
@@ -107,9 +103,7 @@ class MenuService:
         - list[dict]: 菜单树形列表对象。
         """
         # 使用树形结构查询，预加载children关系
-        menu_list = await MenuCRUD(auth).get_tree_list(
-            search=search.__dict__, order_by=order_by
-        )
+        menu_list = await MenuCRUD(auth).get_tree_list(search=search.__dict__, order_by=order_by)
         # 转换为字典列表（使用树形 Schema）
         menu_dict_list = [MenuTreeOutSchema.model_validate(menu).model_dump() for menu in menu_list]
         # 使用traversal_to_tree构建树形结构
@@ -176,9 +170,7 @@ class MenuService:
         new_menu = await MenuCRUD(auth).update(id=id, data=data)
 
         if data.status is not None:
-            await cls.set_menu_available_service(
-                auth=auth, data=BatchSetAvailable(ids=[id], status=data.status)
-            )
+            await cls.set_menu_available_service(auth=auth, data=BatchSetAvailable(ids=[id], status=data.status))
 
         menu_out = MenuDetailOutSchema.model_validate(new_menu)
         if menu_out.parent_id:

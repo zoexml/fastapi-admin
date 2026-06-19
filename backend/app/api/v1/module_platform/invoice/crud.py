@@ -1,4 +1,5 @@
 """发票管理 CRUD"""
+
 from app.core.base_crud import CRUDBase
 from app.core.base_schema import AuthSchema
 

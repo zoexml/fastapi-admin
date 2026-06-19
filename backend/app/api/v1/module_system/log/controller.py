@@ -21,7 +21,7 @@ from .schema import (
 )
 from .service import LoginLogService, OperationLogService
 
-LogRouter = APIRouter(route_class=OperationLogRoute, prefix="/log", tags=["系统管理/日志管理"])
+LogRouter = APIRouter(route_class=OperationLogRoute, prefix="/log", tags=["日志管理"])
 
 
 @LogRouter.get(
@@ -31,7 +31,7 @@ LogRouter = APIRouter(route_class=OperationLogRoute, prefix="/log", tags=["系�
 )
 async def get_obj_detail_controller(
     id: Annotated[int, Path(description="登录日志ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:login_log:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:login_log:query"]))],
 ) -> JSONResponse:
     """
     获取登录日志详情
@@ -55,7 +55,7 @@ async def get_obj_detail_controller(
 async def get_obj_list_controller(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[LoginLogQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:login_log:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:login_log:query"]))],
 ) -> JSONResponse:
     """
     查询登录日志列表
@@ -108,7 +108,7 @@ async def create_obj_controller(
 )
 async def delete_obj_controller(
     ids: Annotated[list[int], Body(description="ID列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:login_log:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:login_log:delete"]))],
 ) -> JSONResponse:
     """
     删除登录日志
@@ -128,7 +128,7 @@ async def delete_obj_controller(
     "/operation/detail/{id}",
     summary="获取操作日志详情",
     response_model=ResponseSchema[OperationLogDetailOutSchema],
-    dependencies=[Depends(AuthPermission(['module_system:log:query']))],
+    dependencies=[Depends(AuthPermission(["module_system:log:query"]))],
 )
 async def detail(
     *,
@@ -153,7 +153,7 @@ async def detail(
     "/operation/list",
     summary="获取操作日志列表",
     response_model=ResponseSchema[PageResultSchema[OperationLogOutSchema]],
-    dependencies=[Depends(AuthPermission(['module_system:log:query']))],
+    dependencies=[Depends(AuthPermission(["module_system:log:query"]))],
 )
 async def list(
     *,
@@ -210,7 +210,7 @@ async def create(
     "/operation/delete",
     summary="删除操作日志",
     response_model=ResponseSchema,
-    dependencies=[Depends(AuthPermission(['module_system:log:delete']))],
+    dependencies=[Depends(AuthPermission(["module_system:log:delete"]))],
 )
 async def delete(
     *,

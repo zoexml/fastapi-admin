@@ -1,10 +1,13 @@
 """订单与支付 Schema"""
+
 from __future__ import annotations
 
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.common.enums import QueueEnum
+from app.core.base_params import BaseQueryParam
 from app.core.base_schema import BaseSchema
 
 # ─── Internal Create/Update Schemas（CRUD 层用，字段映射 Model 1:1）───
@@ -12,6 +15,7 @@ from app.core.base_schema import BaseSchema
 
 class OrderCreateInternalSchema(BaseModel):
     """订单创建（内部 CRUD 用，包含所有业务字段）"""
+
     order_no: str
     tenant_id: int
     package_id: int | None = None
@@ -27,6 +31,7 @@ class OrderCreateInternalSchema(BaseModel):
 
 class OrderUpdateInternalSchema(BaseModel):
     """订单更新（内部 CRUD 用）"""
+
     status: int | None = None
     pay_method: str | None = None
     pay_time: datetime | None = None
@@ -34,6 +39,7 @@ class OrderUpdateInternalSchema(BaseModel):
 
 class PaymentRecordCreateSchema(BaseModel):
     """支付记录创建"""
+
     order_id: int
     transaction_id: str | None = None
     pay_method: str
@@ -45,6 +51,7 @@ class PaymentRecordCreateSchema(BaseModel):
 
 class RefundCreateSchema(BaseModel):
     """退款记录创建"""
+
     order_id: int
     refund_no: str
     amount: int
@@ -54,6 +61,7 @@ class RefundCreateSchema(BaseModel):
 
 class RefundUpdateSchema(BaseModel):
     """退款记录更新"""
+
     status: int | None = None
     reviewer_id: int | None = None
     review_time: datetime | None = None
@@ -65,6 +73,7 @@ class RefundUpdateSchema(BaseModel):
 
 class OrderCreateSchema(BaseModel):
     """创建订单（套餐或插件）"""
+
     tenant_id: int
     package_id: int | None = Field(default=None, description="套餐ID（套餐订单必填）")
     plugin_id: int | None = Field(default=None, description="插件ID（插件订单必填）")
@@ -91,6 +100,7 @@ class OrderCreateSchema(BaseModel):
 
 class OrderOutSchema(BaseSchema):
     """订单输出"""
+
     order_no: str
     tenant_id: int
     package_id: int | None = None
@@ -105,17 +115,32 @@ class OrderOutSchema(BaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
-class OrderQueryParam(BaseModel):
+class OrderQueryParam(BaseQueryParam):
     """订单查询参数"""
-    tenant_id: int | None = None
-    status: int | None = None
-    order_type: str | None = None
+
+    def __init__(
+        self,
+        tenant_id: int | None = None,
+        status: int | None = None,
+        order_type: str | None = None,
+        *args,
+        **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        if tenant_id is not None:
+            self.tenant_id = (QueueEnum.eq.value, tenant_id)
+        if status is not None:
+            self.status = (QueueEnum.eq.value, status)
+        if order_type:
+            self.order_type = (QueueEnum.eq.value, order_type)
 
 
 # ─── Payment ────────────────────────────────────────────
 
+
 class PaymentCallbackSchema(BaseModel):
     """支付回调数据"""
+
     transaction_id: str | None = None
     amount: int
     order_id: int | None = None
@@ -124,6 +149,7 @@ class PaymentCallbackSchema(BaseModel):
 
 class PaymentRecordOutSchema(BaseSchema):
     """支付记录输出"""
+
     order_id: int
     transaction_id: str | None = None
     pay_method: str
@@ -135,6 +161,7 @@ class PaymentRecordOutSchema(BaseSchema):
 
 class PaymentCreateOut(BaseModel):
     """创建支付结果"""
+
     pay_url: str
     qr_code_url: str
     trade_no: str
@@ -145,6 +172,7 @@ class PaymentCreateOut(BaseModel):
 
 class PaymentStatusOut(BaseModel):
     """支付状态查询结果"""
+
     exists: bool
     order_id: int | None = None
     status: int | None = None
@@ -155,6 +183,7 @@ class PaymentStatusOut(BaseModel):
 
 class OrderStatusMessage(BaseModel):
     """订单/退款操作结果消息"""
+
     id: int
     status: int
     message: str
@@ -162,18 +191,22 @@ class OrderStatusMessage(BaseModel):
 
 # ─── Refund ─────────────────────────────────────────────
 
+
 class RefundApplySchema(BaseModel):
     """退款申请"""
+
     reason: str = Field(min_length=1, max_length=500)
 
 
 class RefundReviewSchema(BaseModel):
     """退款审核"""
+
     reject_reason: str | None = Field(default=None, max_length=500)
 
 
 class RefundOutSchema(BaseSchema):
     """退款记录输出"""
+
     order_id: int
     refund_no: str
     amount: int

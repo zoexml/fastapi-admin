@@ -1,4 +1,5 @@
 """订单与支付 Controller"""
+
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, Path, Query, Request
@@ -27,10 +28,10 @@ from .schema import (
 )
 from .service import OrderService, PaymentService, RefundService
 
-OrderRouter = APIRouter(route_class=OperationLogRoute, prefix="/order", tags=["平台管理/订单管理"])
-PaymentRouter = APIRouter(route_class=OperationLogRoute, prefix="/payment", tags=["平台管理/支付管理"])
-RefundRouter = APIRouter(route_class=OperationLogRoute, prefix="/refund", tags=["平台管理/退款管理"])
-TenantOrderRouter = APIRouter(route_class=OperationLogRoute, prefix="/order", tags=["平台管理/租户订单"])
+OrderRouter = APIRouter(route_class=OperationLogRoute, prefix="/order", tags=["订单管理"])
+PaymentRouter = APIRouter(route_class=OperationLogRoute, prefix="/payment", tags=["支付管理"])
+RefundRouter = APIRouter(route_class=OperationLogRoute, prefix="/refund", tags=["退款管理"])
+TenantOrderRouter = APIRouter(route_class=OperationLogRoute, prefix="/order", tags=["租户订单"])
 
 
 def _make_bare_auth(db: AsyncSession) -> AuthSchema:
@@ -44,7 +45,7 @@ def _make_bare_auth(db: AsyncSession) -> AuthSchema:
 @OrderRouter.post("/create", summary="创建订单", response_model=ResponseSchema[OrderOutSchema])
 async def order_create(
     data: Annotated[OrderCreateSchema, Body()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:order:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:order:create"]))],
 ) -> JSONResponse:
     """
     创建订单
@@ -62,7 +63,7 @@ async def order_create(
 @OrderRouter.get("/detail/{order_id}", summary="订单详情", response_model=ResponseSchema[OrderOutSchema])
 async def order_detail(
     order_id: Annotated[int, Path(ge=1)],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:order:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:order:query"]))],
 ) -> JSONResponse:
     """
     订单详情
@@ -81,7 +82,7 @@ async def order_detail(
 
 @OrderRouter.get("/list", summary="订单列表", response_model=ResponseSchema[PageResultSchema[OrderOutSchema]])
 async def order_list(
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:order:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:order:query"]))],
     tenant_id: Annotated[int | None, Query()] = None,
     status: Annotated[int | None, Query()] = None,
     order_type: Annotated[str | None, Query()] = None,
@@ -117,7 +118,7 @@ async def order_list(
 @OrderRouter.post("/cancel/{order_id}", summary="取消订单", response_model=ResponseSchema[OrderStatusMessage])
 async def order_cancel(
     order_id: Annotated[int, Path(ge=1)],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:order:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:order:update"]))],
 ) -> JSONResponse:
     """
     取消订单
@@ -131,13 +132,14 @@ async def order_cancel(
     result = await OrderService.cancel_order(auth, order_id)
     return SuccessResponse(data=result, msg=result["message"])
 
+
 # ─── 支付 ──────────────────────────────────────────────
 
 
 @PaymentRouter.post("/pay/{order_id}", summary="创建支付（获取支付 URL/二维码）", response_model=ResponseSchema[PaymentCreateOut])
 async def payment_create(
     order_id: Annotated[int, Path(ge=1)],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:order:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:order:update"]))],
     request: Request,
     method: Annotated[str, Query(description="支付渠道: alipay / wxpay(留空=自动)")] = "",
 ) -> JSONResponse:
@@ -159,6 +161,7 @@ async def payment_status(
     auth = _make_bare_auth(db)
     result = await OrderService.check_payment_status(auth, order_id)
     return SuccessResponse(data=result)
+
 
 # ─── 支付回调 ──────────────────────────────────────────
 
@@ -201,12 +204,13 @@ async def payment_mock_callback(
     logger.info(f"Mock 支付回调触发: order_id={order_id}")
     return SuccessResponse(data=result, msg="模拟支付成功")
 
+
 # ─── 支付记录 ──────────────────────────────────────────
 
 
 @PaymentRouter.get("/record/list", summary="支付记录列表", response_model=ResponseSchema[PageResultSchema[PaymentRecordOutSchema]])
 async def payment_record_list(
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:order:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:order:query"]))],
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> JSONResponse:
@@ -231,12 +235,13 @@ async def payment_record_list(
     )
     return SuccessResponse(data=result)
 
+
 # ─── 退款管理 ──────────────────────────────────────────
 
 
 @RefundRouter.get("/list", summary="退款审核列表", response_model=ResponseSchema[PageResultSchema[RefundOutSchema]])
 async def refund_list(
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:order:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:order:query"]))],
     status: Annotated[int | None, Query(description="状态筛选")] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
@@ -267,7 +272,7 @@ async def refund_list(
 @RefundRouter.put("/approve/{refund_id}", summary="批准退款", response_model=ResponseSchema[OrderStatusMessage])
 async def refund_approve(
     refund_id: Annotated[int, Path(ge=1)],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:order:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:order:update"]))],
 ) -> JSONResponse:
     """
     批准退款
@@ -279,7 +284,8 @@ async def refund_approve(
     - JSONResponse: 包含批准结果的 JSON 响应。
     """
     result = await RefundService.approve(
-        auth, refund_id,
+        auth,
+        refund_id,
         auth.user.id if auth.user else 0,
         auth.user.name if auth.user else "",
     )
@@ -290,7 +296,7 @@ async def refund_approve(
 async def refund_reject(
     refund_id: Annotated[int, Path(ge=1)],
     data: Annotated[RefundReviewSchema, Body()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:order:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:order:update"]))],
 ) -> JSONResponse:
     """
     驳回退款
@@ -303,11 +309,14 @@ async def refund_reject(
     - JSONResponse: 包含驳回结果的 JSON 响应。
     """
     result = await RefundService.reject(
-        auth, refund_id,
-        auth.user.id if auth.user else 0, data,
+        auth,
+        refund_id,
+        auth.user.id if auth.user else 0,
+        data,
         auth.user.name if auth.user else "",
     )
     return SuccessResponse(data=result, msg=result["message"])
+
 
 # ─── 租户端订单 ────────────────────────────────────────
 
@@ -315,7 +324,7 @@ async def refund_reject(
 @TenantOrderRouter.post("/create", summary="租户端创建订单", response_model=ResponseSchema[OrderOutSchema])
 async def tenant_order_create(
     data: Annotated[OrderCreateSchema, Body()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['tenant:order:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["tenant:order:create"]))],
 ) -> JSONResponse:
     """
     租户端创建订单
@@ -336,7 +345,7 @@ async def tenant_order_create(
 async def tenant_refund_apply(
     order_id: Annotated[int, Path(ge=1)],
     data: Annotated[RefundApplySchema, Body()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['tenant:order:refund']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["tenant:order:refund"]))],
 ) -> JSONResponse:
     """
     租户端申请退款

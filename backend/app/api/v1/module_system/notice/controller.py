@@ -22,7 +22,7 @@ from .schema import (
 )
 from .service import NoticeService
 
-NoticeRouter = APIRouter(route_class=OperationLogRoute, prefix="/notice", tags=["系统管理/公告通知"])
+NoticeRouter = APIRouter(route_class=OperationLogRoute, prefix="/notice", tags=["公告通知"])
 
 _NOTICE_NS = "notice"
 
@@ -34,7 +34,7 @@ _NOTICE_NS = "notice"
 )
 async def get_obj_detail_controller(
     id: Annotated[int, Path(description="公告ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:notice:detail']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:notice:detail"]))],
 ) -> JSONResponse:
     """
     获取公告详情。
@@ -58,7 +58,7 @@ async def get_obj_detail_controller(
 async def get_obj_list_controller(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[NoticeQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:notice:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:notice:query"]))],
 ) -> JSONResponse:
     """
     查询公告。
@@ -88,7 +88,7 @@ async def get_obj_list_controller(
 )
 async def create_obj_controller(
     data: NoticeCreateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:notice:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:notice:create"]))],
 ) -> JSONResponse:
     """
     创建公告。
@@ -113,7 +113,7 @@ async def create_obj_controller(
 async def update_obj_controller(
     data: NoticeUpdateSchema,
     id: Annotated[int, Path(description="公告ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:notice:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:notice:update"]))],
 ) -> JSONResponse:
     """
     修改公告。
@@ -138,7 +138,7 @@ async def update_obj_controller(
 )
 async def delete_obj_controller(
     ids: Annotated[list[int], Body(description="ID列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:notice:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:notice:delete"]))],
 ) -> JSONResponse:
     """
     删除公告。
@@ -162,7 +162,7 @@ async def delete_obj_controller(
 )
 async def batch_set_available_obj_controller(
     data: BatchSetAvailable,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:notice:patch']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:notice:patch"]))],
 ) -> JSONResponse:
     """
     批量修改公告状态。
@@ -186,7 +186,7 @@ async def batch_set_available_obj_controller(
 )
 async def export_obj_list_controller(
     search: Annotated[NoticeQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:notice:export']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:notice:export"]))],
 ) -> StreamingResponse:
     """
     导出公告。
@@ -243,6 +243,7 @@ async def get_notification_panel_controller(
     """通知面板聚合接口，返回通知、消息、待办三个列表。"""
     result = await NoticeService.get_panel_data_service(auth=auth)
     return SuccessResponse(data=result, msg="获取面板数据成功")
+
 
 # ============ 已读追踪端点 ============
 

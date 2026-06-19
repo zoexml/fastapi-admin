@@ -26,7 +26,7 @@ from .schema import (
 )
 from .service import TenantService
 
-TenantRouter = APIRouter(route_class=OperationLogRoute, prefix="/tenant", tags=["平台管理/租户管理"])
+TenantRouter = APIRouter(route_class=OperationLogRoute, prefix="/tenant", tags=["租户管理"])
 
 _TENANT_NS = "tenant"
 
@@ -39,7 +39,7 @@ _TENANT_NS = "tenant"
 @cache(expire=120, namespace=_TENANT_NS)
 async def get_obj_detail_controller(
     id: Annotated[int, Path(description="租户ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:query"]))],
 ) -> JSONResponse:
     """
     获取租户详情
@@ -62,7 +62,7 @@ async def get_obj_detail_controller(
 async def get_obj_list_controller(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[TenantQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:query"]))],
 ) -> JSONResponse:
     """
     查询租户列表
@@ -94,7 +94,7 @@ async def get_obj_list_controller(
 )
 async def create_obj_controller(
     data: TenantCreateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:create"]))],
 ) -> JSONResponse:
     """
     创建租户
@@ -118,7 +118,7 @@ async def create_obj_controller(
 async def update_obj_controller(
     data: TenantUpdateSchema,
     id: Annotated[int, Path(description="租户ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:update"]))],
 ) -> JSONResponse:
     """
     修改租户
@@ -142,7 +142,7 @@ async def update_obj_controller(
 )
 async def delete_obj_controller(
     ids: Annotated[list[int], Body(..., description="ID列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:delete"]))],
 ) -> JSONResponse:
     """
     删除租户
@@ -165,7 +165,7 @@ async def delete_obj_controller(
 )
 async def batch_set_available_obj_controller(
     data: BatchSetAvailable,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:patch']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:patch"]))],
 ) -> JSONResponse:
     """
     批量修改租户状态
@@ -188,7 +188,7 @@ async def batch_set_available_obj_controller(
 )
 async def toggle_tenant_status_controller(
     id: Annotated[int, Path(description="租户ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:patch']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:patch"]))],
 ) -> JSONResponse:
     """
     启/禁用租户
@@ -212,7 +212,7 @@ async def toggle_tenant_status_controller(
 @cache(expire=120, namespace=_TENANT_NS)
 async def get_tenant_users_controller(
     id: Annotated[int, Path(description="租户ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:query"]))],
 ) -> JSONResponse:
     """
     获取租户用户列表
@@ -235,7 +235,7 @@ async def get_tenant_users_controller(
 async def add_tenant_user_controller(
     id: Annotated[int, Path(description="租户ID")],
     data: TenantUserAddSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:create"]))],
 ) -> JSONResponse:
     """
     向租户添加用户
@@ -260,7 +260,7 @@ async def add_tenant_user_controller(
 async def remove_tenant_user_controller(
     id: Annotated[int, Path(description="租户ID")],
     uid: Annotated[int, Path(description="用户ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:delete"]))],
 ) -> JSONResponse:
     """
     从租户移除用户
@@ -276,6 +276,7 @@ async def remove_tenant_user_controller(
     await FastAPICache.clear(namespace=_TENANT_NS)
     return SuccessResponse(msg="移除用户成功")
 
+
 # ============ P1: 租户配置 ============
 
 
@@ -286,7 +287,7 @@ async def remove_tenant_user_controller(
 )
 async def get_tenant_config_controller(
     id: Annotated[int, Path(description="租户ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:query"]))],
 ) -> JSONResponse:
     """
     获取租户配置
@@ -332,7 +333,7 @@ async def update_tenant_config_controller(
     id: Annotated[int, Path(description="租户ID")],
     data: Annotated[list[TenantConfigItem], Body(..., description="配置项列表")],
     redis: Annotated[Redis, Depends(redis_getter)],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:update"]))],
 ) -> JSONResponse:
     """
     更新租户配置
@@ -344,11 +345,10 @@ async def update_tenant_config_controller(
     返回:
     - JSONResponse: 包含更新后的配置列表的 JSON 响应。
     """
-    result = await TenantService.update_config_service(
-        auth=auth, redis=redis, tenant_id=id, config=data
-    )
+    result = await TenantService.update_config_service(auth=auth, redis=redis, tenant_id=id, config=data)
     await FastAPICache.clear(namespace=_TENANT_NS)
     return SuccessResponse(data=result, msg="更新租户配置成功")
+
 
 # ============ 续期 ============
 
@@ -361,7 +361,7 @@ async def update_tenant_config_controller(
 async def renew_tenant_controller(
     id: Annotated[int, Path(description="租户ID")],
     data: TenantRenewSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:update"]))],
 ) -> JSONResponse:
     """
     租户续期
@@ -377,6 +377,7 @@ async def renew_tenant_controller(
     await FastAPICache.clear(namespace=_TENANT_NS)
     return SuccessResponse(data=result, msg="租户续期成功")
 
+
 # ============ 套餐变更预览 ============
 
 
@@ -388,7 +389,7 @@ async def renew_tenant_controller(
 async def package_change_preview_controller(
     id: Annotated[int, Path(description="租户ID")],
     new_package_id: Annotated[int, Query(..., description="目标套餐ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:tenant:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:tenant:query"]))],
 ) -> JSONResponse:
     """
     套餐变更影响预览
@@ -400,7 +401,5 @@ async def package_change_preview_controller(
     返回:
     - JSONResponse: 包含套餐变更影响预览的 JSON 响应。
     """
-    result = await TenantService.package_change_preview_service(
-        auth=auth, tenant_id=id, new_package_id=new_package_id
-    )
+    result = await TenantService.package_change_preview_service(auth=auth, tenant_id=id, new_package_id=new_package_id)
     return SuccessResponse(data=result, msg="套餐变更预览成功")

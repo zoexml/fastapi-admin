@@ -3,7 +3,7 @@
           <img src="frontend/web/public/logo.svg" width="150" height="150" alt="logo" />
      </p>
      <h1>FastApiAdmin <sup style="background-color: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.4em; vertical-align: super; margin-left: 5px;">v3.0.0</sup></h1>
-     <h3>🚀 开箱即用，5 分钟搭建企业级中后台</h3>
+     <h3>🚀 追求极致代码质量，五分钟搭建企业级中后台，开箱即用</h3>
      <p>基于 <b>FastAPI + Vue3 + TypeScript</b> 的全栈快速开发平台，Web / H5 / 小程序一站式交付</p>
      <p align="center">
           <a href="https://gitee.com/fastapiadmin/FastapiAdmin.git" target="_blank">

@@ -14,9 +14,7 @@ class OnlineService:
     """在线用户管理模块服务层"""
 
     @classmethod
-    async def get_online_list_service(
-        cls, redis: Redis, search: OnlineQueryParam | None = None
-    ) -> list[dict]:
+    async def get_online_list_service(cls, redis: Redis, search: OnlineQueryParam | None = None) -> list[dict]:
         """
         获取在线用户列表信息（支持分页和搜索）
 

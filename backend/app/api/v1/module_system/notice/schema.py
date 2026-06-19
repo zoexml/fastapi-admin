@@ -8,8 +8,8 @@ from pydantic import (
 )
 
 from app.common.enums import QueueEnum
-from app.core.base_schema import BaseSchema, UserBySchema
-from app.core.validator import DateTimeStr
+from app.core.base_params import BaseQueryParam, TenantByQueryParam, UserByQueryParam
+from app.core.base_schema import BaseSchema, TenantBySchema, UserBySchema
 from app.utils.xss_util import sanitize_html
 
 
@@ -19,7 +19,7 @@ class NoticeCreateSchema(BaseModel):
     notice_title: str = Field(..., min_length=1, max_length=64, description="公告标题")
     notice_type: str = Field(..., max_length=1, description="公告类型(1:通知 2:公告)")
     notice_content: str | None = Field(default=None, max_length=65535, description="公告内容")
-    status: int = Field(default=0, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, max_length=255, description="描述")
 
     @field_validator("notice_type")
@@ -56,57 +56,25 @@ class NoticeUpdateSchema(NoticeCreateSchema):
     """公告通知更新模型"""
 
 
-class NoticeOutSchema(NoticeCreateSchema, BaseSchema, UserBySchema):
+class NoticeOutSchema(NoticeCreateSchema, BaseSchema, UserBySchema, TenantBySchema):
     """公告通知响应模型"""
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class NoticeQueryParam:
+class NoticeQueryParam(BaseQueryParam, UserByQueryParam, TenantByQueryParam):
     """公告通知查询参数"""
 
     def __init__(
         self,
         notice_title: str | None = Query(None, description="公告标题"),
         notice_type: str | None = Query(None, description="公告类型"),
-        description: str | None = Query(None, description="描述"),
-        status: str | None = Query(None, description="是否启用"),
-        created_time: list[DateTimeStr] | None = Query(
-            None,
-            description="创建时间范围",
-            examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"],
-        ),
-        updated_time: list[DateTimeStr] | None = Query(
-            None,
-            description="更新时间范围",
-            examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"],
-        ),
-        created_id: int | None = Query(None, description="创建人"),
-        updated_id: int | None = Query(None, description="更新人"),
+        *args,
+        **kwargs,
     ) -> None:
-        # 模糊查询字段
+        super().__init__(*args, **kwargs)
         self.notice_title = (QueueEnum.like.value, notice_title)
-        # 精确查询字段
         self.notice_type = (QueueEnum.eq.value, notice_type)
-        # 模糊查询字段
-        if description:
-            self.description = (QueueEnum.like.value, description)
-
-        # 精确查询字段
-        if status:
-            self.status = (QueueEnum.eq.value, status)
-
-        # 时间范围查询
-        if created_time and len(created_time) == 2:
-            self.created_time = (QueueEnum.between.value, (created_time[0], created_time[1]))
-        if updated_time and len(updated_time) == 2:
-            self.updated_time = (QueueEnum.between.value, (updated_time[0], updated_time[1]))
-
-        # 关联查询字段
-        if created_id:
-            self.created_id = (QueueEnum.eq.value, created_id)
-        if updated_id:
-            self.updated_id = (QueueEnum.eq.value, updated_id)
 
 
 # ─── 通知面板 ───
@@ -114,6 +82,7 @@ class NoticeQueryParam:
 
 class PanelMessageItem(BaseModel):
     """面板-消息项"""
+
     id: int
     title: str
     content: str
@@ -123,6 +92,7 @@ class PanelMessageItem(BaseModel):
 
 class PanelDataOut(BaseModel):
     """通知面板聚合数据"""
+
     notices: list[NoticeOutSchema] = []
     messages: list[PanelMessageItem] = []
     pendings: list[dict] = []

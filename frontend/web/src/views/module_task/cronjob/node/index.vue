@@ -278,14 +278,10 @@ defineOptions({
 
 import NodeAPI, { NodeTable, NodeForm, TriggerType } from "@/api/module_task/cronjob/node";
 import { useDictStore } from "@stores";
-import FaDialog from "@/components/modal/fa-dialog/index.vue";
-import FaForm from "@/components/forms/fa-form/index.vue";
 import type { FormItem } from "@/components/forms/fa-form/index.vue";
-import FaTable from "@/components/tables/fa-table/index.vue";
-import FaTableHeader from "@/components/tables/fa-table-header/index.vue";
-import FaTableHeaderLeft from "@/components/tables/fa-table-header-left/index.vue";
-import FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
+import type FaForm from "@/components/forms/fa-form/index.vue";
 import type { SearchFormItem } from "@/components/forms/fa-search-bar/index.vue";
+import type FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import IntervalTab from "@/components/others/fa-interval-tab/index.vue";
 import type { ColumnOption } from "@/types/component";
 import { useAuth } from "@/hooks/core/useAuth";
@@ -852,7 +848,7 @@ async function handleSubmit() {
           await refreshCreate();
         }
       } catch (error: any) {
-        console.log(error);
+        console.error(error);
       } finally {
         submitLoading.value = false;
       }
@@ -966,16 +962,6 @@ onMounted(async () => {
   display: flex;
   gap: 8px;
   align-items: center;
-}
-
-.code-preview {
-  max-height: 200px;
-  padding: 10px;
-  overflow-y: auto;
-  font-family: monospace;
-  word-break: break-all;
-  white-space: pre-wrap;
-  border-radius: 4px;
 }
 
 .execution-log-drawer {

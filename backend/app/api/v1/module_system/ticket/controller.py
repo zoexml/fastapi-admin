@@ -18,14 +18,14 @@ from .schema import (
 )
 from .service import TicketService
 
-TicketRouter = APIRouter(route_class=OperationLogRoute, prefix="/ticket", tags=["系统管理/工单管理"])
+TicketRouter = APIRouter(route_class=OperationLogRoute, prefix="/ticket", tags=["工单管理"])
 
 
 @TicketRouter.get("/list", summary="工单列表", response_model=ResponseSchema[PageResultSchema[TicketOutSchema]])
 async def ticket_list(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[TicketQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:ticket:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:ticket:query"]))],
 ) -> JSONResponse:
     """
     工单列表
@@ -48,12 +48,10 @@ async def ticket_list(
     return SuccessResponse(data=result, msg="查询成功")
 
 
-@TicketRouter.get(
-    "/detail/{id}", summary="工单详情", response_model=ResponseSchema[TicketOutSchema]
-)
+@TicketRouter.get("/detail/{id}", summary="工单详情", response_model=ResponseSchema[TicketOutSchema])
 async def ticket_detail(
     id: Annotated[int, Path()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:ticket:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:ticket:query"]))],
 ) -> JSONResponse:
     """
     工单详情
@@ -72,7 +70,7 @@ async def ticket_detail(
 @TicketRouter.post("/create", summary="创建工单", response_model=ResponseSchema[TicketOutSchema])
 async def ticket_create(
     data: TicketCreateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:ticket:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:ticket:create"]))],
 ) -> JSONResponse:
     """
     创建工单
@@ -88,13 +86,11 @@ async def ticket_create(
     return SuccessResponse(data=result, msg="创建成功")
 
 
-@TicketRouter.put(
-    "/update/{id}", summary="更新工单", response_model=ResponseSchema[TicketOutSchema]
-)
+@TicketRouter.put("/update/{id}", summary="更新工单", response_model=ResponseSchema[TicketOutSchema])
 async def ticket_update(
     id: Annotated[int, Path()],
     data: TicketUpdateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:ticket:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:ticket:update"]))],
 ) -> JSONResponse:
     """
     更新工单
@@ -114,7 +110,7 @@ async def ticket_update(
 @TicketRouter.put("/batch", summary="批量更新工单", response_model=ResponseSchema)
 async def ticket_batch_update(
     data: TicketBatchSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:ticket:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:ticket:update"]))],
 ) -> JSONResponse:
     """
     批量更新工单
@@ -133,7 +129,7 @@ async def ticket_batch_update(
 @TicketRouter.delete("/delete", summary="删除工单", response_model=ResponseSchema[None])
 async def ticket_delete(
     ids: Annotated[list[int], Body()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:ticket:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:ticket:delete"]))],
 ) -> JSONResponse:
     """
     删除工单

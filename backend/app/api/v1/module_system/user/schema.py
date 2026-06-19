@@ -195,7 +195,7 @@ class UserCreateSchema(CurrentUserUpdateSchema):
 
     username: str | None = Field(default=None, max_length=32, description="用户名")
     password: str | None = Field(default=None, min_length=6, max_length=128, description="密码")
-    status: int = Field(default=0, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, max_length=255, description="备注")
     is_superuser: bool | None = Field(default=False, description="是否超管")
     dept_id: int | None = Field(default=None, description="部门ID")
@@ -240,7 +240,7 @@ class UserUpdateSchema(CurrentUserUpdateSchema):
     model_config = ConfigDict(from_attributes=True)
 
     username: str | None = Field(default=None, max_length=32, description="用户名")
-    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, max_length=255, description="备注")
     dept_id: int | None = Field(default=None, description="部门ID")
     role_ids: list[int] | None = Field(default=[], description="角色ID列表")

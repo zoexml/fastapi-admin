@@ -7,7 +7,8 @@ from pydantic import (
 )
 
 from app.common.enums import QueueEnum
-from app.core.base_schema import BaseSchema
+from app.core.base_params import BaseQueryParam, TenantByQueryParam, UserByQueryParam
+from app.core.base_schema import BaseSchema, TenantBySchema, UserBySchema
 
 
 class JobCreateSchema(BaseModel):
@@ -72,26 +73,27 @@ class JobUpdateSchema(BaseModel):
         return v
 
 
-class JobOutSchema(JobCreateSchema, BaseSchema):
+class JobOutSchema(JobCreateSchema, BaseSchema, UserBySchema, TenantBySchema):
     """执行日志响应模型"""
 
     model_config = ConfigDict(from_attributes=True)
     ...
 
 
-class JobQueryParam:
+class JobQueryParam(BaseQueryParam, UserByQueryParam, TenantByQueryParam):
     """执行日志查询参数"""
 
     def __init__(
         self,
         job_id: str | None = Query(None, description="任务ID"),
         job_name: str | None = Query(None, description="任务名称"),
-        status: str | None = Query(None, description="执行状态"),
         trigger_type: str | None = Query(None, description="触发方式"),
+        *args,
+        **kwargs,
     ) -> None:
+        super().__init__(*args, **kwargs)
         # 确保 job_id 是字符串类型
         self.job_id = (QueueEnum.eq.value, str(job_id) if job_id is not None else None)
         # 只有当 job_name 不为空时才添加查询条件
         self.job_name = (QueueEnum.like.value, job_name) if job_name else None
-        self.status = (QueueEnum.eq.value, status)
         self.trigger_type = (QueueEnum.eq.value, trigger_type)

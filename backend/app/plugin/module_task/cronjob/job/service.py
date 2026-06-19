@@ -53,9 +53,7 @@ class JobService:
         """
         if order_by is None:
             order_by = [{"created_time": "desc"}]
-        obj_list = await JobCRUD(auth).get_obj_list_crud(
-            search=search.__dict__ if search else None, order_by=order_by
-        )
+        obj_list = await JobCRUD(auth).get_obj_list_crud(search=search.__dict__ if search else None, order_by=order_by)
         return [JobOutSchema.model_validate(obj) for obj in obj_list]
 
     @classmethod

@@ -30,7 +30,7 @@ class MenuCreateSchema(BaseModel):
     )
     affix: bool = Field(default=False, description="是否固定标签页")
     parent_id: int | None = Field(default=None, ge=1, description="父菜单ID")
-    status: int = Field(default=0, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, max_length=255, description="描述")
     client: Literal["pc", "app"] = Field(
         default="pc",
@@ -126,7 +126,7 @@ class MenuUpdateSchema(BaseModel):
     params: list[dict[str, str]] | None = Field(default=None, description="路由参数")
     affix: bool | None = Field(default=None, description="是否固定标签页")
     parent_id: int | None = Field(default=None, ge=1, description="父菜单ID")
-    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, max_length=255, description="描述")
     client: Literal["pc", "app"] | None = Field(default=None, description="终端(pc:管理端桌面 app:移动端)")
     link: str | None = Field(default=None, max_length=500, description="外链地址(仅type=4)")

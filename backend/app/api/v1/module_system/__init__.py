@@ -13,6 +13,7 @@
 - 日志管理 (log)
 - 工单管理 (ticket)
 """
+
 from fastapi import APIRouter
 
 from app.api.v1.module_system.auth.controller import AuthRouter

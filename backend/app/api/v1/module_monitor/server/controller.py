@@ -8,7 +8,7 @@ from app.core.router_class import OperationLogRoute
 
 from .service import ServerService
 
-ServerRouter = APIRouter(route_class=OperationLogRoute, prefix="/server", tags=["系统监控/服务器监控"])
+ServerRouter = APIRouter(route_class=OperationLogRoute, prefix="/server", tags=["服务器监控"])
 
 
 @ServerRouter.get(

@@ -123,6 +123,7 @@
 </template>
 
 <script setup lang="ts">
+import { h } from "vue";
 import { useTable } from "@/hooks/core/useTable";
 import { useImportExport } from "@/hooks/core/useImportExport";
 import { useCrudDialog } from "@/hooks/core/useCrudDialog";
@@ -140,19 +141,12 @@ import { useAuth } from "@/hooks/core/useAuth";
 import { useUserStore } from "@stores";
 import type { IObject } from "@/components/modal/types";
 import type { SearchFormItem } from "@/components/forms/fa-search-bar/index.vue";
+import type FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import type { FormItem } from "@/components/forms/fa-form/index.vue";
-import FaUserTableSelect from "@/components/forms/fa-search-bar/FaUserTableSelect.vue";
-import FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
-import FaForm from "@/components/forms/fa-form/index.vue";
+import type FaForm from "@/components/forms/fa-form/index.vue";
 import FaButtonTable from "@/components/forms/fa-button-table/index.vue";
-import {
-  ElTag,
-  ElMessage,
-  ElTooltip,
-  ElDropdown,
-  ElDropdownMenu,
-  ElDropdownItem,
-} from "element-plus";
+import { resolveStatusColumns } from "@utils";
+import { ElMessage, ElTooltip, ElDropdown, ElDropdownMenu, ElDropdownItem } from "element-plus";
 
 defineOptions({
   name: "Position",
@@ -165,7 +159,7 @@ const userStore = useUserStore();
 
 type PositionSearchForm = {
   name?: string;
-  status?: string;
+  status?: number;
   created_time?: string[];
   created_id?: number;
 };
@@ -390,7 +384,7 @@ const {
       page_no: 1,
       page_size: 10,
     },
-    columnsFactory: (): ColumnOption<PositionTable>[] => [
+    columnsFactory: resolveStatusColumns<PositionTable>(() => [
       { type: "selection", width: 48, fixed: "left" },
       { type: "globalIndex", width: 56, label: "序号" },
       { prop: "name", label: "岗位名称", minWidth: 100, showOverflowTooltip: true },
@@ -398,10 +392,10 @@ const {
         prop: "status",
         label: "状态",
         width: 88,
-        formatter: (row: PositionTable) =>
-          h(ElTag, { type: row.status === 0 ? "success" : "danger" }, () =>
-            row.status === 0 ? "启用" : "停用"
-          ),
+        status: {
+          0: { type: "success", text: "启用" },
+          1: { type: "danger", text: "停用" },
+        },
       },
       { prop: "order", label: "岗位排序", width: 100, showOverflowTooltip: true },
       { prop: "description", label: "描述", minWidth: 120, showOverflowTooltip: true },
@@ -427,7 +421,7 @@ const {
         align: "right",
         formatter: (row: PositionTable) => formatPositionOperationCell(row, opCtx),
       },
-    ],
+    ]),
   },
 });
 

@@ -68,7 +68,6 @@ class LoginLogService:
 
 
 class OperationLogService:
-
     @staticmethod
     async def cleanup_operation_log() -> None:
         """定时任务：清理超过保留期的操作日志和登录日志（PRD §14.5）
@@ -88,13 +87,11 @@ class OperationLogService:
         # 尝试从系统参数读取自定义保留期
         try:
             from app.api.v1.module_system.params.model import ParamsModel
+
             async with async_db_session() as _s:
                 from sqlalchemy import select
-                result = await _s.execute(
-                    select(ParamsModel.config_value).where(
-                        ParamsModel.config_key == "operation_log_retention_days"
-                    ).limit(1)
-                )
+
+                result = await _s.execute(select(ParamsModel.config_value).where(ParamsModel.config_key == "operation_log_retention_days").limit(1))
                 row = result.scalar()
                 if row is not None:
                     retention_days = int(row)
@@ -110,11 +107,7 @@ class OperationLogService:
             login_result = await session.execute(login_stmt)
 
             await session.commit()
-            logger.info(
-                f"操作日志清理完成: "
-                f"操作日志 {op_result.rowcount} 条, "
-                f"登录日志 {login_result.rowcount} 条"
-            )
+            logger.info(f"操作日志清理完成: 操作日志 {op_result.rowcount} 条, 登录日志 {login_result.rowcount} 条")
             return True
 
     @staticmethod
@@ -134,7 +127,7 @@ class OperationLogService:
         order_by: list[dict[str, str]] | None = None,
     ) -> dict:
         from app.common.enums import QueueEnum
-        
+
         crud = OperationLogCRUD(auth)
 
         # 构建过滤条件

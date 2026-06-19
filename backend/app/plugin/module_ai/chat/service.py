@@ -22,9 +22,7 @@ from .schema import (
 from .utils import AgnoFactory
 
 
-async def _format_session_data(
-    session: TeamSession, auth: AuthSchema | None = None
-) -> dict[str, Any]:
+async def _format_session_data(session: TeamSession, auth: AuthSchema | None = None) -> dict[str, Any]:
     """格式化会话数据，添加前端需要的字段"""
     if hasattr(session, "to_dict"):
         session_dict = session.to_dict()
@@ -116,12 +114,14 @@ def _extract_messages(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 if isinstance(msg, dict):
                     role = msg.get("role")
                     if role in ("user", "assistant"):
-                        messages.append({
-                            "id": msg.get("id"),
-                            "role": role,
-                            "content": msg.get("content", ""),
-                            "created_at": msg.get("created_at"),
-                        })
+                        messages.append(
+                            {
+                                "id": msg.get("id"),
+                                "role": role,
+                                "content": msg.get("content", ""),
+                                "created_at": msg.get("created_at"),
+                            }
+                        )
     return messages
 
 
@@ -129,9 +129,7 @@ class ChatService:
     """聊天会话管理模块服务层"""
 
     @classmethod
-    async def chat_query(
-        cls, query: ChatQuerySchema, auth: AuthSchema
-    ) -> AsyncGenerator[str, None]:
+    async def chat_query(cls, query: ChatQuerySchema, auth: AuthSchema) -> AsyncGenerator[str, None]:
         """
         处理聊天查询并流式返回文本片段。
 
@@ -153,20 +151,14 @@ class ChatService:
                 import uuid
 
                 session_id = str(uuid.uuid4())
-                session: TeamSession | None = await crud.create_crud(
-                    data=ChatSessionCreateSchema(title="新对话")
-                )
+                session: TeamSession | None = await crud.create_crud(data=ChatSessionCreateSchema(title="新对话"))
                 if not session:
                     raise CustomException(msg="创建会话失败")
                 session_id = session.session_id
 
             # 创建 AgnoFactory 实例并创建 Team，传入数据库连接
             agno_factory = AgnoFactory()
-            dept_id = (
-                str(auth.user.dept_id)
-                if auth and auth.user and hasattr(auth.user, "dept_id") and auth.user.dept_id
-                else "default"
-            )
+            dept_id = str(auth.user.dept_id) if auth and auth.user and hasattr(auth.user, "dept_id") and auth.user.dept_id else "default"
             agent = agno_factory.create_agent(
                 user_id=auth.user.username if auth and auth.user else "user",
                 dept_id=dept_id,
@@ -184,9 +176,7 @@ class ChatService:
             yield f"抱歉，处理您的请求时出现错误：{str(e)}"
 
     @classmethod
-    async def chat_non_stream(
-        cls, message: str, session_id: str | None, auth: AuthSchema
-    ) -> dict[str, Any]:
+    async def chat_non_stream(cls, message: str, session_id: str | None, auth: AuthSchema) -> dict[str, Any]:
         """
         处理聊天查询并返回非流式 JSON 结构（含 session_id、操作建议等）。
 
@@ -208,20 +198,14 @@ class ChatService:
                 import uuid
 
                 session_id = str(uuid.uuid4())
-                session: TeamSession | None = await crud.create_crud(
-                    data=ChatSessionCreateSchema(title="新对话")
-                )
+                session: TeamSession | None = await crud.create_crud(data=ChatSessionCreateSchema(title="新对话"))
                 if not session:
                     raise CustomException(msg="创建会话失败")
                 session_id = session.session_id
 
             # 创建 AgnoFactory 实例并创建 Team，传入数据库连接
             agno_factory = AgnoFactory()
-            dept_id = (
-                str(auth.user.dept_id)
-                if auth and auth.user and hasattr(auth.user, "dept_id") and auth.user.dept_id
-                else "default"
-            )
+            dept_id = str(auth.user.dept_id) if auth and auth.user and hasattr(auth.user, "dept_id") and auth.user.dept_id else "default"
             agent: Team = agno_factory.create_agent(
                 user_id=auth.user.username if auth and auth.user else "user",
                 dept_id=dept_id,
@@ -244,9 +228,7 @@ class ChatService:
 
                 try:
                     # 检查响应是否包含 JSON 格式的操作建议
-                    if response_text.strip().startswith("{") and response_text.strip().endswith(
-                        "}"
-                    ):
+                    if response_text.strip().startswith("{") and response_text.strip().endswith("}"):
                         action = json.loads(response_text)
                     elif "```json" in response_text:
                         # 提取 JSON 代码块
@@ -329,9 +311,7 @@ class ChatService:
         return None
 
     @classmethod
-    async def create_service(
-        cls, auth: AuthSchema, data: ChatSessionCreateSchema
-    ) -> dict[str, Any] | None:
+    async def create_service(cls, auth: AuthSchema, data: ChatSessionCreateSchema) -> dict[str, Any] | None:
         """
         创建会话。
 
@@ -405,9 +385,7 @@ class ChatService:
         return result
 
     @classmethod
-    async def update_service(
-        cls, auth: AuthSchema, session_id: str, data: ChatSessionUpdateSchema
-    ) -> bool:
+    async def update_service(cls, auth: AuthSchema, session_id: str, data: ChatSessionUpdateSchema) -> bool:
         """
         更新会话。
 

@@ -124,13 +124,8 @@ class ResourceService:
         safe_path_abs = os.path.normpath(os.path.abspath(safe_path))
 
         # 核心安全检查：确保最终路径在允许的根目录下
-        if (
-            not safe_path_abs.startswith(resource_root_abs + os.sep)
-            and safe_path_abs != resource_root_abs
-        ):
-            logger.error(
-                f"路径遍历攻击被阻止: 尝试访问 {safe_path_abs}, 但根目录是 {resource_root_abs}"
-            )
+        if not safe_path_abs.startswith(resource_root_abs + os.sep) and safe_path_abs != resource_root_abs:
+            logger.error(f"路径遍历攻击被阻止: 尝试访问 {safe_path_abs}, 但根目录是 {resource_root_abs}")
             raise CustomException(msg="访问路径不在允许范围内")
 
         # 检查路径深度
@@ -272,9 +267,7 @@ class ResourceService:
             static_part = settings.STATIC_URL.lstrip("/")
             file_part = url_path.lstrip("/")
 
-            http_url = f"{base_part}/{static_part}/{file_part}".replace("//", "/").replace(
-                ":/", "://"
-            )
+            http_url = f"{base_part}/{static_part}/{file_part}".replace("//", "/").replace(":/", "://")
         else:
             http_url = f"{settings.STATIC_URL}/{url_path}".replace("//", "/")
 
@@ -534,9 +527,7 @@ class ResourceService:
         return stats
 
     @classmethod
-    def _sort_results(
-        cls, results: list[ResourceItemSchema], order_by: str | None = None
-    ) -> list[ResourceItemSchema]:
+    def _sort_results(cls, results: list[ResourceItemSchema], order_by: str | None = None) -> list[ResourceItemSchema]:
         """
         排序搜索结果
 
@@ -555,16 +546,13 @@ class ResourceService:
             # 解析order_by参数，格式: [{'field':'asc/desc'}]
             sort_conditions = ast.literal_eval(order_by)
             if isinstance(sort_conditions, list):
+
                 def sort_key(item):
                     keys = []
                     for cond in sort_conditions:
                         field = cond.get("field", "name")
                         value = getattr(item, field, "")
-                        if (
-                            field
-                            in ["created_time", "modified_time", "accessed_time"]
-                            and value
-                        ):
+                        if field in ["created_time", "modified_time", "accessed_time"] and value:
                             if isinstance(value, str):
                                 value = datetime.fromisoformat(value)
                         keys.append(value)
@@ -802,10 +790,7 @@ class ResourceService:
             new_path_abs = os.path.normpath(os.path.abspath(new_path))
             resource_root_abs = os.path.normpath(os.path.abspath(cls._get_resource_root()))
 
-            if (
-                not new_path_abs.startswith(resource_root_abs + os.sep)
-                and new_path_abs != resource_root_abs
-            ):
+            if not new_path_abs.startswith(resource_root_abs + os.sep) and new_path_abs != resource_root_abs:
                 logger.error(f"重命名时检测到越权访问: {new_path_abs}")
                 raise CustomException(msg="目标路径不在允许范围内")
 
@@ -856,10 +841,7 @@ class ResourceService:
             new_dir_path_abs = os.path.normpath(os.path.abspath(new_dir_path))
             resource_root_abs = os.path.normpath(os.path.abspath(cls._get_resource_root()))
 
-            if (
-                not new_dir_path_abs.startswith(resource_root_abs + os.sep)
-                and new_dir_path_abs != resource_root_abs
-            ):
+            if not new_dir_path_abs.startswith(resource_root_abs + os.sep) and new_dir_path_abs != resource_root_abs:
                 logger.error(f"创建目录时检测到越权访问: {new_dir_path_abs}")
                 raise CustomException(msg="目标路径不在允许范围内")
 

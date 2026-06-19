@@ -18,7 +18,7 @@ from .schema import (
 )
 from .service import ChatService
 
-ChatRouter = APIRouter(route_class=OperationLogRoute, prefix="/chat", tags=["AI服务/AI对话"])
+ChatRouter = APIRouter(route_class=OperationLogRoute, prefix="/chat", tags=["AI对话"])
 
 
 @ChatRouter.get(

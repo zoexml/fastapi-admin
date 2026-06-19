@@ -30,7 +30,7 @@ class RoleCreateSchema(BaseModel):
         le=5,
         description="数据权限范围(1:仅本人 2:本部门 3:本部门及以下 4:全部 5:自定义)",
     )
-    status: int = Field(default=0, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, max_length=255, description="描述")
 
     @field_validator("code")

@@ -2,6 +2,7 @@ import json
 
 from fastapi import Query
 
+from app.common.enums import QueueEnum
 from app.core.validator import DateTimeStr
 
 
@@ -42,12 +43,10 @@ class PaginationQueryParam:
 
 
 class BaseQueryParam:
-    """公共查询参数"""
+    """基础查询字段 Mixin（created_time + updated_time）"""
 
     def __init__(
         self,
-        description: str | None = Query(None, description="描述"),
-        status: str | None = Query(None, description="是否启用"),
         created_time: list[DateTimeStr] | None = Query(
             None,
             description="创建时间范围",
@@ -61,33 +60,40 @@ class BaseQueryParam:
         *args,
         **kwargs,
     ) -> None:
-        # 模糊查询字段
-        if description:
-            self.description = ("like", description)
-
-        # 精确查询字段
-        if status:
-            self.status = ("eq", status)
-
+        super().__init__(*args, **kwargs)
         # 时间范围查询
         if created_time and len(created_time) == 2:
-            self.created_time = ("between", (created_time[0], created_time[1]))
+            self.created_time = (QueueEnum.between.value, (created_time[0], created_time[1]))
         if updated_time and len(updated_time) == 2:
-            self.updated_time = ("between", (updated_time[0], updated_time[1]))
+            self.updated_time = (QueueEnum.between.value, (updated_time[0], updated_time[1]))
 
 
-class CommonQueryParam:
-    """根据用户查询参数"""
+class UserByQueryParam:
+    """审计字段 Mixin（created_id + updated_id）"""
 
     def __init__(
         self,
         created_id: int | None = Query(None, description="创建人"),
         updated_id: int | None = Query(None, description="更新人"),
-        deleted_id: int | None = Query(None, description="删除人"),
+        *args,
+        **kwargs,
     ) -> None:
+        super().__init__(*args, **kwargs)
         if created_id:
-            self.created_id = ("eq", created_id)
+            self.created_id = (QueueEnum.eq.value, created_id)
         if updated_id:
-            self.updated_id = ("eq", updated_id)
-        if deleted_id:
-            self.deleted_id = ("eq", deleted_id)
+            self.updated_id = (QueueEnum.eq.value, updated_id)
+
+
+class TenantByQueryParam:
+    """租户字段 Mixin（tenant_id）"""
+
+    def __init__(
+        self,
+        tenant_id: int | None = Query(None, description="租户ID"),
+        *args,
+        **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        if tenant_id:
+            self.tenant_id = (QueueEnum.eq.value, tenant_id)

@@ -141,18 +141,15 @@ import { useCrudDialog } from "@/hooks/core/useCrudDialog";
 import { useTableSelection } from "@/hooks/core/useTableSelection";
 import { useCrudForm } from "@/hooks/core/useCrudForm";
 import { confirmDelete, confirmBatchDelete, confirmToggleStatus } from "@/hooks/core/useConfirm";
-import type { ColumnOption } from "@/types/component";
 import PackageAPI, { type PackageForm, type PackageTable } from "@/api/module_platform/package";
 import MenuAPI from "@/api/module_platform/menu";
 import { useAuth } from "@/hooks/core/useAuth";
 import type { SearchFormItem } from "@/components/forms/fa-search-bar/index.vue";
+import type FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import type { FormItem } from "@/components/forms/fa-form/index.vue";
-import FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
-import FaForm from "@/components/forms/fa-form/index.vue";
-import { renderTableOperationCell, type TableOperationAction } from "@utils";
-import { ElTag, ElMessage } from "element-plus";
-import FaDrawer from "@/components/modal/fa-drawer/index.vue";
-import FaMenuTreeTable from "@/components/others/fa-menu-tree-drawer/index.vue";
+import FaMenuTreeTable from "@/components/others/fa-menu-tree-table/index.vue";
+import { renderTableOperationCell, type TableOperationAction, resolveStatusColumns } from "@utils";
+import { ElMessage } from "element-plus";
 
 defineOptions({
   name: "Package",
@@ -311,7 +308,7 @@ const {
       page_no: 1,
       page_size: 10,
     },
-    columnsFactory: (): ColumnOption<PackageTable>[] => [
+    columnsFactory: resolveStatusColumns<PackageTable>(() => [
       { type: "selection", width: 48, fixed: "left" },
       { type: "globalIndex", width: 56, label: "序号" },
       { prop: "name", label: "套餐名称", minWidth: 120, showOverflowTooltip: true },
@@ -320,10 +317,10 @@ const {
         prop: "status",
         label: "状态",
         width: 80,
-        formatter: (row: PackageTable) =>
-          h(ElTag, { type: row.status === 0 ? "success" : "danger" }, () =>
-            row.status === 0 ? "正常" : "禁用"
-          ),
+        status: {
+          0: { type: "success", text: "正常" },
+          1: { type: "danger", text: "禁用" },
+        },
       },
       { prop: "sort", label: "排序", width: 60, align: "center" },
       {
@@ -353,7 +350,7 @@ const {
         align: "right",
         formatter: (row: PackageTable) => formatPkgOperationCell(row, opCtx),
       },
-    ],
+    ]),
   },
 });
 
@@ -580,9 +577,14 @@ const { submitLoading, handleCloseDialog, handleOpenDialog, handleSubmit } =
     dialogVisible,
     dataFormRef,
     formRenderKey: pkgFormRenderKey,
-    detailApi: PackageAPI.detailPackage as any,
-    createApi: PackageAPI.createPackage as any,
-    updateApi: PackageAPI.updatePackage as any,
+    detailApi: PackageAPI.detailPackage as unknown as (
+      id: number
+    ) => Promise<{ data: { data?: PackageForm } }>,
+    createApi: PackageAPI.createPackage as unknown as (form: PackageForm) => Promise<unknown>,
+    updateApi: PackageAPI.updatePackage as unknown as (
+      id: number,
+      form: PackageForm
+    ) => Promise<unknown>,
     detailFormData,
     titles: { create: "新增套餐", update: "修改套餐", detail: "套餐详情" },
     onCreateSuccess: refreshCreate,

@@ -49,12 +49,8 @@ class PositionService:
         返回:
         - list[PositionOutSchema]: 岗位列表
         """
-        position_list = await PositionCRUD(auth).list(
-            search=search.__dict__ if search else {}, order_by=order_by
-        )
-        return [
-            PositionOutSchema.model_validate(position) for position in position_list
-        ]
+        position_list = await PositionCRUD(auth).list(search=search.__dict__ if search else {}, order_by=order_by)
+        return [PositionOutSchema.model_validate(position) for position in position_list]
 
     @classmethod
     async def get_position_page_service(
@@ -106,9 +102,7 @@ class PositionService:
         return PositionOutSchema.model_validate(new_position)
 
     @classmethod
-    async def update_position_service(
-        cls, auth: AuthSchema, id: int, data: PositionUpdateSchema
-    ) -> PositionOutSchema:
+    async def update_position_service(cls, auth: AuthSchema, id: int, data: PositionUpdateSchema) -> PositionOutSchema:
         """
         更新岗位
 
@@ -152,9 +146,7 @@ class PositionService:
         await PositionCRUD(auth).delete(ids=ids)
 
     @classmethod
-    async def set_position_available_service(
-        cls, auth: AuthSchema, data: BatchSetAvailable
-    ) -> None:
+    async def set_position_available_service(cls, auth: AuthSchema, data: BatchSetAvailable) -> None:
         """
         设置岗位状态
 
@@ -199,10 +191,6 @@ class PositionService:
         data = position_list.copy()
         for item in data:
             item["status"] = "启用" if item.get("status") == 0 else "停用"
-            item["creator"] = (
-                item.get("created_by", {}).get("name", "未知")
-                if isinstance(item.get("created_by"), dict)
-                else "未知"
-            )
+            item["creator"] = item.get("created_by", {}).get("name", "未知") if isinstance(item.get("created_by"), dict) else "未知"
 
         return ExcelUtil.export_list2excel(list_data=data, mapping_dict=mapping_dict)

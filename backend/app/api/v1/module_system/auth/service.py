@@ -149,9 +149,7 @@ class LoginService:
             )
             raise CustomException(msg="用户不存在")
 
-        if not PwdUtil.verify_password(
-            plain_password=login_form.password, password_hash=user.password
-        ):
+        if not PwdUtil.verify_password(plain_password=login_form.password, password_hash=user.password):
             await _write_login_log(
                 username=_login_username,
                 status=2,
@@ -178,11 +176,8 @@ class LoginService:
         from sqlalchemy import select
 
         from app.api.v1.module_platform.tenant.model import TenantModel
-        tenant_stmt = (
-            select(TenantModel)
-            .where(TenantModel.id == user.tenant_id, TenantModel.status == 0, TenantModel.is_deleted.is_(False))
-            .limit(1)
-        )
+
+        tenant_stmt = select(TenantModel).where(TenantModel.id == user.tenant_id, TenantModel.status == 0, TenantModel.is_deleted.is_(False)).limit(1)
         tenant_result = await auth.db.execute(tenant_stmt)
         if not tenant_result.scalar_one_or_none():
             await _write_login_log(
@@ -248,9 +243,7 @@ class LoginService:
         )
 
     @classmethod
-    async def create_token_service(
-        cls, request: Request, redis: Redis, user: UserModel, login_type: str
-    ) -> JWTOutSchema:
+    async def create_token_service(cls, request: Request, redis: Redis, user: UserModel, login_type: str) -> JWTOutSchema:
         """
         创建访问令牌和刷新令牌
 
@@ -381,9 +374,7 @@ class LoginService:
         refresh_expires = timedelta(seconds=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
         now = datetime.now()
 
-        session_info_json = (
-            session_info if isinstance(session_info, str) else json.dumps(session_info)
-        )
+        session_info_json = session_info if isinstance(session_info, str) else json.dumps(session_info)
 
         access_token = create_access_token(
             payload=JWTPayloadSchema(
@@ -479,11 +470,7 @@ class LoginService:
 
         # 超管可以看到所有租户
         if auth.user and auth.user.is_superuser:
-            stmt = (
-                select(TenantModel)
-                .where(TenantModel.status == 0, TenantModel.is_deleted.is_(False))
-                .order_by(TenantModel.sort, TenantModel.id)
-            )
+            stmt = select(TenantModel).where(TenantModel.status == 0, TenantModel.is_deleted.is_(False)).order_by(TenantModel.sort, TenantModel.id)
             result = await db.execute(stmt)
             tenant_objs = result.scalars().all()
             return [TenantOptionSchema(id=t.id, name=t.name, code=t.code) for t in tenant_objs]
@@ -549,11 +536,7 @@ class LoginService:
                 raise CustomException(msg="您不属于该租户，无法切换")
 
         # 验证租户是否存在且状态正常
-        tenant_stmt = (
-            select(TenantModel)
-            .where(TenantModel.id == tenant_id, TenantModel.status == 0)
-            .limit(1)
-        )
+        tenant_stmt = select(TenantModel).where(TenantModel.id == tenant_id, TenantModel.status == 0).limit(1)
         result = await auth.db.execute(tenant_stmt)
         tenant = result.scalar_one_or_none()
         if not tenant:
@@ -612,9 +595,7 @@ class LoginService:
 
         set_current_tenant(tenant_id, auth.user.is_superuser)
 
-        logger.info(
-            f"用户 {auth.user.username}(id={auth.user.id}) 切换到租户 {tenant.name}(id={tenant_id})"
-        )
+        logger.info(f"用户 {auth.user.username}(id={auth.user.id}) 切换到租户 {tenant.name}(id={tenant_id})")
 
         return SelectTenantOutSchema(
             access_token=new_access_token,
@@ -706,9 +687,7 @@ class AutoLoginService:
     TOKEN_EXPIRE = 300
 
     @classmethod
-    async def get_auto_login_users_service(
-        cls, db: AsyncSession, tenant_id: int | None = None
-    ) -> list[AutoLoginUserSchema]:
+    async def get_auto_login_users_service(cls, db: AsyncSession, tenant_id: int | None = None) -> list[AutoLoginUserSchema]:
         """
         获取免登录用户列表
 
@@ -870,9 +849,7 @@ class AutoLoginService:
         await RedisCURD(redis).delete(token_key)
 
         # 使用LoginService创建token
-        jwt_token = await LoginService.create_token_service(
-            request=request, redis=redis, user=user, login_type="PC端"
-        )
+        jwt_token = await LoginService.create_token_service(request=request, redis=redis, user=user, login_type="PC端")
 
         logger.info(f"用户{user.username}免登录成功")
 
@@ -905,9 +882,13 @@ class TenantRegisterService:
         from app.api.v1.module_system.user.model import UserModel, UserRolesModel
 
         # ── 1. 唯一性校验 ──
-        exists_stmt = select(func.count()).select_from(UserModel).where(
-            UserModel.is_deleted.is_(False),
-            (UserModel.username == username) | (UserModel.email == email),
+        exists_stmt = (
+            select(func.count())
+            .select_from(UserModel)
+            .where(
+                UserModel.is_deleted.is_(False),
+                (UserModel.username == username) | (UserModel.email == email),
+            )
         )
         cnt = (await db.execute(exists_stmt)).scalar() or 0
         if cnt > 0:
@@ -999,9 +980,7 @@ class TenantRegisterService:
         )
 
     @classmethod
-    async def _send_welcome_email(
-        cls, to_email: str, username: str, tenant_name: str, trial_end: datetime
-    ) -> None:
+    async def _send_welcome_email(cls, to_email: str, username: str, tenant_name: str, trial_end: datetime) -> None:
         """发送欢迎邮件（不阻塞注册流程）。"""
         from sqlalchemy import select
 
@@ -1061,9 +1040,7 @@ class PasswordResetService:
     TOKEN_EXPIRE_SECONDS = 1800  # 30 分钟
 
     @classmethod
-    async def forgot_password_service(
-        cls, redis: Redis, db: AsyncSession, email: str
-    ) -> str:
+    async def forgot_password_service(cls, redis: Redis, db: AsyncSession, email: str) -> str:
         """
         忘记密码：根据邮箱查找用户，生成重置令牌并尝试发送邮件。
         无论邮箱是否存在均返回相同文案（防止邮箱探测攻击）。
@@ -1086,9 +1063,7 @@ class PasswordResetService:
         # 生成一次性令牌
         token = secrets.token_urlsafe(32)
         key = f"{cls.RESET_TOKEN_PREFIX}{token}"
-        await RedisCURD(redis).set(
-            key=key, value=str(user.id), expire=cls.TOKEN_EXPIRE_SECONDS
-        )
+        await RedisCURD(redis).set(key=key, value=str(user.id), expire=cls.TOKEN_EXPIRE_SECONDS)
 
         # 尝试发送邮件（不阻塞）
         try:
@@ -1099,9 +1074,7 @@ class PasswordResetService:
         return "若邮箱已注册，重置邮件已发送"
 
     @classmethod
-    async def reset_password_with_token_service(
-        cls, redis: Redis, db: AsyncSession, token: str, new_password: str
-    ) -> str:
+    async def reset_password_with_token_service(cls, redis: Redis, db: AsyncSession, token: str, new_password: str) -> str:
         """使用令牌重置密码。校验令牌 → 更新密码 → 删除令牌。"""
 
         from app.api.v1.module_system.user.model import UserModel

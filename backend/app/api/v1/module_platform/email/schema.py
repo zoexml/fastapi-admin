@@ -1,14 +1,9 @@
-from dataclasses import dataclass
-
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.common.enums import QueueEnum
+from app.core.base_params import BaseQueryParam
 from app.core.base_schema import BaseSchema
 from app.core.validator import DateTimeStr
-
-# ──────────────────────────────────────────────────────────────
-# EmailConfig Schemas
-# ──────────────────────────────────────────────────────────────
 
 
 class EmailConfigCreateSchema(BaseModel):
@@ -23,6 +18,7 @@ class EmailConfigCreateSchema(BaseModel):
     use_tls: bool = Field(default=True, description="是否启用 SSL/TLS")
     is_default: bool = Field(default=False, description="是否设为默认配置")
     timeout: int = Field(default=30, ge=5, le=120, description="连接超时（秒）")
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, max_length=255, description="备注")
 
 
@@ -41,40 +37,27 @@ class EmailConfigUpdateSchema(BaseModel):
     description: str | None = Field(default=None, max_length=255, description="备注")
 
 
-class EmailConfigOutSchema(BaseSchema):
+class EmailConfigOutSchema(EmailConfigCreateSchema, BaseSchema):
     """SMTP 配置响应（不含密码）"""
 
     model_config = ConfigDict(from_attributes=True)
 
-    name: str
-    smtp_host: str
-    smtp_port: int
-    smtp_user: str
-    from_name: str
-    use_tls: bool
-    is_default: bool
-    timeout: int
-    description: str | None = None
 
-
-@dataclass
-class EmailConfigQueryParam:
+class EmailConfigQueryParam(BaseQueryParam):
     """SMTP 配置查询参数"""
 
     def __init__(
         self,
         name: str | None = None,
         is_default: bool | None = None,
+        *args,
+        **kwargs,
     ) -> None:
+        super().__init__(*args, **kwargs)
         if name:
             self.name = (QueueEnum.like.value, name)
         if is_default is not None:
             self.is_default = (QueueEnum.eq.value, is_default)
-
-
-# ──────────────────────────────────────────────────────────────
-# EmailTemplate Schemas
-# ──────────────────────────────────────────────────────────────
 
 
 class EmailTemplateCreateSchema(BaseModel):
@@ -87,13 +70,7 @@ class EmailTemplateCreateSchema(BaseModel):
     body_text: str | None = Field(default=None, description="纯文本版本（降级用）")
     variables: str | None = Field(default=None, description="变量说明 JSON")
     description: str | None = Field(default=None, max_length=255, description="备注")
-
-    @field_validator("template_code")
-    @classmethod
-    def _validate_code(cls, v: str | None) -> str | None:
-        if v is None:
-            return v
-        return v.strip()
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
 
 
 class EmailTemplateUpdateSchema(BaseModel):
@@ -107,46 +84,28 @@ class EmailTemplateUpdateSchema(BaseModel):
     variables: str | None = Field(default=None, description="变量说明 JSON")
     description: str | None = Field(default=None, max_length=255, description="备注")
 
-    @field_validator("template_code")
-    @classmethod
-    def _validate_code(cls, v: str | None) -> str | None:
-        if v is None:
-            return v
-        return v.strip()
 
-
-class EmailTemplateOutSchema(BaseSchema):
+class EmailTemplateOutSchema(EmailTemplateCreateSchema, BaseSchema):
     """邮件模板响应"""
 
     model_config = ConfigDict(from_attributes=True)
 
-    name: str
-    template_code: str
-    subject: str
-    body_html: str
-    body_text: str | None = None
-    variables: str | None = None
-    description: str | None = None
 
-
-@dataclass
-class EmailTemplateQueryParam:
+class EmailTemplateQueryParam(BaseQueryParam):
     """邮件模板查询参数"""
 
     def __init__(
         self,
         name: str | None = None,
         template_code: str | None = None,
+        *args,
+        **kwargs,
     ) -> None:
+        super().__init__(*args, **kwargs)
         if name:
             self.name = (QueueEnum.like.value, name)
         if template_code:
             self.template_code = (QueueEnum.like.value, template_code)
-
-
-# ──────────────────────────────────────────────────────────────
-# EmailLog Schemas
-# ──────────────────────────────────────────────────────────────
 
 
 class EmailSendSchema(BaseModel):
@@ -177,8 +136,7 @@ class EmailLogOutSchema(BaseSchema):
     sent_time: DateTimeStr | None = None
 
 
-@dataclass
-class EmailLogQueryParam:
+class EmailLogQueryParam(BaseQueryParam):
     """邮件日志查询参数"""
 
     def __init__(
@@ -187,7 +145,10 @@ class EmailLogQueryParam:
         biz_type: str | None = None,
         status: int | None = None,
         template_code: str | None = None,
+        *args,
+        **kwargs,
     ) -> None:
+        super().__init__(*args, **kwargs)
         if to_email:
             self.to_email = (QueueEnum.like.value, to_email)
         if biz_type:

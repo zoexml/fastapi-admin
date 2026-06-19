@@ -21,7 +21,7 @@ from .schema import (
 )
 from .service import GenTableService
 
-GenRouter = APIRouter(route_class=OperationLogRoute, prefix="/gencode", tags=["开发工具/代码生成"])
+GenRouter = APIRouter(route_class=OperationLogRoute, prefix="/gencode", tags=["代码生成"])
 
 
 @GenRouter.get(
@@ -111,9 +111,7 @@ async def import_gen_table_controller(
     返回:
     - JSONResponse: 包含导入结果和导入的表结构列表的JSON响应
     """
-    add_gen_table_list = await GenTableService.get_gen_db_table_list_by_name_service(
-        auth, table_names
-    )
+    add_gen_table_list = await GenTableService.get_gen_db_table_list_by_name_service(auth, table_names)
     result = await GenTableService.import_gen_table_service(auth, add_gen_table_list)
     return SuccessResponse(msg="导入表结构成功", data=result)
 

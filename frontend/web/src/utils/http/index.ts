@@ -163,8 +163,8 @@ export const isHttpError = (error: unknown): error is HttpError => {
 let isRefreshing = false;
 let pendingRequests: Array<{
   config: InternalAxiosRequestConfig;
-  resolve: (value: any) => void;
-  reject: (reason?: any) => void;
+  resolve: (value: Promise<AxiosResponse>) => void;
+  reject: (reason?: Error) => void;
 }> = [];
 
 function onRefreshed(newToken: string) {

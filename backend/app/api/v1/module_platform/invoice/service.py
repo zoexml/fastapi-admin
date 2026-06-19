@@ -1,4 +1,5 @@
 """发票管理 Service"""
+
 import random
 from datetime import date, datetime, timedelta
 

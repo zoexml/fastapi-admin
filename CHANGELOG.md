@@ -186,7 +186,7 @@ MappedBase (声明式基类)
 |------|------|------|
 | `id` | Integer PK AI | 主键 |
 | `uuid` | String(64) UNIQUE | UUID 全局唯一标识 |
-| `status` | Integer | default=0 | 状态（0:正常 1:禁用） |
+| `status` | Integer | default=0 | 状态（0:启动 1:停用） |
 | `description` | Text nullable | 备注/描述 |
 | `created_time` | DateTime | 创建时间 |
 | `updated_time` | DateTime | 更新时间（onupdate） |
@@ -998,7 +998,7 @@ PUT /tenant/update/{id} (package_id 变更)
 |------|------|------|------|
 | `name` | String(100) | NOT NULL, UNIQUE | 套餐名称 |
 | `code` | String(100) | NOT NULL, UNIQUE | 套餐编码 |
-| `status` | Integer | default=0 | 状态（0:正常 1:禁用） |
+| `status` | Integer | default=0 | 状态（0:启动 1:停用） |
 | `is_default` | Boolean | default=False | 是否为默认套餐（自助注册时自动选用） |
 | `price` | Integer | default=0 | 价格（分），0=免费 |
 | `period` | String(10) | nullable | 计费周期：month/year/once |

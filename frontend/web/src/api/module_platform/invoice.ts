@@ -57,8 +57,7 @@ const InvoiceAPI = {
 
 export default InvoiceAPI;
 
-export interface InvoicePageQuery extends PageQuery {
-  tenant_id?: number;
+export interface InvoicePageQuery extends PageQuery, TenantByQueryParams {
   invoice_type?: string;
 }
 

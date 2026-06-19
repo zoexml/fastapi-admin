@@ -1,4 +1,5 @@
 """租户自助服务 Controller — 对应 PRD §20.20"""
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
@@ -31,7 +32,7 @@ from .service import (
 TenantSelfServiceRouter = APIRouter(
     route_class=OperationLogRoute,
     prefix="/tenant",
-    tags=["平台管理/自助服务"],
+    tags=["自助服务"],
 )
 
 
@@ -41,7 +42,7 @@ TenantSelfServiceRouter = APIRouter(
     response_model=ResponseSchema[PackageAvailableOut],
 )
 async def package_available(
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['tenant:package:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["tenant:package:query"]))],
 ):
     """
     可选套餐列表
@@ -60,7 +61,7 @@ async def package_available(
 )
 async def package_preview(
     target_package_id: Annotated[int, Query(ge=1, description="目标套餐ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['tenant:package:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["tenant:package:query"]))],
 ):
     """
     套餐变更影响预览
@@ -71,9 +72,7 @@ async def package_preview(
     返回:
     - SuccessResponse: 包含套餐变更影响预览的 JSON 响应。
     """
-    result = await preview_package_change(
-        auth=auth, tenant_id=auth.tenant_id, target_package_id=target_package_id
-    )
+    result = await preview_package_change(auth=auth, tenant_id=auth.tenant_id, target_package_id=target_package_id)
     return SuccessResponse(data=result, msg="查询成功")
 
 
@@ -84,7 +83,7 @@ async def package_preview(
 )
 async def order_create(
     data: SelfOrderCreate,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['tenant:order:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["tenant:order:create"]))],
 ):
     """
     创建自助订单
@@ -95,9 +94,7 @@ async def order_create(
     返回:
     - SuccessResponse: 包含订单详情的 JSON 响应。
     """
-    result = await create_self_order(
-        auth=auth, tenant_id=auth.tenant_id, data=data
-    )
+    result = await create_self_order(auth=auth, tenant_id=auth.tenant_id, data=data)
     return SuccessResponse(data=result, msg="订单创建成功")
 
 
@@ -108,7 +105,7 @@ async def order_create(
 )
 async def plugin_purchase(
     data: PluginPurchaseCreate,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['tenant:order:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["tenant:order:create"]))],
 ):
     """
     购买付费插件
@@ -119,9 +116,7 @@ async def plugin_purchase(
     返回:
     - SuccessResponse: 包含订单详情的 JSON 响应。
     """
-    result = await create_plugin_purchase_order(
-        auth=auth, tenant_id=auth.tenant_id, data=data
-    )
+    result = await create_plugin_purchase_order(auth=auth, tenant_id=auth.tenant_id, data=data)
     return SuccessResponse(data=result, msg="插件订单创建成功")
 
 
@@ -132,7 +127,7 @@ async def plugin_purchase(
 )
 async def order_list(
     page: Annotated[PaginationQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['tenant:order:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["tenant:order:query"]))],
 ):
     """
     我的订单列表
@@ -160,7 +155,7 @@ async def order_list(
 )
 async def order_detail(
     order_id: Annotated[int, Path(ge=1, description="订单ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['tenant:order:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["tenant:order:query"]))],
 ):
     """
     订单详情
@@ -171,9 +166,7 @@ async def order_detail(
     返回:
     - SuccessResponse: 包含订单详情的 JSON 响应。
     """
-    result = await get_self_order_detail(
-        auth=auth, tenant_id=auth.tenant_id, order_id=order_id
-    )
+    result = await get_self_order_detail(auth=auth, tenant_id=auth.tenant_id, order_id=order_id)
     return SuccessResponse(data=result, msg="查询成功")
 
 

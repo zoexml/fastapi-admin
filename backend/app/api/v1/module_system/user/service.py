@@ -132,6 +132,7 @@ class UserService:
 
         # 检查租户配额
         from app.api.v1.module_platform.tenant.service import TenantService
+
         await TenantService.check_quota_service(auth, auth.tenant_id, "user")
 
         # 创建用户
@@ -145,9 +146,7 @@ class UserService:
             await UserCRUD(auth).set_user_roles(user_ids=[new_user.id], role_ids=data.role_ids)
         # 设置岗位
         if data.position_ids and len(data.position_ids) > 0:
-            await UserCRUD(auth).set_user_positions(
-                user_ids=[new_user.id], position_ids=data.position_ids
-            )
+            await UserCRUD(auth).set_user_positions(user_ids=[new_user.id], position_ids=data.position_ids)
 
         new_user_dict = UserOutSchema.model_validate(new_user)
         return new_user_dict
@@ -214,16 +213,12 @@ class UserService:
 
         if data.position_ids and len(data.position_ids) > 0:
             # 检查岗位是否都存在且可用
-            positions = await PositionCRUD(auth).list(
-                search={"id": ("in", data.position_ids)}
-            )
+            positions = await PositionCRUD(auth).list(search={"id": ("in", data.position_ids)})
             if len(positions) != len(data.position_ids):
                 raise CustomException(msg="部分岗位不存在")
             if not all(position.status == 0 for position in positions):
                 raise CustomException(msg="部分岗位已被禁用")
-            await UserCRUD(auth).set_user_positions(
-                user_ids=[id], position_ids=data.position_ids
-            )
+            await UserCRUD(auth).set_user_positions(user_ids=[id], position_ids=data.position_ids)
 
         user_dict = UserOutSchema.model_validate(new_user)
         return user_dict
@@ -296,13 +291,7 @@ class UserService:
 
         else:
             # 收集用户所有角色的菜单 ID（含按钮，供前端权限列表使用）
-            menu_ids = {
-                menu.id
-                for role in auth.user.roles or []
-                for menu in role.menus
-                if menu.status == 0
-                and getattr(menu, "client", "pc") == "pc"
-            }
+            menu_ids = {menu.id for role in auth.user.roles or [] for menu in role.menus if menu.status == 0 and getattr(menu, "client", "pc") == "pc"}
 
             # 租户菜单约束：非超管用户只能看到租户菜单权限内的菜单
             if menu_ids and auth.tenant_id:
@@ -401,16 +390,12 @@ class UserService:
         user = await UserCRUD(auth).get(id=auth.user.id)
         if not user:
             raise CustomException(msg="用户不存在")
-        if not PwdUtil.verify_password(
-            plain_password=data.old_password, password_hash=user.password
-        ):
+        if not PwdUtil.verify_password(plain_password=data.old_password, password_hash=user.password):
             raise CustomException(msg="原密码输入错误")
 
         # 更新密码
         new_password_hash = PwdUtil.set_password_hash(password=data.new_password)
-        new_user = await UserCRUD(auth).change_password(
-            id=user.id, password_hash=new_password_hash
-        )
+        new_user = await UserCRUD(auth).change_password(id=user.id, password_hash=new_password_hash)
         return UserOutSchema.model_validate(new_user)
 
     @classmethod
@@ -439,9 +424,7 @@ class UserService:
 
         # 更新密码
         new_password_hash = PwdUtil.set_password_hash(password=data.password)
-        new_user = await UserCRUD(auth).change_password(
-            id=data.id, password_hash=new_password_hash
-        )
+        new_user = await UserCRUD(auth).change_password(id=data.id, password_hash=new_password_hash)
         return UserOutSchema.model_validate(new_user)
 
     @classmethod
@@ -501,9 +484,7 @@ class UserService:
             raise CustomException(msg="手机号不匹配")
 
         new_password_hash = PwdUtil.set_password_hash(password=data.new_password)
-        new_user = await UserCRUD(auth).forget_password(
-            id=user.id, password_hash=new_password_hash
-        )
+        new_user = await UserCRUD(auth).forget_password(id=user.id, password_hash=new_password_hash)
         return UserOutSchema.model_validate(new_user)
 
     @classmethod
@@ -569,9 +550,7 @@ class UserService:
                 try:
                     count = count + 1
                     # 数据转换
-                    gender = (
-                        "0" if row["gender"] == "男" else ("1" if row["gender"] == "女" else "2")
-                    )
+                    gender = "0" if row["gender"] == "男" else ("1" if row["gender"] == "女" else "2")
                     status = 0 if row["status"] == "正常" else 1
 
                     # 构建用户数据
@@ -587,9 +566,7 @@ class UserService:
                     }
 
                     # 处理用户导入
-                    exists_user = await UserCRUD(auth).get(
-                        username=user_data["username"]
-                    )
+                    exists_user = await UserCRUD(auth).get(username=user_data["username"])
                     if exists_user:
                         # 检查是否是超级管理员
                         if exists_user.is_superuser:
@@ -603,21 +580,12 @@ class UserService:
                             error_msgs.append(f"第{count}行: 用户 {user_data['username']} 已存在")
                     else:
                         user_create_schema = UserCreateSchema(**user_data)
-                        user_create_data = user_create_schema.model_dump(
-                            exclude_unset=True, exclude={"role_ids", "position_ids"}
-                        )
+                        user_create_data = user_create_schema.model_dump(exclude_unset=True, exclude={"role_ids", "position_ids"})
                         new_user = await UserCRUD(auth).create(data=user_create_data)
                         if user_create_schema.role_ids and len(user_create_schema.role_ids) > 0:
-                            await UserCRUD(auth).set_user_roles(
-                                user_ids=[new_user.id], role_ids=user_create_schema.role_ids
-                            )
-                        if (
-                            user_create_schema.position_ids
-                            and len(user_create_schema.position_ids) > 0
-                        ):
-                            await UserCRUD(auth).set_user_positions(
-                                user_ids=[new_user.id], position_ids=user_create_schema.position_ids
-                            )
+                            await UserCRUD(auth).set_user_roles(user_ids=[new_user.id], role_ids=user_create_schema.role_ids)
+                        if user_create_schema.position_ids and len(user_create_schema.position_ids) > 0:
+                            await UserCRUD(auth).set_user_positions(user_ids=[new_user.id], position_ids=user_create_schema.position_ids)
                         success_count += 1
 
                 except Exception as e:
@@ -703,10 +671,6 @@ class UserService:
             gender = item.get("gender")
             item["gender"] = "男" if gender == "1" else ("女" if gender == "2" else "未知")
             item["is_superuser"] = "是" if item.get("is_superuser") else "否"
-            item["creator"] = (
-                item.get("created_by", {}).get("name", "未知")
-                if isinstance(item.get("created_by"), dict)
-                else "未知"
-            )
+            item["creator"] = item.get("created_by", {}).get("name", "未知") if isinstance(item.get("created_by"), dict) else "未知"
 
         return ExcelUtil.export_list2excel(list_data=data, mapping_dict=mapping_dict)

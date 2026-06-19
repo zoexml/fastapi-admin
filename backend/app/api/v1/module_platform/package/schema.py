@@ -1,9 +1,8 @@
-from dataclasses import dataclass
-
 from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.common.enums import QueueEnum
+from app.core.base_params import BaseQueryParam
 from app.core.base_schema import BaseSchema
 
 
@@ -12,7 +11,7 @@ class PackageCreateSchema(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=100, description="套餐名称")
     code: str = Field(..., min_length=2, max_length=100, description="套餐编码")
-    status: int = Field(default=0, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
     sort: int = Field(default=0, ge=0, description="排序")
     description: str | None = Field(default=None, max_length=255, description="描述")
     price: int = Field(default=0, ge=0, description="价格(分)")
@@ -55,7 +54,7 @@ class PackageUpdateSchema(PackageCreateSchema):
 
     name: str | None = Field(default=None, max_length=100, description="套餐名称")  # type: ignore[assignment]
     code: str | None = Field(default=None, max_length=100, description="套餐编码")  # type: ignore[assignment]
-    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:启动 1:停用)")
     sort: int | None = Field(default=None, ge=0, description="排序")
     description: str | None = Field(default=None, max_length=255, description="描述")
     price: int | None = Field(default=None, ge=0, description="价格(分)")
@@ -93,22 +92,21 @@ class PackageOutSchema(PackageCreateSchema, BaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
-@dataclass
-class PackageQueryParam:
+class PackageQueryParam(BaseQueryParam):
     """套餐查询参数"""
 
     def __init__(
         self,
         name: str | None = Query(None, description="套餐名称"),
         code: str | None = Query(None, description="套餐编码"),
-        status: str | None = Query(None, description="状态"),
+        *args,
+        **kwargs,
     ) -> None:
+        super().__init__(*args, **kwargs)
         if name:
             self.name = (QueueEnum.like.value, name)
         if code:
             self.code = (QueueEnum.like.value, code)
-        if status:
-            self.status = (QueueEnum.eq.value, status)
 
 
 class PackageMenuSetSchema(BaseModel):

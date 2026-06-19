@@ -26,7 +26,7 @@ from .schema import (
 )
 from .service import UserService
 
-UserRouter = APIRouter(route_class=OperationLogRoute, prefix="/user", tags=["系统管理/用户管理"])
+UserRouter = APIRouter(route_class=OperationLogRoute, prefix="/user", tags=["用户管理"])
 
 
 @UserRouter.get(
@@ -104,7 +104,7 @@ async def change_current_user_password_controller(
 async def reset_password_controller(
     id: Annotated[int, Path(description="用户ID")],
     data: ResetPasswordSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:user:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:user:update"]))],
 ) -> JSONResponse:
     """
     重置密码
@@ -180,7 +180,7 @@ async def forget_password_controller(
 async def get_obj_list_controller(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[UserQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:user:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:user:query"]))],
 ) -> JSONResponse:
     """
     查询用户
@@ -210,7 +210,7 @@ async def get_obj_list_controller(
 )
 async def get_obj_detail_controller(
     id: Annotated[int, Path(description="用户ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:user:detail']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:user:detail"]))],
 ) -> JSONResponse:
     """
     查询用户详情
@@ -233,7 +233,7 @@ async def get_obj_detail_controller(
 )
 async def create_obj_controller(
     data: UserCreateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:user:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:user:create"]))],
 ) -> JSONResponse:
     """
     创建用户
@@ -261,7 +261,7 @@ async def create_obj_controller(
 async def update_obj_controller(
     data: UserUpdateSchema,
     id: Annotated[int, Path(description="用户ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:user:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:user:update"]))],
 ) -> JSONResponse:
     """
     修改用户
@@ -285,7 +285,7 @@ async def update_obj_controller(
 )
 async def delete_obj_controller(
     ids: Annotated[list[int], Body(description="ID列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:user:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:user:delete"]))],
 ) -> JSONResponse:
     """
     删除用户
@@ -308,7 +308,7 @@ async def delete_obj_controller(
 )
 async def batch_set_available_obj_controller(
     data: BatchSetAvailable,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:user:patch']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:user:patch"]))],
 ) -> JSONResponse:
     """
     批量修改用户状态
@@ -328,7 +328,7 @@ async def batch_set_available_obj_controller(
     "/import/template",
     summary="获取用户导入模板",
     response_model=ResponseSchema[None],
-    dependencies=[Depends(AuthPermission(['module_system:user:download']))],
+    dependencies=[Depends(AuthPermission(["module_system:user:download"]))],
 )
 async def export_obj_template_controller() -> StreamingResponse:
     """
@@ -357,7 +357,7 @@ async def export_obj_template_controller() -> StreamingResponse:
 async def export_obj_list_controller(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[UserQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:user:export']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:user:export"]))],
 ) -> StreamingResponse:
     """
     导出用户
@@ -370,9 +370,7 @@ async def export_obj_list_controller(
     返回:
     - StreamingResponse: 用户导出模板流响应
     """
-    user_list = await UserService.get_user_list_service(
-        auth=auth, search=search, order_by=page.order_by
-    )
+    user_list = await UserService.get_user_list_service(auth=auth, search=search, order_by=page.order_by)
     user_export_result = await UserService.export_user_list_service(user_list)
 
     return StreamResponse(
@@ -389,7 +387,7 @@ async def export_obj_list_controller(
 )
 async def import_obj_list_controller(
     file: UploadFile,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:user:import']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:user:import"]))],
 ) -> JSONResponse:
     """
     导入用户
@@ -401,7 +399,5 @@ async def import_obj_list_controller(
     返回:
     - JSONResponse: 导入用户JSON响应
     """
-    batch_import_result = await UserService.batch_import_user_service(
-        file=file, auth=auth, update_support=True
-    )
+    batch_import_result = await UserService.batch_import_user_service(file=file, auth=auth, update_support=True)
     return SuccessResponse(data=batch_import_result, msg="导入用户成功")

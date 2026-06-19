@@ -1,4 +1,5 @@
 """订单与支付 Service"""
+
 import random
 from datetime import datetime, timedelta
 
@@ -45,7 +46,6 @@ def _generate_refund_no() -> str:
 
 
 class OrderService:
-
     @staticmethod
     async def create_order(auth: AuthSchema, data: OrderCreateSchema, amount: int | None = None) -> OrderOutSchema:
         """创建订单
@@ -56,10 +56,12 @@ class OrderService:
         if amount is None:
             if data.order_type == "plugin":
                 from app.api.v1.module_platform.plugin.model import PluginModel
+
                 plugin = await auth.db.get(PluginModel, data.plugin_id)
                 amount = plugin.price if plugin and hasattr(plugin, "price") else 0
             else:
                 from app.api.v1.module_platform.package.model import PackageModel
+
                 pkg = await auth.db.get(PackageModel, data.package_id)
                 amount = pkg.price if pkg and hasattr(pkg, "price") else 0
 
@@ -92,12 +94,13 @@ class OrderService:
         return OrderOutSchema.model_validate(order) if order else None
 
     @staticmethod
-    async def get_list(
-        auth: AuthSchema, params: OrderQueryParam, offset: int, limit: int
-    ) -> tuple[list, int]:
+    async def get_list(auth: AuthSchema, params: OrderQueryParam, offset: int, limit: int) -> tuple[list, int]:
         rows, total = await OrderCRUD(auth).query(
-            tenant_id=params.tenant_id, status=params.status,
-            order_type=params.order_type, offset=offset, limit=limit,
+            tenant_id=params.tenant_id,
+            status=params.status,
+            order_type=params.order_type,
+            offset=offset,
+            limit=limit,
         )
         items = [OrderOutSchema.model_validate(r) for r in rows]
         return items, total
@@ -135,11 +138,8 @@ class OrderService:
 
 
 class PaymentService:
-
     @staticmethod
-    async def create_payment(
-        auth: AuthSchema, order_id: int, method: str, notify_base_url: str
-    ) -> PaymentCreateOut:
+    async def create_payment(auth: AuthSchema, order_id: int, method: str, notify_base_url: str) -> PaymentCreateOut:
         """创建支付（调用支付网关）"""
         from app.api.v1.module_platform.package.model import PackageModel
 
@@ -153,6 +153,7 @@ class PaymentService:
 
         if order.order_type == "plugin":
             from app.api.v1.module_platform.plugin.model import PluginModel
+
             plugin = await auth.db.get(PluginModel, order.plugin_id)
             subject = f"FastapiAdmin - 插件 {plugin.name}" if plugin else "FastapiAdmin 插件"
         else:
@@ -178,9 +179,7 @@ class PaymentService:
         )
 
     @staticmethod
-    async def handle_callback(
-        auth: AuthSchema, method: str, callback_data: dict
-    ) -> dict:
+    async def handle_callback(auth: AuthSchema, method: str, callback_data: dict) -> dict:
         """处理支付回调"""
         gateway = create_payment_gateway(method)
         callback_result = await gateway.verify_callback(callback_data)
@@ -230,10 +229,7 @@ class PaymentService:
         order.order_type = otype
         await PaymentService._activate_tenant_package(auth, order)
 
-        logger.info(
-            f"支付回调处理完成: order_id={oid} method={method} "
-            f"tenant_id={tid} type={otype}"
-        )
+        logger.info(f"支付回调处理完成: order_id={oid} method={method} tenant_id={tid} type={otype}")
         return {"order_id": oid, "status": 1, "message": "支付成功"}
 
     @staticmethod
@@ -296,10 +292,12 @@ class PaymentService:
             return
 
         result = await auth.db.execute(
-            select(TenantPluginModel).where(
+            select(TenantPluginModel)
+            .where(
                 TenantPluginModel.tenant_id == order.tenant_id,
                 TenantPluginModel.plugin_id == order.plugin_id,
-            ).limit(1)
+            )
+            .limit(1)
         )
         existing = result.scalar_one_or_none()
         if existing:
@@ -318,14 +316,13 @@ class PaymentService:
         logger.info(f"租户[{order.tenant_id}]已购买插件[{plugin.name}]")
 
         from app.api.v1.module_platform.tenant.model import TenantModel
+
         tenant = await auth.db.get(TenantModel, order.tenant_id)
         if tenant and tenant.contact_email:
             await PaymentService._send_order_email(order, plugin, tenant, order_type_label="购买")
 
     @staticmethod
-    async def _check_downgrade_quota(
-        auth: AuthSchema, tenant_id: int, new_pkg: object
-    ) -> None:
+    async def _check_downgrade_quota(auth: AuthSchema, tenant_id: int, new_pkg: object) -> None:
         """降级前检查：租户当前资源数是否超过新套餐限额"""
         from sqlalchemy import func, select
 
@@ -342,21 +339,21 @@ class PaymentService:
         for label, (model, limit) in checks.items():
             if limit <= 0:
                 continue
-            count_stmt = select(func.count()).select_from(model).where(
-                model.tenant_id == tenant_id,
-                model.is_deleted.is_(False),
+            count_stmt = (
+                select(func.count())
+                .select_from(model)
+                .where(
+                    model.tenant_id == tenant_id,
+                    model.is_deleted.is_(False),
+                )
             )
             result = await auth.db.execute(count_stmt)
             current = result.scalar() or 0
             if current > limit:
-                raise CustomException(
-                    msg=f"降级失败：当前租户已有 {current} 个{label}，超过目标套餐限额 {limit}"
-                )
+                raise CustomException(msg=f"降级失败：当前租户已有 {current} 个{label}，超过目标套餐限额 {limit}")
 
     @staticmethod
-    async def _send_order_email(
-        order: "OrderModel", product: object, tenant: object, order_type_label: str = ""
-    ) -> None:
+    async def _send_order_email(order: "OrderModel", product: object, tenant: object, order_type_label: str = "") -> None:
         """发送购买确认邮件（失败静默降级）"""
         try:
             from app.api.v1.module_platform.email.service import EmailSendService
@@ -392,16 +389,13 @@ class PaymentService:
             pass  # 邮件发送失败不阻塞业务流程
 
     @staticmethod
-    async def get_records(
-        auth: AuthSchema, offset: int, limit: int
-    ) -> tuple[list, int]:
+    async def get_records(auth: AuthSchema, offset: int, limit: int) -> tuple[list, int]:
         rows, total = await PaymentRecordCRUD(auth).query(offset, limit)
         items = [PaymentRecordOutSchema.model_validate(r) for r in rows]
         return items, total
 
 
 class RefundService:
-
     @staticmethod
     async def apply(auth: AuthSchema, data: RefundApplySchema, order_id: int) -> RefundOutSchema:
         o_crud = OrderCRUD(auth)
@@ -428,16 +422,13 @@ class RefundService:
         return RefundOutSchema.model_validate(refund)
 
     @staticmethod
-    async def get_list(
-        auth: AuthSchema, status: int | None, offset: int, limit: int
-    ) -> tuple[list, int]:
+    async def get_list(auth: AuthSchema, status: int | None, offset: int, limit: int) -> tuple[list, int]:
         rows, total = await RefundCRUD(auth).query(status, offset, limit)
         items = [RefundOutSchema.model_validate(r) for r in rows]
         return items, total
 
     @staticmethod
-    async def approve(auth: AuthSchema, refund_id: int, reviewer_id: int,
-                      operator_name: str = "") -> OrderStatusMessage:
+    async def approve(auth: AuthSchema, refund_id: int, reviewer_id: int, operator_name: str = "") -> OrderStatusMessage:
         crud = RefundCRUD(auth)
         refund = await crud.get_by_id(refund_id)
         if not refund:
@@ -453,8 +444,11 @@ class RefundService:
 
     @staticmethod
     async def reject(
-        auth: AuthSchema, refund_id: int, reviewer_id: int,
-        data: RefundReviewSchema, operator_name: str = "",
+        auth: AuthSchema,
+        refund_id: int,
+        reviewer_id: int,
+        data: RefundReviewSchema,
+        operator_name: str = "",
     ) -> OrderStatusMessage:
         crud = RefundCRUD(auth)
         refund = await crud.get_by_id(refund_id)

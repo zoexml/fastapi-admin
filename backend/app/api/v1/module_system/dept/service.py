@@ -63,9 +63,7 @@ class DeptService:
         - list[dict]: 部门树形列表对象。
         """
         # 使用树形结构查询，预加载children关系
-        dept_list = await DeptCRUD(auth).get_tree_list(
-            search=search.__dict__ if search else {}, order_by=order_by
-        )
+        dept_list = await DeptCRUD(auth).get_tree_list(search=search.__dict__ if search else {}, order_by=order_by)
         # 转换为字典列表（使用树形 Schema），tree_list 已通过 selectin 预加载 children
         dept_dict_list = [DeptTreeOutSchema.model_validate(dept).model_dump() for dept in dept_list]
         # 仅保留根节点，子树已在 model_dump 中递归序列化
@@ -95,6 +93,7 @@ class DeptService:
 
         # 检查租户配额
         from app.api.v1.module_platform.tenant.service import TenantService
+
         await TenantService.check_quota_service(auth, auth.tenant_id, "dept")
 
         dept = await DeptCRUD(auth).create(data=data)

@@ -13,6 +13,7 @@ Service 层及其他模块引用。
 
 新增模型可直接参考已有文件完成定义。
 """
+
 from typing import TYPE_CHECKING
 
 # 使用 TYPE_CHECKING 避免循环导入

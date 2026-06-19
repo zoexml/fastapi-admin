@@ -20,7 +20,7 @@ from .schema import (
 )
 from .service import PositionService
 
-PositionRouter = APIRouter(route_class=OperationLogRoute, prefix="/position", tags=["系统管理/岗位管理"])
+PositionRouter = APIRouter(route_class=OperationLogRoute, prefix="/position", tags=["岗位管理"])
 
 _POS_NS = "position"
 
@@ -34,7 +34,7 @@ _POS_NS = "position"
 async def get_obj_list_controller(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[PositionQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:position:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:position:query"]))],
 ) -> JSONResponse:
     """
     查询岗位列表
@@ -67,7 +67,7 @@ async def get_obj_list_controller(
 )
 async def get_obj_detail_controller(
     id: Annotated[int, Path(description="岗位ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:position:detail']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:position:detail"]))],
 ) -> JSONResponse:
     """
     查询岗位详情
@@ -90,7 +90,7 @@ async def get_obj_detail_controller(
 )
 async def create_obj_controller(
     data: PositionCreateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:position:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:position:create"]))],
 ) -> JSONResponse:
     """
     创建岗位
@@ -115,7 +115,7 @@ async def create_obj_controller(
 async def update_obj_controller(
     data: PositionUpdateSchema,
     id: Annotated[int, Path(description="岗位ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:position:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:position:update"]))],
 ) -> JSONResponse:
     """
     修改岗位
@@ -140,7 +140,7 @@ async def update_obj_controller(
 )
 async def delete_obj_controller(
     ids: Annotated[list[int], Body(description="ID列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:position:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:position:delete"]))],
 ) -> JSONResponse:
     """
     删除岗位
@@ -164,7 +164,7 @@ async def delete_obj_controller(
 )
 async def batch_set_available_obj_controller(
     data: BatchSetAvailable,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:position:patch']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:position:patch"]))],
 ) -> JSONResponse:
     """
     批量修改岗位状态
@@ -188,7 +188,7 @@ async def batch_set_available_obj_controller(
 )
 async def export_obj_list_controller(
     search: Annotated[PositionQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:position:export']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:position:export"]))],
 ) -> StreamingResponse:
     """
     导出岗位
@@ -200,12 +200,8 @@ async def export_obj_list_controller(
     返回:
     - StreamingResponse: 岗位Excel文件流
     """
-    position_query_result = await PositionService.get_position_list_service(
-        search=search, auth=auth
-    )
-    position_export_result = await PositionService.export_position_list_service(
-        position_list=position_query_result
-    )
+    position_query_result = await PositionService.get_position_list_service(search=search, auth=auth)
+    position_export_result = await PositionService.export_position_list_service(position_list=position_query_result)
 
     return StreamResponse(
         data=bytes2file_response(position_export_result),

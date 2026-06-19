@@ -1,9 +1,8 @@
-from dataclasses import dataclass
-
 from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.common.enums import QueueEnum
+from app.core.base_params import BaseQueryParam
 from app.core.base_schema import BaseSchema
 from app.core.validator import DateTimeStr, email_validator, mobile_validator
 
@@ -13,7 +12,7 @@ class TenantCreateSchema(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=100, description="租户名称")
     code: str = Field(..., min_length=2, max_length=100, description="租户编码")
-    status: int = Field(default=0, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, description="描述")
     start_time: DateTimeStr | None = Field(default=None, description="开始时间")
     end_time: DateTimeStr | None = Field(default=None, description="结束时间")
@@ -84,7 +83,7 @@ class TenantUpdateSchema(TenantCreateSchema):
 
     name: str | None = Field(default=None, max_length=100, description="租户名称")  # type: ignore[assignment]
     code: str | None = Field(default=None, max_length=100, description="租户编码")  # type: ignore[assignment]
-    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:启动 1:停用)")
     description: str | None = Field(default=None, description="描述")
     start_time: DateTimeStr | None = Field(default=None, description="开始时间")
     end_time: DateTimeStr | None = Field(default=None, description="结束时间")
@@ -150,29 +149,21 @@ class TenantOutSchema(TenantCreateSchema, BaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
-@dataclass
-class TenantQueryParam:
+class TenantQueryParam(BaseQueryParam):
     """租户查询参数"""
 
     def __init__(
         self,
         name: str | None = Query(None, description="租户名称"),
         code: str | None = Query(None, description="租户编码"),
-        status: str | None = Query(None, description="状态"),
-        created_time: list[DateTimeStr] | None = Query(
-            None,
-            description="创建时间范围",
-            examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"],
-        ),
+        *args,
+        **kwargs,
     ) -> None:
+        super().__init__(*args, **kwargs)
         if name:
             self.name = (QueueEnum.like.value, name)
         if code:
             self.code = (QueueEnum.like.value, code)
-        if status:
-            self.status = (QueueEnum.eq.value, status)
-        if created_time and len(created_time) == 2:
-            self.created_time = (QueueEnum.between.value, (created_time[0], created_time[1]))
 
 
 class TenantUserAddSchema(BaseModel):

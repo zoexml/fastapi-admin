@@ -24,8 +24,6 @@ class BaseSchema(BaseModel):
 
     id: int | None = Field(default=None, description="主键ID")
     uuid: str | None = Field(default=None, description="UUID")
-    status: int = Field(default=0, description="状态")
-    description: str | None = Field(default=None, description="描述")
     created_time: DateTimeStr | None = Field(default=None, description="创建时间")
     updated_time: DateTimeStr | None = Field(default=None, description="更新时间")
     is_deleted: bool = Field(default=False, description="是否已删除")

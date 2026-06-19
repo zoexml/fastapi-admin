@@ -54,7 +54,7 @@ from .service import (
     TenantRegisterService,
 )
 
-AuthRouter = APIRouter(route_class=OperationLogRoute, prefix="/auth", tags=["系统管理/认证授权"])
+AuthRouter = APIRouter(route_class=OperationLogRoute, prefix="/auth", tags=["认证授权"])
 
 _AUTH_TENANTS_NS = "auth_tenants"
 
@@ -85,9 +85,7 @@ async def login_for_access_token_controller(
     异常:
     - CustomException: 认证失败时抛出异常。
     """
-    login_result = await LoginService.authenticate_user_service(
-        request=request, redis=redis, login_form=login_form, db=db
-    )
+    login_result = await LoginService.authenticate_user_service(request=request, redis=redis, login_form=login_form, db=db)
 
     logger.info(f"用户{login_form.username}登录成功")
 
@@ -121,9 +119,7 @@ async def get_new_token_controller(
     异常:
     - CustomException: 刷新令牌失败时抛出异常。
     """
-    new_token = await LoginService.refresh_token_service(
-        db=db, redis=redis, refresh_token=payload
-    )
+    new_token = await LoginService.refresh_token_service(db=db, redis=redis, refresh_token=payload)
     return SuccessResponse(data=new_token, msg="刷新成功")
 
 
@@ -229,9 +225,7 @@ async def get_auto_login_token_controller(
     - AutoLoginTokenSchema: 免登录Token和用户信息
     """
     tenant_id = None if auth.user.is_superuser else auth.user.tenant_id
-    result = await AutoLoginService.create_auto_login_token_service(
-        redis=redis, db=db, user_id=user_id, tenant_id=tenant_id
-    )
+    result = await AutoLoginService.create_auto_login_token_service(redis=redis, db=db, user_id=user_id, tenant_id=tenant_id)
     return SuccessResponse(data=result, msg="获取成功")
 
 
@@ -258,9 +252,7 @@ async def auto_login_controller(
     返回:
     - JWTOutSchema: JWT令牌信息
     """
-    login_token = await AutoLoginService.auto_login_service(
-        request=request, redis=redis, db=db, token=token
-    )
+    login_token = await AutoLoginService.auto_login_service(request=request, redis=redis, db=db, token=token)
     logger.info("用户免登录成功")
     return SuccessResponse(data=login_token, msg="登录成功")
 
@@ -291,9 +283,7 @@ async def select_tenant_controller(
     返回:
     - SelectTenantOutSchema: 包含新令牌的响应
     """
-    result = await LoginService.select_tenant_service(
-        request=request, redis=redis, auth=auth, tenant_id=data.tenant_id
-    )
+    result = await LoginService.select_tenant_service(request=request, redis=redis, auth=auth, tenant_id=data.tenant_id)
     await FastAPICache.clear(namespace=_AUTH_TENANTS_NS)
     return SuccessResponse(data=result, msg="租户切换成功")
 
@@ -448,6 +438,7 @@ async def tenant_register_controller(
 
 # ─── 忘记密码（自助重置）────────────────────────────────────
 
+
 @AuthRouter.post(
     "/forgot-password",
     summary="忘记密码",
@@ -467,9 +458,7 @@ async def forgot_password_controller(
     返回:
     - str: 提示信息（无论成功与否均返回相同文案）
     """
-    msg = await PasswordResetService.forgot_password_service(
-        redis=redis, db=db, email=data.email
-    )
+    msg = await PasswordResetService.forgot_password_service(redis=redis, db=db, email=data.email)
     return SuccessResponse(data=msg, msg="邮件已发送")
 
 
@@ -492,7 +481,5 @@ async def reset_password_controller(
     返回:
     - str: 重置结果
     """
-    msg = await PasswordResetService.reset_password_with_token_service(
-        redis=redis, db=db, token=data.token, new_password=data.new_password
-    )
+    msg = await PasswordResetService.reset_password_with_token_service(redis=redis, db=db, token=data.token, new_password=data.new_password)
     return SuccessResponse(data=msg, msg="密码已重置")

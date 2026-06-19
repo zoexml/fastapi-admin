@@ -52,9 +52,7 @@ class RoleService:
         返回:
         - list[RoleOutSchema]: 角色详情字典列表
         """
-        role_list = await RoleCRUD(auth).list(
-            search=search.__dict__ if search else {}, order_by=order_by
-        )
+        role_list = await RoleCRUD(auth).list(search=search.__dict__ if search else {}, order_by=order_by)
         return [RoleOutSchema.model_validate(role) for role in role_list]
 
     @classmethod
@@ -109,6 +107,7 @@ class RoleService:
 
         # 检查租户配额
         from app.api.v1.module_platform.tenant.service import TenantService
+
         await TenantService.check_quota_service(auth, auth.tenant_id, "role")
 
         new_role = await RoleCRUD(auth).create(data=data)
@@ -164,9 +163,7 @@ class RoleService:
         await RoleCRUD(auth).delete(ids=ids)
 
     @classmethod
-    async def set_role_permission_service(
-        cls, auth: AuthSchema, data: RolePermissionSettingSchema
-    ) -> None:
+    async def set_role_permission_service(cls, auth: AuthSchema, data: RolePermissionSettingSchema) -> None:
         """
         设置角色权限
 

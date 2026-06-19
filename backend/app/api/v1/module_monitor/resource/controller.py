@@ -22,7 +22,7 @@ from .schema import (
 )
 from .service import ResourceService
 
-ResourceRouter = APIRouter(route_class=OperationLogRoute, prefix="/resource", tags=["系统监控/资源管理"])
+ResourceRouter = APIRouter(route_class=OperationLogRoute, prefix="/resource", tags=["资源管理"])
 
 
 @ResourceRouter.get(
@@ -48,9 +48,7 @@ async def get_directory_list_controller(
     - JSONResponse: 包含目录列表的JSON响应。
     """
     # 获取资源列表（与案例模块保持一致的分页实现）
-    result_dict_list = await ResourceService.get_resources_list_service(
-        search=search, base_url=str(request.base_url)
-    )
+    result_dict_list = await ResourceService.get_resources_list_service(search=search, base_url=str(request.base_url))
     # 目录列表来自本地文件系统扫描，无 SQL 分页
     result_dict = await PaginationService.paginate(
         data_list=result_dict_list,
@@ -234,9 +232,7 @@ async def create_directory_controller(
     response_model=ResponseSchema[None],
     dependencies=[Depends(AuthPermission(["module_monitor:resource:export"]))],
 )
-async def export_resource_list_controller(
-    request: Request, search: Annotated[ResourceSearchQueryParam, Depends()]
-) -> StreamingResponse:
+async def export_resource_list_controller(request: Request, search: Annotated[ResourceSearchQueryParam, Depends()]) -> StreamingResponse:
     """
     导出资源列表
 
@@ -248,9 +244,7 @@ async def export_resource_list_controller(
     - StreamingResponse: 包含导出资源列表的流式响应。
     """
     # 获取搜索结果
-    result_dict_list = await ResourceService.get_resources_list_service(
-        search=search, base_url=str(request.base_url)
-    )
+    result_dict_list = await ResourceService.get_resources_list_service(search=search, base_url=str(request.base_url))
     export_result = await ResourceService.export_resource_service(data_list=result_dict_list)
 
     return StreamResponse(

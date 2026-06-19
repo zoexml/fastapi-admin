@@ -1,9 +1,11 @@
 """租户自助服务 Schema"""
+
 from pydantic import BaseModel, Field
 
 
 class PackageAvailableItem(BaseModel):
     """可选套餐项"""
+
     id: int
     name: str
     price: int  # 分
@@ -20,17 +22,20 @@ class PackageAvailableItem(BaseModel):
 
 class PackageAvailableOut(BaseModel):
     """可选套餐列表"""
+
     current_package_id: int | None = None
     packages: list[PackageAvailableItem]
 
 
 class PackagePreviewQuery(BaseModel):
     """套餐变更预览请求"""
+
     target_package_id: int = Field(..., ge=1)
 
 
 class PackagePreviewOut(BaseModel):
     """套餐变更预览结果"""
+
     current_package: str = ""
     target_package: str = ""
     action: str = ""  # upgrade/downgrade/buy/renew
@@ -44,12 +49,14 @@ class PackagePreviewOut(BaseModel):
 
 class SelfOrderCreate(BaseModel):
     """自助订单创建"""
+
     package_id: int = Field(..., ge=1)
     order_type: str = Field(..., pattern="^(buy|renew|upgrade|downgrade)$")
 
 
 class PluginPurchaseCreate(BaseModel):
     """插件购买"""
+
     plugin_id: int = Field(..., ge=1, description="插件ID")
     pay_method: str | None = Field(default=None, pattern=r"^(alipay|wxpay)?$")
 
@@ -59,6 +66,7 @@ class PluginPurchaseCreate(BaseModel):
 
 class SelfOrderOut(BaseModel):
     """自助订单创建结果"""
+
     order_id: int
     order_no: str
     amount: int
@@ -67,6 +75,7 @@ class SelfOrderOut(BaseModel):
 
 class SelfOrderListItem(BaseModel):
     """我的订单列表项"""
+
     id: int
     order_no: str
     package_name: str = ""
@@ -80,6 +89,7 @@ class SelfOrderListItem(BaseModel):
 
 class SelfOrderListOut(BaseModel):
     """我的订单列表"""
+
     items: list[SelfOrderListItem]
     total: int
     page_no: int
@@ -88,6 +98,7 @@ class SelfOrderListOut(BaseModel):
 
 class SelfOrderDetailOut(BaseModel):
     """订单详情"""
+
     id: int
     order_no: str
     package_id: int | None = None
@@ -105,6 +116,7 @@ class SelfOrderDetailOut(BaseModel):
 
 class WorkspaceTenantInfo(BaseModel):
     """工作台-租户信息"""
+
     id: int
     name: str
     code: str
@@ -117,6 +129,7 @@ class WorkspaceTenantInfo(BaseModel):
 
 class WorkspacePackageInfo(BaseModel):
     """工作台-套餐信息"""
+
     id: int
     name: str
     price: int
@@ -128,6 +141,7 @@ class WorkspacePackageInfo(BaseModel):
 
 class WorkspaceUsagePercent(BaseModel):
     """工作台-用量百分比"""
+
     users: float = 0
     roles: float = 0
     depts: float = 0
@@ -135,6 +149,7 @@ class WorkspaceUsagePercent(BaseModel):
 
 class WorkspaceQuotaInfo(BaseModel):
     """工作台-配额用量"""
+
     max_users: int = 0
     max_roles: int = 0
     max_depts: int = 0
@@ -146,6 +161,7 @@ class WorkspaceQuotaInfo(BaseModel):
 
 class WorkspaceOrderItem(BaseModel):
     """工作台-近期订单项"""
+
     id: int
     order_no: str
     amount: int
@@ -156,6 +172,7 @@ class WorkspaceOrderItem(BaseModel):
 
 class WorkspaceOut(BaseModel):
     """工作台概览"""
+
     tenant: WorkspaceTenantInfo
     package: WorkspacePackageInfo | None = None
     quota: WorkspaceQuotaInfo

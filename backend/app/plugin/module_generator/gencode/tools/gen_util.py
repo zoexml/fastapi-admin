@@ -90,9 +90,7 @@ class GenUtils:
                 column.python_type = "list"
         else:
             # 只有当python_type为None时才设置默认类型
-            column.python_type = StringUtil.get_mapping_value_by_key_ignore_case(
-                GenConstant.DB_TO_PYTHON, data_type
-            )
+            column.python_type = StringUtil.get_mapping_value_by_key_ignore_case(GenConstant.DB_TO_PYTHON, data_type)
 
         if column.column_length is None:
             column.column_length = ""
@@ -118,48 +116,29 @@ class GenUtils:
                 column.html_type = GenConstant.HTML_DATETIME
             elif cls.arrays_contains(GenConstant.COLUMNTYPE_NUMBER, data_type):
                 column.html_type = GenConstant.HTML_INPUT
-            elif cls.arrays_contains(GenConstant.COLUMNTYPE_STR, data_type) or cls.arrays_contains(
-                GenConstant.COLUMNTYPE_TEXT, data_type
-            ):
+            elif cls.arrays_contains(GenConstant.COLUMNTYPE_STR, data_type) or cls.arrays_contains(GenConstant.COLUMNTYPE_TEXT, data_type):
                 # 字符串长度超过500设置为文本域
                 column_length = cls.get_column_length(column.column_type or "")
-                column.html_type = (
-                    GenConstant.HTML_TEXTAREA
-                    if column_length >= 500
-                    or cls.arrays_contains(GenConstant.COLUMNTYPE_TEXT, data_type)
-                    else GenConstant.HTML_INPUT
-                )
+                column.html_type = GenConstant.HTML_TEXTAREA if column_length >= 500 or cls.arrays_contains(GenConstant.COLUMNTYPE_TEXT, data_type) else GenConstant.HTML_INPUT
             else:
                 column.html_type = GenConstant.HTML_INPUT
 
         # 默认新增字段：非主键且不在“新增不展示”黑名单中
         # 说明：schema 默认值可能为 True/False；仅当调用方未显式配置时才做推断
         if column.is_insert is None:
-            column.is_insert = bool(
-                (not column.is_pk)
-                and (not cls.arrays_contains(GenConstant.COLUMNNAME_NOT_ADD_SHOW, column_name))
-            )
+            column.is_insert = bool((not column.is_pk) and (not cls.arrays_contains(GenConstant.COLUMNNAME_NOT_ADD_SHOW, column_name)))
 
         # 默认编辑字段：非主键且不在“不编辑”黑名单中
         if column.is_edit is None:
-            column.is_edit = bool(
-                (not cls.arrays_contains(GenConstant.COLUMNNAME_NOT_EDIT, column_name))
-                and (not column.is_pk)
-            )
+            column.is_edit = bool((not cls.arrays_contains(GenConstant.COLUMNNAME_NOT_EDIT, column_name)) and (not column.is_pk))
 
         # 默认列表字段：非主键且不在“不列表显示”黑名单中
         if column.is_list is None:
-            column.is_list = bool(
-                (not cls.arrays_contains(GenConstant.COLUMNNAME_NOT_LIST, column_name))
-                and (not column.is_pk)
-            )
+            column.is_list = bool((not cls.arrays_contains(GenConstant.COLUMNNAME_NOT_LIST, column_name)) and (not column.is_pk))
 
         # 默认查询字段：非主键且不在“不查询”黑名单中
         if column.is_query is None:
-            column.is_query = bool(
-                (not cls.arrays_contains(GenConstant.COLUMNNAME_NOT_QUERY, column_name))
-                and (not column.is_pk)
-            )
+            column.is_query = bool((not cls.arrays_contains(GenConstant.COLUMNNAME_NOT_QUERY, column_name)) and (not column.is_pk))
 
         # 查询类型：仅当开启查询且 query_type 未显式配置时推断
         if column.is_query:

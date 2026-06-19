@@ -1,11 +1,15 @@
 """发票管理 Schema"""
+
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.common.enums import QueueEnum
+from app.core.base_params import BaseQueryParam
 from app.core.base_schema import BaseSchema
 
 
 class InvoiceCreateSchema(BaseModel):
     """创建发票（内部使用）"""
+
     invoice_no: str
     order_id: int
     tenant_id: int
@@ -22,6 +26,7 @@ class InvoiceCreateSchema(BaseModel):
 
 class InvoiceUpdateSchema(BaseModel):
     """更新发票（内部使用）"""
+
     status: int | None = None
     pdf_url: str | None = None
     api_response: str | None = None
@@ -30,6 +35,7 @@ class InvoiceUpdateSchema(BaseModel):
 
 class InvoiceApplySchema(BaseModel):
     """申请开票"""
+
     order_id: int = Field(..., description="订单ID")
     invoice_type: str = Field(..., description="vat_normal/vat_special")
     title: str = Field(..., max_length=200, description="发票抬头")
@@ -41,17 +47,22 @@ class InvoiceApplySchema(BaseModel):
 
 class InvoiceIssueSchema(BaseModel):
     """超管开票"""
+
     api_response: str | None = Field(None, description="第三方API响应（手动填入）")
     pdf_url: str | None = Field(None, description="PDF下载地址")
 
 
 class InvoiceVoidSchema(BaseModel):
     """作废发票"""
+
     description: str | None = Field(None, description="作废原因")
 
 
 class InvoiceOutSchema(BaseSchema):
     """发票列表输出"""
+
+    model_config = ConfigDict(from_attributes=True)
+
     invoice_no: str
     order_id: int
     tenant_id: int
@@ -64,13 +75,16 @@ class InvoiceOutSchema(BaseSchema):
     tax_amount: int
     pdf_url: str | None = None
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class InvoiceQueryParam(BaseModel):
+class InvoiceQueryParam(BaseQueryParam):
     """发票查询参数"""
-    invoice_type: str | None = Field(None, description="发票类型")
-    status: int | None = Field(None, description="状态")
-    tenant_id: int | None = Field(None, description="租户ID")
-    page_no: int = Field(1, ge=1)
-    page_size: int = Field(20, ge=1, le=100)
+
+    def __init__(
+        self,
+        invoice_type: str | None = None,
+        *args,
+        **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        if invoice_type:
+            self.invoice_type = (QueueEnum.eq.value, invoice_type)

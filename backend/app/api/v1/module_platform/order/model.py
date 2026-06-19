@@ -1,4 +1,5 @@
 """订单与支付 Model"""
+
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
@@ -29,6 +30,8 @@ class OrderModel(ModelMixin, TenantMixin):
     pay_method: Mapped[str | None] = mapped_column(String(20), nullable=True, comment="alipay/wxpay")
     pay_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment="支付时间")
     expire_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, comment="订单过期时间(15分钟)")
+    status: Mapped[int] = mapped_column(Integer, default=0, nullable=False, comment="状态(0:启动 1:停用)", index=True)
+    description: Mapped[str | None] = mapped_column(Text, default=None, nullable=True, comment="备注")
 
 
 class PaymentRecordModel(ModelMixin, TenantMixin):
@@ -46,6 +49,8 @@ class PaymentRecordModel(ModelMixin, TenantMixin):
     amount: Mapped[int] = mapped_column(Integer, nullable=False, comment="支付金额(分)")
     raw_response: Mapped[str | None] = mapped_column(Text, nullable=True, comment="原始回调JSON")
     pay_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment="支付完成时间")
+    status: Mapped[int] = mapped_column(Integer, default=0, nullable=False, comment="状态(0:启动 1:停用)", index=True)
+    description: Mapped[str | None] = mapped_column(Text, default=None, nullable=True, comment="备注")
 
 
 class RefundModel(ModelMixin, TenantMixin):
@@ -65,3 +70,5 @@ class RefundModel(ModelMixin, TenantMixin):
     reviewer_id: Mapped[int | None] = mapped_column(ForeignKey("sys_user.id"), nullable=True, comment="审核人")
     review_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment="审核时间")
     reject_reason: Mapped[str | None] = mapped_column(Text, nullable=True, comment="驳回原因")
+    status: Mapped[int] = mapped_column(Integer, default=0, nullable=False, comment="状态(0:启动 1:停用)", index=True)
+    description: Mapped[str | None] = mapped_column(Text, default=None, nullable=True, comment="备注")

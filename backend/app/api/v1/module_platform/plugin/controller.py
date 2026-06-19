@@ -20,7 +20,7 @@ from .schema import (
 )
 from .service import PluginService
 
-PluginRouter = APIRouter(route_class=OperationLogRoute, prefix="/plugin", tags=["平台管理/插件管理"])
+PluginRouter = APIRouter(route_class=OperationLogRoute, prefix="/plugin", tags=["插件管理"])
 
 _PLUGIN_NS = "plugin"
 
@@ -32,7 +32,7 @@ _PLUGIN_NS = "plugin"
 async def plugin_list(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[PluginQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:query"]))],
 ) -> JSONResponse:
     """
     插件列表
@@ -48,12 +48,10 @@ async def plugin_list(
     return SuccessResponse(data=r, msg="查询成功")
 
 
-@PluginRouter.get(
-    "/detail/{id}", summary="插件详情", response_model=ResponseSchema[PluginOutSchema]
-)
+@PluginRouter.get("/detail/{id}", summary="插件详情", response_model=ResponseSchema[PluginOutSchema])
 async def plugin_detail(
     id: Annotated[int, Path()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:query"]))],
 ) -> JSONResponse:
     """
     插件详情
@@ -70,7 +68,7 @@ async def plugin_detail(
 @PluginRouter.post("/create", summary="创建插件", response_model=ResponseSchema[PluginOutSchema])
 async def plugin_create(
     data: PluginCreateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:create"]))],
 ) -> JSONResponse:
     """
     创建插件
@@ -86,13 +84,11 @@ async def plugin_create(
     return SuccessResponse(data=r, msg="创建成功")
 
 
-@PluginRouter.put(
-    "/update/{id}", summary="更新插件", response_model=ResponseSchema[PluginOutSchema]
-)
+@PluginRouter.put("/update/{id}", summary="更新插件", response_model=ResponseSchema[PluginOutSchema])
 async def plugin_update(
     id: Annotated[int, Path()],
     data: PluginUpdateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:update"]))],
 ) -> JSONResponse:
     """
     更新插件
@@ -112,7 +108,7 @@ async def plugin_update(
 @PluginRouter.delete("/delete", summary="删除插件", response_model=ResponseSchema[None])
 async def plugin_delete(
     ids: Annotated[list[int], Body()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:delete"]))],
 ) -> JSONResponse:
     """
     删除插件
@@ -127,6 +123,7 @@ async def plugin_delete(
     await FastAPICache.clear(namespace=_PLUGIN_NS)
     return SuccessResponse(msg="删除成功")
 
+
 # ───── 租户：插件市场 ─────
 
 
@@ -135,7 +132,7 @@ async def plugin_delete(
 async def marketplace(
     page: Annotated[PaginationQueryParam, Depends()],
     category: str | None = None,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:query']))] = None,
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:query"]))] = None,
 ) -> JSONResponse:
     """
     插件市场
@@ -154,7 +151,7 @@ async def marketplace(
 @PluginRouter.post("/install", summary="安装插件", response_model=ResponseSchema[None])
 async def plugin_install(
     data: PluginInstallSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:install']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:install"]))],
 ) -> JSONResponse:
     """
     安装插件
@@ -173,7 +170,7 @@ async def plugin_install(
 @PluginRouter.post("/uninstall", summary="卸载插件", response_model=ResponseSchema[None])
 async def plugin_uninstall(
     data: PluginInstallSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:uninstall']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:uninstall"]))],
 ) -> JSONResponse:
     """
     卸载插件
@@ -192,7 +189,7 @@ async def plugin_uninstall(
 @PluginRouter.post("/toggle", summary="启用/禁用插件", response_model=ResponseSchema[None])
 async def plugin_toggle(
     data: PluginInstallSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:toggle']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:toggle"]))],
 ) -> JSONResponse:
     """
     启用/禁用插件
@@ -211,7 +208,7 @@ async def plugin_toggle(
 @PluginRouter.get("/my", summary="我的插件", response_model=ResponseSchema[list[PluginOutSchema]])
 @cache(expire=120, namespace=_PLUGIN_NS)
 async def my_plugins(
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:query"]))],
 ) -> JSONResponse:
     """
     我的插件
@@ -224,7 +221,7 @@ async def my_plugins(
 
 @PluginRouter.post("/reload", summary="热重载插件路由", response_model=ResponseSchema[str])
 async def plugin_reload(
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_platform:plugin:reload']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_platform:plugin:reload"]))],
 ) -> JSONResponse:
     """
     热重载插件路由（管理员）。

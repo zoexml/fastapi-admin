@@ -117,19 +117,15 @@ import WorkflowNodeTypeAPI, {
   type WorkflowNodeTypeForm,
   type WorkflowNodeTypeTable,
 } from "@/api/module_task/workflow/node-type";
-import FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import type { SearchFormItem } from "@/components/forms/fa-search-bar/index.vue";
-import FaTable from "@/components/tables/fa-table/index.vue";
-import FaTableHeader from "@/components/tables/fa-table-header/index.vue";
-import FaTableHeaderLeft from "@/components/tables/fa-table-header-left/index.vue";
-import FaDialog from "@/components/modal/fa-dialog/index.vue";
-import FaForm from "@/components/forms/fa-form/index.vue";
+import type FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import type { FormItem } from "@/components/forms/fa-form/index.vue";
+import type FaForm from "@/components/forms/fa-form/index.vue";
 import { useTable } from "@/hooks/core/useTable";
 import type { ColumnOption } from "@/types/component";
-import { ElMessage, ElMessageBox, ElTag } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormRules } from "element-plus";
-import { computed, h, ref } from "vue";
+import { computed, ref } from "vue";
 
 const BATCH_DELETE_MSG = "确认删除选中的编排节点类型吗？";
 
@@ -309,10 +305,10 @@ const {
         label: "启用",
         width: 88,
         align: "center",
-        formatter: (row) =>
-          h(ElTag, { type: row.is_active ? "success" : "info" }, () =>
-            row.is_active ? "是" : "否"
-          ),
+        status: {
+          true: { type: "success", text: "是" },
+          false: { type: "info", text: "否" },
+        },
       },
       {
         prop: "created_time",

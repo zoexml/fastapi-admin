@@ -21,7 +21,7 @@ from .schema import (
 )
 from .service import PackageService
 
-PackageRouter = APIRouter(route_class=OperationLogRoute, prefix="/package", tags=["平台管理/套餐管理"])
+PackageRouter = APIRouter(route_class=OperationLogRoute, prefix="/package", tags=["套餐管理"])
 
 _PKG_NS = "package"
 
@@ -34,7 +34,7 @@ _PKG_NS = "package"
 @cache(expire=300, namespace=_PKG_NS)
 async def get_obj_detail_controller(
     id: Annotated[int, Path(description="套餐ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:query"]))],
 ) -> JSONResponse:
     """
     获取套餐详情
@@ -57,7 +57,7 @@ async def get_obj_detail_controller(
 async def get_obj_list_controller(
     page: Annotated[PaginationQueryParam, Depends()],
     search: Annotated[PackageQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:query"]))],
 ) -> JSONResponse:
     """
     获取套餐列表
@@ -86,7 +86,7 @@ async def get_obj_list_controller(
 )
 async def create_obj_controller(
     data: Annotated[PackageCreateSchema, Body(description="套餐信息")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:create"]))],
 ) -> JSONResponse:
     """
     创建套餐
@@ -110,7 +110,7 @@ async def create_obj_controller(
 async def update_obj_controller(
     id: Annotated[int, Path(description="套餐ID")],
     data: Annotated[PackageUpdateSchema, Body(description="套餐信息")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:update"]))],
 ) -> JSONResponse:
     """
     更新套餐
@@ -134,7 +134,7 @@ async def update_obj_controller(
 )
 async def delete_obj_controller(
     ids: Annotated[list[int], Body(description="ID列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:delete"]))],
 ) -> JSONResponse:
     """
     删除套餐
@@ -157,7 +157,7 @@ async def delete_obj_controller(
 )
 async def set_available_controller(
     data: Annotated[BatchSetAvailable, Body(description="状态设置")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:update"]))],
 ) -> JSONResponse:
     """
     批量修改套餐状态
@@ -181,7 +181,7 @@ async def set_available_controller(
 )
 async def get_menus_controller(
     package_id: Annotated[int, Path(description="套餐ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:query"]))],
 ) -> JSONResponse:
     """
     获取套餐关联菜单
@@ -204,7 +204,7 @@ async def get_menus_controller(
 async def set_menus_controller(
     package_id: Annotated[int, Path(description="套餐ID")],
     data: Annotated[PackageMenuSetSchema, Body(description="菜单列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:update"]))],
 ) -> JSONResponse:
     """
     设置套餐菜单权限
@@ -227,7 +227,7 @@ async def set_menus_controller(
 )
 async def get_plugins_controller(
     package_id: Annotated[int, Path(description="套餐ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:query"]))],
 ) -> JSONResponse:
     """
     获取套餐关联插件
@@ -250,7 +250,7 @@ async def get_plugins_controller(
 async def set_plugins_controller(
     package_id: Annotated[int, Path(description="套餐ID")],
     data: Annotated[PackagePluginSetSchema, Body(description="插件列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_package:package:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_package:package:update"]))],
 ) -> JSONResponse:
     """
     设置套餐插件

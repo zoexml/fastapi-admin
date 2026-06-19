@@ -13,7 +13,7 @@ from app.core.router_class import OperationLogRoute
 from .schema import DeptCreateSchema, DeptOutSchema, DeptQueryParam, DeptUpdateSchema
 from .service import DeptService
 
-DeptRouter = APIRouter(route_class=OperationLogRoute, prefix="/dept", tags=["系统管理/部门管理"])
+DeptRouter = APIRouter(route_class=OperationLogRoute, prefix="/dept", tags=["部门管理"])
 
 _DEPT_NS = "dept"
 
@@ -26,7 +26,7 @@ _DEPT_NS = "dept"
 @cache(expire=300, namespace=_DEPT_NS)
 async def get_dept_tree_controller(
     search: Annotated[DeptQueryParam, Depends()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:dept:query']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:dept:query"]))],
 ) -> JSONResponse:
     """
     查询部门树
@@ -42,9 +42,7 @@ async def get_dept_tree_controller(
     - CustomException: 查询部门树失败时抛出异常。
     """
     order_by = [{"order": "asc"}]
-    result_dict_list = await DeptService.get_dept_tree_service(
-        search=search, auth=auth, order_by=order_by
-    )
+    result_dict_list = await DeptService.get_dept_tree_service(search=search, auth=auth, order_by=order_by)
     return SuccessResponse(data=result_dict_list, msg="查询部门树成功")
 
 
@@ -55,7 +53,7 @@ async def get_dept_tree_controller(
 )
 async def get_obj_detail_controller(
     id: Annotated[int, Path(description="部门ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:dept:detail']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:dept:detail"]))],
 ) -> JSONResponse:
     """
     查询部门详情
@@ -81,7 +79,7 @@ async def get_obj_detail_controller(
 )
 async def create_obj_controller(
     data: DeptCreateSchema,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:dept:create']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:dept:create"]))],
 ) -> JSONResponse:
     """
     创建部门
@@ -109,7 +107,7 @@ async def create_obj_controller(
 async def update_obj_controller(
     data: DeptUpdateSchema,
     id: Annotated[int, Path(description="部门ID")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:dept:update']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:dept:update"]))],
 ) -> JSONResponse:
     """
     修改部门
@@ -137,7 +135,7 @@ async def update_obj_controller(
 )
 async def delete_obj_controller(
     ids: Annotated[list[int], Body(description="ID列表")],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:dept:delete']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:dept:delete"]))],
 ) -> JSONResponse:
     """
     删除部门
@@ -164,7 +162,7 @@ async def delete_obj_controller(
 )
 async def batch_set_available_obj_controller(
     data: BatchSetAvailable,
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['module_system:dept:patch']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["module_system:dept:patch"]))],
 ) -> JSONResponse:
     """
     批量修改部门状态

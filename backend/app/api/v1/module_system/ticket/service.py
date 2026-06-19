@@ -41,9 +41,7 @@ class TicketService:
         new_label = _TICKET_STATUS_LABELS.get(new_status, str(new_status))
 
         if new_status not in _TICKET_STATUS_TRANSITIONS.get(old_status, set()):
-            raise CustomException(
-                msg=f"不允许从“{old_label}”转换为“{new_label}”"
-            )
+            raise CustomException(msg=f"不允许从“{old_label}”转换为“{new_label}”")
 
         is_super = auth.user and auth.user.is_superuser
         is_creator = auth.user and ticket.created_id == auth.user.id

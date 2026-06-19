@@ -2,8 +2,8 @@ from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.common.enums import QueueEnum
-from app.core.base_schema import BaseSchema, UserBySchema
-from app.core.validator import DateTimeStr
+from app.core.base_params import BaseQueryParam, TenantByQueryParam, UserByQueryParam
+from app.core.base_schema import BaseSchema, TenantBySchema, UserBySchema
 
 ALLOWED_REQUEST_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"]
 
@@ -37,7 +37,7 @@ class LoginLogCreateSchema(BaseModel):
         return v
 
 
-class LoginLogOutSchema(LoginLogCreateSchema, BaseSchema, UserBySchema):
+class LoginLogOutSchema(LoginLogCreateSchema, BaseSchema, UserBySchema, TenantBySchema):
     """登录日志响应"""
 
     model_config = ConfigDict(from_attributes=True)
@@ -47,26 +47,18 @@ class LoginLogDetailOutSchema(LoginLogOutSchema):
     """登录日志详情响应"""
 
 
-class LoginLogQueryParam:
+class LoginLogQueryParam(BaseQueryParam, UserByQueryParam, TenantByQueryParam):
     """登录日志查询参数"""
 
     def __init__(
         self,
-        status: int | None = Query(None, ge=1, le=2, description="登录状态(1成功 2失败)"),
         username: str | None = Query(None, max_length=64, description="用户名"),
-        created_time: list[DateTimeStr] | None = Query(
-            None,
-            description="创建时间范围",
-            examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"],
-        ),
+        *args,
+        **kwargs,
     ) -> None:
-        if status:
-            self.status = (QueueEnum.eq.value, status)
+        super().__init__(*args, **kwargs)
         if username:
             self.username = (QueueEnum.like.value, username)
-
-        if created_time and len(created_time) == 2:
-            self.created_time = (QueueEnum.between.value, (created_time[0], created_time[1]))
 
 
 class OperationLogQueryParam(BaseModel):

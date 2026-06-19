@@ -12,7 +12,6 @@ from .schema import PluginCreateSchema, PluginOutSchema, PluginQueryParam, Plugi
 
 
 class PluginService:
-
     @classmethod
     async def page_service(
         cls,
@@ -59,9 +58,7 @@ class PluginService:
     # ───── 插件市场 API ─────
 
     @classmethod
-    async def marketplace_service(
-        cls, auth: AuthSchema, page_no: int, page_size: int, category: str | None = None
-    ) -> dict:
+    async def marketplace_service(cls, auth: AuthSchema, page_no: int, page_size: int, category: str | None = None) -> dict:
         search = {}
         if category:
             search["category"] = ("eq", category)
@@ -96,9 +93,8 @@ class PluginService:
         # 平台租户不限制插件安装
         if tenant_id != 1:
             from app.api.v1.module_platform.package.service import PackageService
-            allowed_plugin_ids = await PackageService.get_tenant_available_plugin_ids(
-                auth, tenant_id
-            )
+
+            allowed_plugin_ids = await PackageService.get_tenant_available_plugin_ids(auth, tenant_id)
             # 套餐有插件配置时，仅允许安装套餐内的插件
             if allowed_plugin_ids and plugin_id not in allowed_plugin_ids:
                 raise CustomException(msg="当前套餐不支持安装此插件")
@@ -110,8 +106,7 @@ class PluginService:
         # 付费插件需要先购买
         if tenant_id != 1 and getattr(plugin, "price", 0) > 0:
             exist = await auth.db.execute(
-                sa
-                .select(TenantPluginModel)
+                sa.select(TenantPluginModel)
                 .where(
                     TenantPluginModel.tenant_id == tenant_id,
                     TenantPluginModel.plugin_id == plugin_id,
@@ -123,8 +118,7 @@ class PluginService:
                 raise CustomException(msg="此插件为付费插件，请先购买后再安装")
 
         exist = await auth.db.execute(
-            sa
-            .select(TenantPluginModel)
+            sa.select(TenantPluginModel)
             .where(
                 TenantPluginModel.tenant_id == tenant_id,
                 TenantPluginModel.plugin_id == plugin_id,
@@ -133,8 +127,7 @@ class PluginService:
         )
         if exist.scalar_one_or_none():
             await auth.db.execute(
-                sa
-                .update(TenantPluginModel)
+                sa.update(TenantPluginModel)
                 .where(
                     TenantPluginModel.tenant_id == tenant_id,
                     TenantPluginModel.plugin_id == plugin_id,
@@ -171,8 +164,7 @@ class PluginService:
     async def toggle_service(cls, auth: AuthSchema, plugin_id: int) -> None:
         tenant_id = getattr(auth, "tenant_id", None) or auth.user.tenant_id
         tp = await auth.db.execute(
-            sa
-            .select(TenantPluginModel)
+            sa.select(TenantPluginModel)
             .where(
                 TenantPluginModel.tenant_id == tenant_id,
                 TenantPluginModel.plugin_id == plugin_id,
@@ -192,20 +184,14 @@ class PluginService:
         if not tenant_id:
             return []
         result = await auth.db.execute(
-            sa
-            .select(PluginModel, TenantPluginModel)
-            .join(TenantPluginModel, TenantPluginModel.plugin_id == PluginModel.id)
-            .where(TenantPluginModel.tenant_id == tenant_id)
-            .order_by(PluginModel.sort)
+            sa.select(PluginModel, TenantPluginModel).join(TenantPluginModel, TenantPluginModel.plugin_id == PluginModel.id).where(TenantPluginModel.tenant_id == tenant_id).order_by(PluginModel.sort)
         )
         plugins = []
         for p, tp in result.all():
             d = PluginOutSchema.model_validate(p)
             d["enabled"] = tp.enabled
             d["installed"] = True
-            d["installed_time"] = (
-                tp.installed_time.strftime("%Y-%m-%d %H:%M") if tp.installed_time else ""
-            )
+            d["installed_time"] = tp.installed_time.strftime("%Y-%m-%d %H:%M") if tp.installed_time else ""
             plugins.append(d)
         return plugins
 

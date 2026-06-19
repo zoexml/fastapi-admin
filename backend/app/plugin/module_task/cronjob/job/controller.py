@@ -13,7 +13,7 @@ from app.core.router_class import OperationLogRoute
 from .schema import JobOutSchema, JobQueryParam
 from .service import JobService
 
-JobRouter = APIRouter(route_class=OperationLogRoute, prefix="/cronjob/job", tags=["定时任务/调度器监控"])
+JobRouter = APIRouter(route_class=OperationLogRoute, prefix="/cronjob/job", tags=["调度器监控"])
 
 # ==================== 调度器状态和操作 ====================
 
@@ -170,6 +170,7 @@ async def sync_jobs_controller() -> JSONResponse:
     sync_count = SchedulerUtil.sync_jobs_to_db()
     return SuccessResponse(data=sync_count, msg=f"同步完成，共同步 {sync_count} 个任务")
 
+
 # ==================== 调度器任务操作 ====================
 
 
@@ -259,6 +260,7 @@ async def remove_job_controller(
     """
     SchedulerUtil.remove_job(job_id=job_id)
     return SuccessResponse(msg="移除任务成功")
+
 
 # ==================== 执行日志 ====================
 

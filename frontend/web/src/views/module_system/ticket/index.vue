@@ -93,27 +93,29 @@
           max-height="75vh"
         >
           <template #ticket_type="{ row }">
-            <ElTag :type="typeTag(row?.ticket_type as string)">
-              {{ typeLabel(row?.ticket_type as string) }}
-            </ElTag>
+            <FaStatusTag
+              :type="typeTag(row?.ticket_type as string)"
+              :label="typeLabel(row?.ticket_type as string)"
+            />
           </template>
           <template #status="{ row }">
-            <ElTag :type="statusTag(row?.status as string)">
-              {{ statusLabel(row?.status as string) }}
-            </ElTag>
+            <FaStatusTag
+              :type="statusTag(row?.status as string)"
+              :label="statusLabel(row?.status as string)"
+            />
           </template>
           <template #ticket_content>
-            <div class="ticket-html-preview">
+            <ElScrollbar class="ticket-html-preview" view-class="p-3">
               <template v-if="detailHasRenderableContent">
                 <div v-html="detailContentHtml" />
               </template>
               <p v-else class="ticket-html-empty">暂无内容</p>
-            </div>
+            </ElScrollbar>
           </template>
           <template #reply_content>
-            <div v-if="detailFormData.reply" class="ticket-html-preview">
+            <ElScrollbar v-if="detailFormData.reply" class="ticket-html-preview" view-class="p-3">
               <div v-html="sanitizedReply" />
-            </div>
+            </ElScrollbar>
             <p v-else class="ticket-html-empty">暂无回复</p>
           </template>
         </FaDescriptions>
@@ -207,16 +209,13 @@ import TicketAPI, {
   type TicketTable,
 } from "@/api/module_system/ticket";
 import { useAuth } from "@/hooks/core/useAuth";
-import { renderTableOperationCell, type TableOperationAction } from "@utils";
+import { renderTableOperationCell, type TableOperationAction, resolveStatusColumns } from "@utils";
 import type { IObject } from "@/components/modal/types";
 import type { SearchFormItem } from "@/components/forms/fa-search-bar/index.vue";
+import type FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import type { FormItem } from "@/components/forms/fa-form/index.vue";
-import FaUserTableSelect from "@/components/forms/fa-search-bar/FaUserTableSelect.vue";
-import FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
-import FaForm from "@/components/forms/fa-form/index.vue";
-import FaWangEditor from "@/components/forms/fa-wang-editor/index.vue";
-import { ElTag, ElMessage, ElSelect, ElOption, ElRadioGroup, ElRadio } from "element-plus";
-import { h } from "vue";
+import type FaForm from "@/components/forms/fa-form/index.vue";
+import { ElMessage, ElSelect, ElOption, ElRadioGroup, ElRadio, ElScrollbar } from "element-plus";
 import DOMPurify from "dompurify";
 
 defineOptions({
@@ -229,7 +228,7 @@ const { hasAuth } = useAuth();
 type TicketSearchForm = {
   title?: string;
   ticket_type?: string;
-  status?: string;
+  status?: number;
   created_time?: string[];
   created_id?: number;
   assigned_id?: number;
@@ -541,7 +540,7 @@ const {
       page_no: 1,
       page_size: 10,
     },
-    columnsFactory: (): ColumnOption<TicketTable>[] => [
+    columnsFactory: resolveStatusColumns<TicketTable>(() => [
       { type: "selection", width: 48, fixed: "left" },
       { type: "globalIndex", width: 56, label: "序号" },
       { prop: "title", label: "工单标题", minWidth: 180, showOverflowTooltip: true },
@@ -549,15 +548,23 @@ const {
         prop: "ticket_type",
         label: "工单类型",
         width: 100,
-        formatter: (row: TicketTable) =>
-          h(ElTag, { type: typeTag(row.ticket_type) }, () => typeLabel(row.ticket_type)),
+        status: {
+          suggestion: { type: "success", text: "建议" },
+          bug: { type: "danger", text: "缺陷" },
+          optimize: { type: "warning", text: "优化" },
+          other: { type: "info", text: "其他" },
+        },
       },
       {
         prop: "status",
         label: "状态",
         width: 100,
-        formatter: (row: TicketTable) =>
-          h(ElTag, { type: statusTag(String(row.status)) }, () => statusLabel(String(row.status))),
+        status: {
+          "0": { type: "warning", text: "待处理" },
+          "1": { type: "info", text: "处理中" },
+          "2": { type: "success", text: "已完成" },
+          "3": { type: "info", text: "已关闭" },
+        },
       },
       {
         prop: "assigned_by",
@@ -581,7 +588,7 @@ const {
         align: "right",
         formatter: (row: TicketTable) => formatTicketOperationCell(row),
       },
-    ],
+    ]),
   },
 });
 
@@ -768,8 +775,6 @@ async function handleMoreClick(status: string) {
   box-sizing: border-box;
   min-height: 120px;
   max-height: min(360px, 45vh);
-  padding: 12px 16px;
-  overflow-y: auto;
   background-color: var(--el-bg-color);
   border: 1px solid var(--el-border-color-lighter);
   border-radius: calc(var(--custom-radius) / 3 + 2px);

@@ -75,16 +75,25 @@
           max-height="75vh"
         >
           <template #data_scope="{ row }">
-            <ElTag v-if="row?.data_scope === 1" type="primary">仅本人数据权限</ElTag>
-            <ElTag v-else-if="row?.data_scope === 2" type="info">本部门数据权限</ElTag>
-            <ElTag v-else-if="row?.data_scope === 3" type="warning">本部门及以下数据权限</ElTag>
-            <ElTag v-else-if="row?.data_scope === 4" type="success">全部数据权限</ElTag>
-            <ElTag v-else type="danger">自定义数据权限</ElTag>
+            <FaStatusTag v-if="row?.data_scope === 1" type="primary" label="仅本人数据权限" />
+            <FaStatusTag v-else-if="row?.data_scope === 2" type="info" label="本部门数据权限" />
+            <FaStatusTag
+              v-else-if="row?.data_scope === 3"
+              type="warning"
+              label="本部门及以下数据权限"
+            />
+            <FaStatusTag v-else-if="row?.data_scope === 4" type="success" label="全部数据权限" />
+            <FaStatusTag v-else type="danger" label="自定义数据权限" />
           </template>
           <template #depts="{ row }">
-            <template v-if="row?.depts && (row.depts as any[]).length > 0">
+            <template
+              v-if="
+                (row as unknown as RoleTable)?.depts &&
+                (row as unknown as RoleTable).depts!.length > 0
+              "
+            >
               <ElTag
-                v-for="dept in row.depts as any[]"
+                v-for="dept in (row as unknown as RoleTable).depts!"
                 :key="dept.id"
                 type="info"
                 :style="'margin-right: 4px; margin-bottom: 4px'"
@@ -143,6 +152,7 @@
 </template>
 
 <script setup lang="ts">
+import { h } from "vue";
 import { useTable } from "@/hooks/core/useTable";
 import { useImportExport } from "@/hooks/core/useImportExport";
 import { useCrudDialog } from "@/hooks/core/useCrudDialog";
@@ -150,7 +160,7 @@ import { useTableSelection } from "@/hooks/core/useTableSelection";
 import { useCrudForm } from "@/hooks/core/useCrudForm";
 import { confirmDelete, confirmBatchDelete, confirmToggleStatus } from "@/hooks/core/useConfirm";
 import { cleanEmptyArrayParams, stripPaginationParams } from "@/utils/query";
-import { renderTableOperationCell, type TableOperationAction } from "@utils";
+import { renderTableOperationCell, type TableOperationAction, resolveStatusColumns } from "@utils";
 import type { ColumnOption } from "@/types/component";
 import RoleAPI, {
   type RoleForm,
@@ -161,10 +171,11 @@ import { useAuth } from "@/hooks/core/useAuth";
 import { useUserStore } from "@stores";
 import type { IObject } from "@/components/modal/types";
 import type { SearchFormItem } from "@/components/forms/fa-search-bar/index.vue";
+import type FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import type { FormItem } from "@/components/forms/fa-form/index.vue";
-import FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
-import FaForm from "@/components/forms/fa-form/index.vue";
-import { ElTag, ElMessage } from "element-plus";
+import type FaForm from "@/components/forms/fa-form/index.vue";
+import StatusTag from "@/components/others/fa-status-tag/index.vue";
+import { ElMessage } from "element-plus";
 import FaPermissonDrawer from "./components/FaPermissonDrawer.vue";
 
 defineOptions({
@@ -176,7 +187,7 @@ const { hasAuth } = useAuth();
 
 type RoleSearchForm = {
   name?: string;
-  status?: string;
+  status?: number;
   created_time?: string[];
 };
 
@@ -194,32 +205,22 @@ function buildRoleReplaceParams(p: RoleSearchForm): Record<string, unknown> {
   };
 }
 
-function dataScopeTag(row: RoleTable) {
-  const ds = row.data_scope;
-  if (ds === 1) return h(ElTag, { type: "primary" }, () => "仅本人数据权限");
-  if (ds === 2) return h(ElTag, { type: "info" }, () => "本部门数据权限");
-  if (ds === 3) return h(ElTag, { type: "warning" }, () => "本部门及以下数据权限");
-  if (ds === 4) return h(ElTag, { type: "success" }, () => "全部数据权限");
-  return h(ElTag, { type: "danger" }, () => "自定义数据权限");
-}
-
 function deptsCell(row: RoleTable) {
   const list = row.depts;
   if (!list?.length) {
     return h("span", { style: { color: "var(--el-text-color-placeholder)" } }, "-");
   }
-  const tags = list
-    .slice(0, 3)
-    .map((dept) =>
-      h(
-        ElTag,
-        { key: dept.id, type: "info", style: { marginRight: "4px", marginBottom: "4px" } },
-        () => dept.name ?? ""
-      )
-    );
+  const tags = list.slice(0, 3).map((dept) =>
+    h(StatusTag, {
+      key: dept.id,
+      type: "info",
+      label: dept.name ?? "",
+      style: { marginRight: "4px", marginBottom: "4px" },
+    })
+  );
   if (list.length > 3) {
     tags.push(
-      h(ElTag, { type: "info", style: { marginBottom: "4px" } }, () => `+${list.length - 3}`)
+      h(StatusTag, { type: "info", label: `+${list.length - 3}`, style: { marginBottom: "4px" } })
     );
   }
   return h("span", { class: "inline-flex flex-wrap items-center" }, tags);
@@ -547,7 +548,7 @@ const {
       page_no: 1,
       page_size: 10,
     },
-    columnsFactory: (): ColumnOption<RoleTable>[] => [
+    columnsFactory: resolveStatusColumns<RoleTable>(() => [
       { type: "selection", width: 48, fixed: "left" },
       { type: "globalIndex", width: 56, label: "序号" },
       { prop: "name", label: "角色名称", minWidth: 100, showOverflowTooltip: true },
@@ -556,7 +557,13 @@ const {
         prop: "data_scope",
         label: "数据权限",
         minWidth: 200,
-        formatter: (row: RoleTable) => dataScopeTag(row),
+        status: {
+          1: { type: "primary", text: "仅本人数据权限" },
+          2: { type: "info", text: "本部门数据权限" },
+          3: { type: "warning", text: "本部门及以下数据权限" },
+          4: { type: "success", text: "全部数据权限" },
+          5: { type: "danger", text: "自定义数据权限" },
+        },
       },
       {
         prop: "depts",
@@ -569,10 +576,10 @@ const {
         prop: "status",
         label: "状态",
         width: 88,
-        formatter: (row: RoleTable) =>
-          h(ElTag, { type: row.status === 0 ? "success" : "danger" }, () =>
-            row.status === 0 ? "启用" : "停用"
-          ),
+        status: {
+          0: { type: "success", text: "启用" },
+          1: { type: "danger", text: "停用" },
+        },
       },
       { prop: "description", label: "描述", minWidth: 100, showOverflowTooltip: true },
       { prop: "created_time", label: "创建时间", width: 168, showOverflowTooltip: true },
@@ -585,7 +592,7 @@ const {
         align: "right",
         formatter: (row: RoleTable) => formatRoleOperationCell(row, opCtx),
       },
-    ],
+    ]),
   },
 });
 

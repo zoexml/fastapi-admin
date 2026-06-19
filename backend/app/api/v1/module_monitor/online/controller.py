@@ -13,7 +13,7 @@ from app.core.router_class import OperationLogRoute
 from .schema import OnlineOutSchema, OnlineQueryParam
 from .service import OnlineService
 
-OnlineRouter = APIRouter(route_class=OperationLogRoute, prefix="/online", tags=["系统监控/在线用户"])
+OnlineRouter = APIRouter(route_class=OperationLogRoute, prefix="/online", tags=["在线用户"])
 
 
 @OnlineRouter.get(

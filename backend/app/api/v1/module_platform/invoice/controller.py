@@ -1,4 +1,5 @@
 """发票管理 Controller"""
+
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, Path, Query
@@ -22,13 +23,13 @@ from .service import InvoicePlatformService, InvoiceTenantService
 
 # ========== 租户端 API ==========
 
-TenantInvoiceRouter = APIRouter(prefix="/tenant/invoice", route_class=OperationLogRoute, tags=["平台管理/发票管理"])
+TenantInvoiceRouter = APIRouter(prefix="/tenant/invoice", route_class=OperationLogRoute, tags=["发票管理"])
 
 
 @TenantInvoiceRouter.post("/apply", summary="申请开票", response_model=ResponseSchema[InvoiceOutSchema])
 async def invoice_apply(
     data: Annotated[InvoiceApplySchema, Body()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['*:*:*']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["*:*:*"]))],
 ) -> JSONResponse:
     """
     申请开票
@@ -45,7 +46,7 @@ async def invoice_apply(
 
 @TenantInvoiceRouter.get("/list", summary="我的发票列表", response_model=ResponseSchema[PageResultSchema[InvoiceOutSchema]])
 async def invoice_list_my(
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['*:*:*']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["*:*:*"]))],
     invoice_type: Annotated[str | None, Query()] = None,
     status: Annotated[int | None, Query()] = None,
     page_no: Annotated[int, Query(ge=1)] = 1,
@@ -64,7 +65,8 @@ async def invoice_list_my(
     - JSONResponse: 包含分页发票列表的 JSON 响应。
     """
     result = await InvoiceTenantService.list_my(
-        auth, auth.tenant_id,
+        auth,
+        auth.tenant_id,
         InvoiceQueryParam(invoice_type=invoice_type, status=status, page_no=page_no, page_size=page_size),
     )
     return SuccessResponse(data=result, msg="查询成功")
@@ -73,7 +75,7 @@ async def invoice_list_my(
 @TenantInvoiceRouter.get("/{id}/download", summary="下载发票PDF", response_model=ResponseSchema[dict])
 async def invoice_download(
     id: Annotated[int, Path(ge=1)],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['*:*:*']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["*:*:*"]))],
 ) -> JSONResponse:
     """
     下载发票 PDF
@@ -94,15 +96,16 @@ async def invoice_download(
         raise CustomException(msg="发票未开具或无PDF")
     return SuccessResponse(msg="下载地址", data={"pdf_url": invoice.pdf_url})
 
+
 # ========== 平台端 API ==========
 
 
-PlatformInvoiceRouter = APIRouter(prefix="/invoice", route_class=OperationLogRoute, tags=["平台管理/发票管理"])
+PlatformInvoiceRouter = APIRouter(prefix="/invoice", route_class=OperationLogRoute, tags=["发票管理"])
 
 
 @PlatformInvoiceRouter.get("/list", summary="全部发票列表", response_model=ResponseSchema[PageResultSchema[InvoiceOutSchema]])
 async def invoice_list_all(
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['*:*:*']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["*:*:*"]))],
     invoice_type: Annotated[str | None, Query()] = None,
     status: Annotated[int | None, Query()] = None,
     tenant_id: Annotated[int | None, Query()] = None,
@@ -133,7 +136,7 @@ async def invoice_list_all(
 async def invoice_issue(
     id: Annotated[int, Path(ge=1)],
     data: Annotated[InvoiceIssueSchema, Body()],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['*:*:*']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["*:*:*"]))],
 ) -> JSONResponse:
     """
     开具发票
@@ -146,7 +149,10 @@ async def invoice_issue(
     - JSONResponse: 包含发票信息的 JSON 响应。
     """
     result = await InvoicePlatformService.issue(
-        auth, id, data.pdf_url or "", data.api_response or "",
+        auth,
+        id,
+        data.pdf_url or "",
+        data.api_response or "",
     )
     return SuccessResponse(data=result, msg="发票开具成功")
 
@@ -154,7 +160,7 @@ async def invoice_issue(
 @PlatformInvoiceRouter.put("/void/{id}", summary="作废发票", response_model=ResponseSchema[InvoiceOutSchema])
 async def invoice_void(
     id: Annotated[int, Path(ge=1)],
-    auth: Annotated[AuthSchema, Depends(AuthPermission(['*:*:*']))],
+    auth: Annotated[AuthSchema, Depends(AuthPermission(["*:*:*"]))],
     data: Annotated[InvoiceVoidSchema, Body()] = InvoiceVoidSchema(),
 ) -> JSONResponse:
     """

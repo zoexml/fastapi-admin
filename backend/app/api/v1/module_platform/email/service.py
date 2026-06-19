@@ -1,4 +1,3 @@
-"""邮件 Service"""
 from datetime import datetime
 
 from app.core.base_schema import AuthSchema
@@ -51,9 +50,7 @@ class EmailConfigService:
         return EmailConfigOutSchema.model_validate(obj)
 
     @classmethod
-    async def create_service(
-        cls, auth: AuthSchema, data: EmailConfigCreateSchema
-    ) -> EmailConfigOutSchema:
+    async def create_service(cls, auth: AuthSchema, data: EmailConfigCreateSchema) -> EmailConfigOutSchema:
         crud = EmailConfigCRUD(auth)
         if data.is_default:
             await crud.clear_default()
@@ -61,9 +58,7 @@ class EmailConfigService:
         return EmailConfigOutSchema.model_validate(obj)
 
     @classmethod
-    async def update_service(
-        cls, auth: AuthSchema, id: int, data: EmailConfigUpdateSchema
-    ) -> EmailConfigOutSchema:
+    async def update_service(cls, auth: AuthSchema, id: int, data: EmailConfigUpdateSchema) -> EmailConfigOutSchema:
         crud = EmailConfigCRUD(auth)
         obj = await crud.get(id=id)
         if not obj:
@@ -81,9 +76,7 @@ class EmailConfigService:
         for cid in ids:
             obj = await EmailConfigCRUD(auth).get(id=cid)
             if obj and obj.is_default:
-                raise CustomException(
-                    msg=f"配置「{obj.name}」是默认配置，请先将其他配置设为默认后再删除"
-                )
+                raise CustomException(msg=f"配置「{obj.name}」是默认配置，请先将其他配置设为默认后再删除")
         await EmailConfigCRUD(auth).delete(ids=ids)
 
     @classmethod
@@ -94,10 +87,7 @@ class EmailConfigService:
             raise CustomException(msg="SMTP 配置不存在")
 
         subject = "【FastapiAdmin】SMTP 连接测试"
-        body_html = (
-            "<p>这是一封测试邮件，SMTP 配置「{name}」连接成功！</p>"
-            "<p>发送时间：{time}</p>"
-        ).format(name=config.name, time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        body_html = ("<p>这是一封测试邮件，SMTP 配置「{name}」连接成功！</p><p>发送时间：{time}</p>").format(name=config.name, time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
         try:
             await send_email(
@@ -147,12 +137,8 @@ class EmailTemplateService:
         return EmailTemplateOutSchema.model_validate(obj)
 
     @classmethod
-    async def create_service(
-        cls, auth: AuthSchema, data: EmailTemplateCreateSchema
-    ) -> EmailTemplateOutSchema:
-        existing = await EmailTemplateCRUD(auth).get_by_code(
-            template_code=data.template_code
-        )
+    async def create_service(cls, auth: AuthSchema, data: EmailTemplateCreateSchema) -> EmailTemplateOutSchema:
+        existing = await EmailTemplateCRUD(auth).get_by_code(template_code=data.template_code)
         if existing:
             raise CustomException(msg=f"模板编码「{data.template_code}」已存在")
 
@@ -160,9 +146,7 @@ class EmailTemplateService:
         return EmailTemplateOutSchema.model_validate(obj)
 
     @classmethod
-    async def update_service(
-        cls, auth: AuthSchema, id: int, data: EmailTemplateUpdateSchema
-    ) -> EmailTemplateOutSchema:
+    async def update_service(cls, auth: AuthSchema, id: int, data: EmailTemplateUpdateSchema) -> EmailTemplateOutSchema:
         obj = await EmailTemplateCRUD(auth).get(id=id)
         if not obj:
             raise CustomException(msg="邮件模板不存在")
@@ -227,9 +211,7 @@ class EmailSendService:
         try:
             rendered_subject = render_template(template.subject, variables)
             rendered_html = render_template(template.body_html, variables)
-            rendered_text = (
-                render_template(template.body_text, variables) if template.body_text else None
-            )
+            rendered_text = render_template(template.body_text, variables) if template.body_text else None
         except Exception as e:
             await EmailLogCRUD.create_log(
                 to_email=to_email,
@@ -309,9 +291,7 @@ class EmailSendService:
         return True
 
     @classmethod
-    async def manual_send_service(
-        cls, auth: AuthSchema, data: EmailSendSchema
-    ) -> dict:
+    async def manual_send_service(cls, auth: AuthSchema, data: EmailSendSchema) -> dict:
         """超管手动触发发送（测试/补发用）"""
         success = await cls.send_by_template(
             to_email=data.to_email,

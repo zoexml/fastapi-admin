@@ -1,8 +1,7 @@
-from dataclasses import dataclass
-
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.common.enums import QueueEnum
+from app.core.base_params import BaseQueryParam
 from app.core.base_schema import BaseSchema
 
 
@@ -15,14 +14,13 @@ class PluginCreateSchema(BaseModel):
     version: str = Field(default="1.0.0", max_length=20, description="版本号")
     author: str | None = Field(default=None, max_length=100, description="作者")
     icon: str | None = Field(default=None, max_length=500, description="图标URL")
-    category: str = Field(
-        default="tool", max_length=20, description="分类(tool/ai/monitor/business)"
-    )
+    category: str = Field(default="tool", max_length=20, description="分类(tool/ai/monitor/business)")
     price: int = Field(default=0, ge=0, description="价格(分，0=免费)")
     menu_path: str | None = Field(default=None, max_length=200, description="菜单路径")
     permission_prefix: str | None = Field(default=None, max_length=100, description="权限前缀")
     dependencies: str | None = Field(default=None, description="依赖插件编码(JSON数组)")
     sort: int = Field(default=0, ge=0, description="排序")
+    status: int = Field(default=0, ge=0, le=1, description="状态(0:启动 1:停用)")
 
     @field_validator("category")
     @classmethod
@@ -36,6 +34,7 @@ class PluginCreateSchema(BaseModel):
     @classmethod
     def _validate_version(cls, v: str) -> str:
         import re
+
         if not re.match(r"^\d+\.\d+\.\d+$", v):
             raise ValueError("版本号格式需为 x.y.z（如 1.0.0）")
         return v
@@ -54,7 +53,7 @@ class PluginUpdateSchema(PluginCreateSchema):
 
     name: str | None = Field(default=None, max_length=100, description="插件名称")  # type: ignore[assignment]
     code: str | None = Field(default=None, max_length=50, description="插件编码")  # type: ignore[assignment]
-    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:正常 1:禁用)")
+    status: int | None = Field(default=None, ge=0, le=1, description="状态(0:启动 1:停用)")
 
     @field_validator("status")
     @classmethod
@@ -80,19 +79,18 @@ class PluginInstallSchema(BaseModel):
     plugin_id: int = Field(..., description="插件ID")
 
 
-@dataclass
-class PluginQueryParam:
+class PluginQueryParam(BaseQueryParam):
     """插件查询参数"""
 
     def __init__(
         self,
         name: str | None = None,
         category: str | None = None,
-        status: str | None = None,
+        *args,
+        **kwargs,
     ) -> None:
+        super().__init__(*args, **kwargs)
         if name:
             self.name = (QueueEnum.like.value, name)
         if category:
             self.category = (QueueEnum.eq.value, category)
-        if status:
-            self.status = (QueueEnum.eq.value, status)

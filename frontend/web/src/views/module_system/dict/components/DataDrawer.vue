@@ -196,6 +196,7 @@
 </template>
 
 <script setup lang="ts">
+import { h } from "vue";
 import { useTable } from "@/hooks/core/useTable";
 import { useImportExport } from "@/hooks/core/useImportExport";
 import { useCrudDialog } from "@/hooks/core/useCrudDialog";
@@ -209,15 +210,16 @@ import DictAPI, {
   type DictDataTable,
 } from "@/api/module_system/dict";
 import { useAuth } from "@/hooks/core/useAuth";
-import { renderTableOperationCell, type TableOperationAction } from "@utils";
+import { renderTableOperationCell, type TableOperationAction, resolveStatusColumns } from "@utils";
 import { useAppStore, useDictStore } from "@stores";
 import { DeviceEnum } from "@/enums/settings/device.enum";
 import type { IObject } from "@/components/modal/types";
 import type { SearchFormItem } from "@/components/forms/fa-search-bar/index.vue";
+import type FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
 import type { FormItem } from "@/components/forms/fa-form/index.vue";
-import FaSearchBar from "@/components/forms/fa-search-bar/index.vue";
-import FaForm from "@/components/forms/fa-form/index.vue";
-import { ElTag, ElMessage } from "element-plus";
+import type FaForm from "@/components/forms/fa-form/index.vue";
+import FaStatusTag from "@/components/others/fa-status-tag/index.vue";
+import { ElMessage } from "element-plus";
 
 defineOptions({ name: "DictDataDrawer", inheritAttrs: false });
 
@@ -281,7 +283,7 @@ function getTagPreviewStyle(value?: string) {
 
 type DictDataSearchForm = {
   dict_label?: string;
-  status?: string;
+  status?: number;
   created_time?: string[];
 };
 
@@ -392,7 +394,7 @@ const {
       dict_type: props.dictType,
       dict_type_id: props.dictTypeId,
     },
-    columnsFactory: (): ColumnOption<DictDataTable>[] => [
+    columnsFactory: resolveStatusColumns<DictDataTable>(() => [
       { type: "selection", width: 48, fixed: "left" },
       { type: "globalIndex", width: 56, label: "序号" },
       { prop: "dict_label", label: "标签", minWidth: 150, showOverflowTooltip: true },
@@ -400,19 +402,17 @@ const {
         prop: "status",
         label: "状态",
         width: 100,
-        formatter: (row: DictDataTable) => {
-          const ok = row.status === 0;
-          const cfg = ok
-            ? { type: "success" as const, text: "启用" }
-            : { type: "danger" as const, text: "停用" };
-          return h(ElTag, { type: cfg.type }, () => cfg.text);
+        status: {
+          0: { type: "success", text: "启用" },
+          1: { type: "danger", text: "停用" },
         },
       },
       {
         prop: "dict_type",
         label: "类型",
         minWidth: 180,
-        formatter: (row: DictDataTable) => h(ElTag, { type: "primary" }, () => row.dict_type ?? ""),
+        formatter: (row: DictDataTable) =>
+          h(FaStatusTag, { type: "primary", label: row.dict_type ?? "" }),
       },
       { prop: "dict_value", label: "值", minWidth: 100, showOverflowTooltip: true },
       { prop: "css_class", label: "样式属性", minWidth: 100, showOverflowTooltip: true },
@@ -422,10 +422,10 @@ const {
         prop: "is_default",
         label: "是否默认",
         width: 100,
-        formatter: (row: DictDataTable) =>
-          h(ElTag, { type: row.is_default ? "success" : "danger" }, () =>
-            row.is_default ? "是" : "否"
-          ),
+        status: {
+          true: { type: "success", text: "是" },
+          false: { type: "danger", text: "否" },
+        },
       },
       { prop: "description", label: "描述", minWidth: 100, showOverflowTooltip: true },
       { prop: "created_time", label: "创建时间", width: 168, showOverflowTooltip: true },
@@ -438,7 +438,7 @@ const {
         align: "right",
         formatter: (row: DictDataTable) => formatDictDataOperationCell(row),
       },
-    ],
+    ]),
   },
 });
 

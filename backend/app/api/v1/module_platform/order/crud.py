@@ -1,4 +1,5 @@
 """订单与支付 CRUD"""
+
 from datetime import datetime
 from typing import Any
 
@@ -43,6 +44,7 @@ class OrderCRUD(CRUDBase[OrderModel, OrderCreateInternalSchema, OrderUpdateInter
 
     async def mark_refunded(self, order_id: int) -> None:
         from sqlalchemy import update as sa_update
+
         await self.db.execute(
             sa_update(OrderModel)
             .where(OrderModel.id == order_id)
@@ -77,9 +79,7 @@ class PaymentRecordCRUD(CRUDBase[PaymentRecordModel, PaymentRecordCreateSchema, 
     def __init__(self, auth: AuthSchema) -> None:
         super().__init__(model=PaymentRecordModel, auth=auth)
 
-    async def query(
-        self, offset: int = 0, limit: int = 20
-    ) -> tuple[list[PaymentRecordModel], int]:
+    async def query(self, offset: int = 0, limit: int = 20) -> tuple[list[PaymentRecordModel], int]:
         result = await self.page(
             order_by=[{"created_time": "desc"}],
             offset=offset,
@@ -98,9 +98,7 @@ class RefundCRUD(CRUDBase[RefundModel, RefundCreateSchema, RefundUpdateSchema]):
     async def get_by_order_id(self, order_id: int) -> RefundModel | None:
         return await self.get(order_id=order_id)
 
-    async def query(
-        self, status: int | None = None, offset: int = 0, limit: int = 20
-    ) -> tuple[list[RefundModel], int]:
+    async def query(self, status: int | None = None, offset: int = 0, limit: int = 20) -> tuple[list[RefundModel], int]:
         result = await self.page(
             search={"status": status},
             order_by=[{"created_time": "desc"}],

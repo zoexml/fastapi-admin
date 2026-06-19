@@ -76,22 +76,10 @@ class RoleModel(ModelMixin, TenantMixin):
     name: Mapped[str] = mapped_column(String(64), nullable=False, comment="角色名称")
     code: Mapped[str] = mapped_column(String(64), nullable=False, comment="角色编码")
     order: Mapped[int] = mapped_column(Integer, nullable=False, default=999, comment="显示排序")
-    data_scope: Mapped[int] = mapped_column(
-        Integer,
-        default=1,
-        nullable=False,
-        comment="数据权限范围(1:仅本人 2:本部门 3:本部门及以下 4:全部 5:自定义)",
-    )
+    status: Mapped[int] = mapped_column(Integer, default=0, nullable=False, comment="状态(0:启动 1:停用)", index=True)
+    description: Mapped[str | None] = mapped_column(Text, default=None, nullable=True, comment="备注")
+    data_scope: Mapped[int] = mapped_column(Integer, default=1, nullable=False, comment="数据权限范围(1:仅本人 2:本部门 3:本部门及以下 4:全部 5:自定义)")
 
-    menus: Mapped[list["MenuModel"]] = relationship(
-        secondary="sys_role_menus",
-        back_populates="roles",
-        lazy="selectin",
-        order_by="MenuModel.order",
-    )
-    depts: Mapped[list["DeptModel"]] = relationship(
-        secondary="sys_role_depts", back_populates="roles", lazy="selectin"
-    )
-    users: Mapped[list["UserModel"]] = relationship(
-        secondary="sys_user_roles", back_populates="roles", lazy="selectin"
-    )
+    menus: Mapped[list["MenuModel"]] = relationship(secondary="sys_role_menus", back_populates="roles", lazy="selectin", order_by="MenuModel.order",)
+    depts: Mapped[list["DeptModel"]] = relationship(secondary="sys_role_depts", back_populates="roles", lazy="selectin")
+    users: Mapped[list["UserModel"]] = relationship(secondary="sys_user_roles", back_populates="roles", lazy="selectin")
