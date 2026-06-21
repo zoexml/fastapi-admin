@@ -34,7 +34,8 @@
             :perm-create="['module_task:workflow:definition:create']"
             :perm-delete="['module_task:workflow:definition:delete']"
             :delete-loading="batchDeleting"
-            @add="handleCreate"
+            :create-loading="createLoading"
+            @add="handleAdd"
             @delete="handleBatchDelete"
           />
         </template>
@@ -194,8 +195,9 @@ const selectedIds = computed(() =>
   selectedRows.value.map((r) => r.id).filter((id): id is number => typeof id === "number")
 );
 const batchDeleting = ref(false);
-
-function onTableSelectionChange(rows: WorkflowTable[]) {
+  const createLoading = ref(false);
+  
+  function onTableSelectionChange(rows: WorkflowTable[]) {
   selectedRows.value = rows;
 }
 
@@ -330,6 +332,15 @@ async function onResetSearch() {
 
 const selectedWorkflow = ref<WorkflowTable>();
 const createVisible = ref(false);
+
+async function handleAdd() {
+  createLoading.value = true;
+  try {
+    handleCreate();
+  } finally {
+    createLoading.value = false;
+  }
+}
 
 function handleCreate() {
   selectedWorkflow.value = undefined;

@@ -49,7 +49,7 @@
         <ElCard shadow="hover" class="fa-table-card" :style="{ 'margin-top': '0' }">
           <FaTableHeader :loading="myLoading" @refresh="getMyData">
             <template #left>
-              <FaTableHeaderLeft perm-create="tenant:admin" @add="openApplyDialog" />
+              <FaTableHeaderLeft perm-create="tenant:admin" :create-loading="createLoading" @add="handleAdd" />
             </template>
           </FaTableHeader>
 
@@ -381,6 +381,17 @@ const applyRules = {
   order_id: [{ required: true, message: "请输入订单ID", trigger: "blur" }],
   title: [{ required: true, message: "请输入发票抬头", trigger: "blur" }],
 };
+
+const createLoading = ref(false);
+
+async function handleAdd() {
+  createLoading.value = true;
+  try {
+    openApplyDialog();
+  } finally {
+    createLoading.value = false;
+  }
+}
 
 function openApplyDialog() {
   Object.assign(applyFormData, {

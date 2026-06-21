@@ -34,7 +34,8 @@
             :perm-create="['module_task:workflow:node-type:create']"
             :perm-delete="['module_task:workflow:node-type:delete']"
             :delete-loading="batchDeleting"
-            @add="openDialog()"
+            :create-loading="createLoading"
+            @add="handleAdd"
             @delete="handleBatchDelete"
           />
         </template>
@@ -194,6 +195,7 @@ const selectedIds = computed(() =>
   selectedRows.value.map((r) => r.id).filter((id): id is number => typeof id === "number")
 );
 const batchDeleting = ref(false);
+const createLoading = ref(false);
 
 function onTableSelectionChange(rows: WorkflowNodeTypeTable[]) {
   selectedRows.value = rows;
@@ -454,6 +456,15 @@ function resetForm() {
 
 function handleCloseDialog() {
   resetForm();
+}
+
+async function handleAdd() {
+  createLoading.value = true;
+  try {
+    await openDialog();
+  } finally {
+    createLoading.value = false;
+  }
 }
 
 async function openDialog(id?: number) {
