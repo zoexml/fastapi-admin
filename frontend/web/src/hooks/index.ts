@@ -33,3 +33,6 @@ export { useLayoutHeight, useAutoLayoutHeight } from "./core/useLayoutHeight";
 
 // AI 相关
 export { useAiAction } from "./ai/useAiAction";
+
+// 字典数据
+export { useDict, clearDictCache } from "./core/useDict";

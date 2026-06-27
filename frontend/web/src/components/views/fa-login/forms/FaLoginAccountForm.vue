@@ -104,9 +104,10 @@
             class="relative z-2 overflow-hidden select-none rounded-lg border border-transparent transition duration-300"
             :class="{ 'border-[#FF4E4F]!': !isPassing && isClickPass }"
           >
-            <FaDragVerify
+            <FDragVerify
               ref="dragVerifyRef"
-              v-model:value="isPassing"
+              v-model="isPassing"
+              width="100%"
               :text="$t('login.sliderText')"
               :text-color="dragVerifyTextColor"
               :success-text="$t('login.sliderSuccessText')"
@@ -194,7 +195,7 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {});
 
-const isPassing = defineModel<boolean>("isPassing", { required: true });
+const isPassing = defineModel<boolean>({ required: true });
 const isClickPass = defineModel<boolean>("isClickPass", { required: true });
 
 interface Emits {

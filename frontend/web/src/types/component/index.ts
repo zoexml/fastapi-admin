@@ -48,7 +48,7 @@ export interface SearchChangeParams {
 // 状态列配置（自动渲染 StatusTag）
 // 与 statusFormatter 中的 StatusMap / StatusItem 对齐；只列必要字段即可
 export interface StatusColumnItem {
-  type: "primary" | "success" | "warning" | "danger" | "info";
+  type: "primary" | "success" | "warning" | "danger" | "error" | "info";
   text: string;
   size?: "large" | "default" | "small";
   effect?: "light" | "dark" | "plain";

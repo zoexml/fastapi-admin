@@ -25,7 +25,7 @@
                   v-if="authPanel === 'login' && loginFlowMode === 'account'"
                   ref="accountFormRef"
                   v-model:login-form="loginForm"
-                  v-model:is-passing="isPassing"
+                  v-model="isPassing"
                   v-model:is-click-pass="isClickPass"
                   :rules="rules"
                   :captcha-state="captchaState"

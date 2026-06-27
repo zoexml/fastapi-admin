@@ -206,7 +206,7 @@ import {
   renderTableOperationCell,
   type TableOperationAction,
   resolveStatusColumns,
-  type StatusType,
+  type ElStatusType,
 } from "@utils";
 import type { IObject } from "@/components/modal/types";
 import type { SearchFormItem } from "@/components/forms/fa-search-bar/index.vue";
@@ -688,14 +688,14 @@ watch(activeTab, (tab) => {
 
 // ==================== 通用 ====================
 
-function getStatusCodeType(code?: number): StatusType {
+function getStatusCodeType(code?: number): ElStatusType {
   if (code === undefined) return "info";
   if (code >= 200 && code < 300) return "success";
   if (code >= 300 && code < 400) return "warning";
   return "danger";
 }
 
-function getMethodType(method?: string): StatusType {
+function getMethodType(method?: string): ElStatusType {
   if (method === undefined) return "info";
   if (method === "GET") return "info";
   if (method === "POST") return "success";

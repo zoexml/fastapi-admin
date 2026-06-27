@@ -31,8 +31,10 @@ import { h, type VNode } from "vue";
 import StatusTag from "@/components/others/fa-status-tag/index.vue";
 import type { ColumnOption, StatusColumnConfig } from "@/types/component";
 
-/** ElTag 支持的 type */
-export type StatusType = "primary" | "success" | "warning" | "danger" | "info";
+/** StatusTag/FBadge 支持的全部类型（含 "error" 映射到 FBadge） */
+export type StatusType = "primary" | "success" | "warning" | "danger" | "error" | "info";
+/** ElTag 原生支持的类型（不含 "error"） */
+export type ElStatusType = "primary" | "success" | "warning" | "danger" | "info";
 
 /** 单个状态配置 */
 export interface StatusItem {

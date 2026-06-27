@@ -4,6 +4,7 @@
 import "@styles/tailwind.css";
 import "@styles/index.scss";
 import "animate.css";
+import "@fireflymit/ui/style.css";
 
 // ---------------------------------------------------------------------------
 // 应用初始化

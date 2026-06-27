@@ -10,6 +10,7 @@ import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import ElementPlus from "unplugin-element-plus/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import { FireflyMitResolver } from "@fireflymit/ui/resolver";
 import tailwindcss from "@tailwindcss/vite";
 import vitePluginStart from "./build/vitePluginStart";
 import { name, version, engines, dependencies, devDependencies } from "./package.json";
@@ -210,7 +211,7 @@ export default ({ mode }: { mode: string }) => {
       Components({
         dirs: ["src/components"],
         dts: "src/types/import/components.d.ts",
-        resolvers: [ElementPlusResolver()],
+        resolvers: [ElementPlusResolver(), FireflyMitResolver({ prefix: "F" })],
       }),
       ElementPlus({
         useSource: true,
