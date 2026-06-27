@@ -169,11 +169,11 @@
 
               <div class="job-card-body">
                 <div class="job-card-body-row">
-                  <FaSvgIcon :icon="getTriggerIcon(job.trigger)" class="job-card-meta-icon" />
+                  <ArtSvgIcon :icon="getTriggerIcon(job.trigger)" class="job-card-meta-icon" />
                   <span class="job-card-meta-text">{{ formatTrigger(job.trigger) }}</span>
                 </div>
                 <div class="job-card-body-row">
-                  <FaSvgIcon icon="ri:time-line" class="job-card-meta-icon" />
+                  <ArtSvgIcon icon="ri:time-line" class="job-card-meta-icon" />
                   <span class="job-card-meta-text">{{ job.next_run_time || "暂无" }}</span>
                 </div>
               </div>

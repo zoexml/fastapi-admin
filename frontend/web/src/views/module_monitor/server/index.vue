@@ -6,7 +6,7 @@
         <ElCard :loading="loading" shadow="hover" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
-              <FaSvgIcon icon="ri:cpu-line" class="text-lg" />
+              <ArtSvgIcon icon="ri:cpu-line" class="text-lg" />
               <span class="font-medium">CPU使用情况</span>
             </div>
           </template>
@@ -49,7 +49,7 @@
         <ElCard :loading="loading" shadow="hover" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
-              <FaSvgIcon icon="ri:ram-line" class="text-lg" />
+              <ArtSvgIcon icon="ri:ram-line" class="text-lg" />
               <span class="font-medium">内存使用情况</span>
             </div>
           </template>
@@ -94,7 +94,7 @@
         <ElCard :loading="loading" shadow="hover" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
-              <FaSvgIcon icon="ri:server-line" class="text-lg" />
+              <ArtSvgIcon icon="ri:server-line" class="text-lg" />
               <span class="font-medium">服务器基本信息</span>
             </div>
           </template>
@@ -120,7 +120,7 @@
         <ElCard :loading="loading" shadow="hover" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
-              <FaSvgIcon icon="ri:code-s-slash-line" class="text-lg" />
+              <ArtSvgIcon icon="ri:code-s-slash-line" class="text-lg" />
               <span class="font-medium">Python运行环境</span>
             </div>
           </template>
@@ -154,7 +154,7 @@
         <ElCard :loading="loading" shadow="hover" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
-              <FaSvgIcon icon="ri:hard-drive-2-line" class="text-lg" />
+              <ArtSvgIcon icon="ri:hard-drive-2-line" class="text-lg" />
               <span class="font-medium">磁盘使用情况</span>
             </div>
           </template>

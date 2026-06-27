@@ -4,7 +4,7 @@
     class="absolute z-10 flex w-full items-center justify-end top-4.5 gap-1.5 max-[1180px]:!justify-between"
   >
     <div class="ml-2 flex items-center !hidden max-[1180px]:!flex max-sm:ml-6">
-      <FaLogo class="icon" size="46" :src="webLogoSrc" />
+      <ArtLogo class="icon" size="46" :src="webLogoSrc" />
       <h1 class="ml-2 text-xl font-medium">{{ siteTitle }}</h1>
     </div>
 
@@ -21,11 +21,11 @@
             :style="{ background: _color, '--index': index }"
             @click="changeThemeColor(_color)"
           >
-            <FaSvgIcon v-if="_color === systemThemeColor" icon="ri:check-fill" class="text-white" />
+            <ArtSvgIcon v-if="_color === systemThemeColor" icon="ri:check-fill" class="text-white" />
           </div>
         </div>
         <div class="palette-btn relative z-[2] flex h-8 w-8 cursor-pointer items-center justify-center tad-300 btn">
-          <FaSvgIcon
+          <ArtSvgIcon
             icon="ri:palette-line"
             class="text-xl text-g-800 transition-colors duration-300"
           />
@@ -37,7 +37,7 @@
         popper-class="langDropDownStyle"
       >
         <div class="flex h-8 w-8 cursor-pointer items-center justify-center tad-300 btn language-btn">
-          <FaSvgIcon
+          <ArtSvgIcon
             icon="ri:translate-2"
             class="text-[19px] text-g-800 transition-colors duration-300"
           />
@@ -50,7 +50,7 @@
                 :class="{ 'is-selected': locale === lang.value }"
               >
                 <span class="menu-txt">{{ lang.label }}</span>
-                <FaSvgIcon icon="ri:check-fill" class="text-base" v-if="locale === lang.value" />
+                <ArtSvgIcon icon="ri:check-fill" class="text-base" v-if="locale === lang.value" />
               </ElDropdownItem>
             </div>
           </ElDropdownMenu>
@@ -61,7 +61,7 @@
         class="flex h-8 w-8 cursor-pointer items-center justify-center tad-300 btn theme-btn"
         @click="themeAnimation"
       >
-        <FaSvgIcon
+        <ArtSvgIcon
           :icon="isDark ? 'ri:sun-fill' : 'ri:moon-line'"
           class="text-xl text-g-800 transition-colors duration-300"
         />

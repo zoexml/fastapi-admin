@@ -101,11 +101,11 @@
         <template #content>
           <p>本次提交未成功，可能原因如下：</p>
           <p>
-            <FaSvgIcon icon="ri:close-circle-line" class="text-red-500 mr-1" />
+            <ArtSvgIcon icon="ri:close-circle-line" class="text-red-500 mr-1" />
             <span>网络或服务暂时不可用，请稍后重试</span>
           </p>
           <p>
-            <FaSvgIcon icon="ri:close-circle-line" class="text-red-500 mr-1" />
+            <ArtSvgIcon icon="ri:close-circle-line" class="text-red-500 mr-1" />
             <span>请确认必填项与封面已正确填写</span>
           </p>
         </template>

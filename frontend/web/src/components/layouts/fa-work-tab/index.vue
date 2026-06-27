@@ -20,7 +20,7 @@
         :title="t('worktab.scrollLeft')"
         @click="scrollTabs(SCROLL_STEP)"
       >
-        <FaSvgIcon icon="ri:arrow-left-double-line" class="text-lg text-current" />
+        <ArtSvgIcon icon="ri:arrow-left-double-line" class="text-lg text-current" />
       </button>
 
       <div
@@ -77,12 +77,12 @@
               "
               @click.prevent.stop="toggleQuickBookmark(item)"
             >
-              <FaSvgIcon
+              <ArtSvgIcon
                 :icon="isQuickLinkBookmarked(item) ? 'ri:star-fill' : 'ri:star-line'"
                 class="text-sm"
               />
             </button>
-            <FaSvgIcon
+            <ArtSvgIcon
               v-show="item.icon"
               :icon="item.icon"
               class="text-base mr-1 shrink-0 group-hover:text-theme"
@@ -92,7 +92,7 @@
               ]"
             />
             {{ item.customTitle || formatMenuTitle(item.title) }}
-            <FaSvgIcon
+            <ArtSvgIcon
               v-if="item.fixedTab"
               icon="ri:pushpin-2-fill"
               class="worktab-pin shrink-0 text-sm ml-0.5"
@@ -102,7 +102,7 @@
               class="worktab-close inline-flex flex items-center justify-center relative ml-0.5 rounded-full p-1 transition duration-200"
               @click.stop="closeWorktab('current', item.path)"
             >
-              <FaSvgIcon icon="ri:close-large-fill" class="text-[10px]" />
+              <ArtSvgIcon icon="ri:close-large-fill" class="text-[10px]" />
             </span>
             <div
               v-if="chromeTabStrip && showGoogleTabDivider(index)"
@@ -122,7 +122,7 @@
           :title="t('worktab.scrollRight')"
           @click="scrollTabs(-SCROLL_STEP)"
         >
-          <FaSvgIcon icon="ri:arrow-right-double-line" class="text-lg text-current" />
+          <ArtSvgIcon icon="ri:arrow-right-double-line" class="text-lg text-current" />
         </button>
 
         <button
@@ -131,7 +131,7 @@
           :title="t('navbar.refreshCache')"
           @click="handleRefreshCache"
         >
-          <FaSvgIcon icon="ri:loop-right-line" class="text-base text-current" />
+          <ArtSvgIcon icon="ri:loop-right-line" class="text-base text-current" />
         </button>
 
         <button
@@ -140,7 +140,7 @@
           :title="t('worktab.menuMore')"
           @click="(e: MouseEvent) => showMenu(e, activeTab)"
         >
-          <FaSvgIcon icon="ri:apps-2-line" class="text-base text-current" />
+          <ArtSvgIcon icon="ri:apps-2-line" class="text-base text-current" />
         </button>
       </div>
     </div>

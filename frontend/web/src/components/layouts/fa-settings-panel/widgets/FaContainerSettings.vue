@@ -12,7 +12,7 @@
         }"
         @click="containerHandlers.setWidth(option.value)"
       >
-        <FaSvgIcon :icon="option.icon" class="mr-2 text-lg" />
+        <ArtSvgIcon :icon="option.icon" class="mr-2 text-lg" />
         <span class="text-sm">{{ option.label }}</span>
       </div>
     </div>

@@ -58,42 +58,42 @@
 
           <div class="relative z-10 w-75 mx-auto mt-7.5 text-left">
             <div class="mt-2.5 flex items-start">
-              <FaSvgIcon icon="ri:shield-user-line" class="text-g-700 shrink-0 mt-0.5" />
+              <ArtSvgIcon icon="ri:shield-user-line" class="text-g-700 shrink-0 mt-0.5" />
               <span class="ml-2 text-sm">{{ infoFormState.tenant_by?.name || "—" }}</span>
             </div>
             <div class="mt-2.5 flex items-start">
-              <FaSvgIcon icon="ri:user-3-line" class="text-g-700 shrink-0 mt-0.5" />
+              <ArtSvgIcon icon="ri:user-3-line" class="text-g-700 shrink-0 mt-0.5" />
               <span class="ml-2 text-sm">{{ infoFormState.username || "—" }}</span>
             </div>
             <div class="mt-2.5 flex items-start">
-              <FaSvgIcon icon="ri:checkbox-circle-line" class="text-g-700 shrink-0 mt-0.5" />
+              <ArtSvgIcon icon="ri:checkbox-circle-line" class="text-g-700 shrink-0 mt-0.5" />
               <ElTag :type="infoFormState.status === 0 ? 'success' : 'danger'" size="small">
                 {{ infoFormState.status === 0 ? "启用" : "停用" }}
               </ElTag>
             </div>
             <div class="mt-2.5 flex items-start">
-              <FaSvgIcon icon="ri:mail-line" class="text-g-700 shrink-0 mt-0.5" />
+              <ArtSvgIcon icon="ri:mail-line" class="text-g-700 shrink-0 mt-0.5" />
               <span class="ml-2 text-sm break-all">{{ infoFormState.email || "—" }}</span>
             </div>
             <div class="mt-2.5 flex items-start">
-              <FaSvgIcon icon="ri:map-pin-line" class="text-g-700 shrink-0 mt-0.5" />
+              <ArtSvgIcon icon="ri:map-pin-line" class="text-g-700 shrink-0 mt-0.5" />
               <span class="ml-2 text-sm">{{ infoFormState.dept?.name || "—" }}</span>
             </div>
             <div class="mt-2.5 flex items-start">
-              <FaSvgIcon icon="ri:briefcase-line" class="text-g-700 shrink-0 mt-0.5" />
+              <ArtSvgIcon icon="ri:briefcase-line" class="text-g-700 shrink-0 mt-0.5" />
               <span class="ml-2 text-sm">
                 {{ infoFormState.positions?.map((p) => p.name).join("、") || "—" }}
               </span>
             </div>
             <div class="mt-2.5 flex items-start">
-              <FaSvgIcon icon="ri:calendar-line" class="text-g-700 shrink-0 mt-0.5" />
+              <ArtSvgIcon icon="ri:calendar-line" class="text-g-700 shrink-0 mt-0.5" />
               <span class="ml-2 text-sm">
                 注册:
                 {{ infoFormState.created_time ? formatDate(infoFormState.created_time) : "—" }}
               </span>
             </div>
             <div class="mt-2.5 flex items-start">
-              <FaSvgIcon icon="ri:time-line" class="text-g-700 shrink-0 mt-0.5" />
+              <ArtSvgIcon icon="ri:time-line" class="text-g-700 shrink-0 mt-0.5" />
               <span class="ml-2 text-sm">
                 更新:
                 {{ infoFormState.updated_time ? formatDate(infoFormState.updated_time) : "—" }}
@@ -117,19 +117,19 @@
             <h3 class="text-sm font-medium">第三方账号</h3>
             <div class="flex flex-wrap justify-center mt-3.5 gap-3">
               <div v-if="infoFormState.github_login" class="flex items-center text-xs text-g-600">
-                <FaSvgIcon icon="ri:github-fill" class="mr-1" />
+                <ArtSvgIcon icon="ri:github-fill" class="mr-1" />
                 {{ infoFormState.github_login }}
               </div>
               <div v-if="infoFormState.gitee_login" class="flex items-center text-xs text-g-600">
-                <FaSvgIcon icon="ri:gitee-fill" class="mr-1" />
+                <ArtSvgIcon icon="ri:gitee-fill" class="mr-1" />
                 {{ infoFormState.gitee_login }}
               </div>
               <div v-if="infoFormState.wx_login" class="flex items-center text-xs text-g-600">
-                <FaSvgIcon icon="ri:wechat-fill" class="mr-1" />
+                <ArtSvgIcon icon="ri:wechat-fill" class="mr-1" />
                 {{ infoFormState.wx_login }}
               </div>
               <div v-if="infoFormState.qq_login" class="flex items-center text-xs text-g-600">
-                <FaSvgIcon icon="ri:qq-fill" class="mr-1" />
+                <ArtSvgIcon icon="ri:qq-fill" class="mr-1" />
                 {{ infoFormState.qq_login }}
               </div>
             </div>

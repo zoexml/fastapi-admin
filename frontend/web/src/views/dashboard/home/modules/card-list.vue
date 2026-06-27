@@ -29,7 +29,7 @@
             class="size-10 rounded-xl flex items-center justify-center"
             :class="item.iconBg || 'bg-theme/10'"
           >
-            <FaSvgIcon
+            <ArtSvgIcon
               :icon="item.icon"
               class="text-xl"
               :class="[

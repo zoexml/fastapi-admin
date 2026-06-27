@@ -9,7 +9,7 @@
               <ElCard shadow="hover">
                 <template #header>
                   <div class="flex items-center gap-2">
-                    <FaSvgIcon icon="ri:database-2-line" class="text-lg" />
+                    <ArtSvgIcon icon="ri:database-2-line" class="text-lg" />
                     <span class="font-medium">Redis监控信息</span>
                   </div>
                 </template>
@@ -65,7 +65,7 @@
               <ElCard shadow="hover" class="flex-1 flex flex-col chart-card">
                 <template #header>
                   <div class="flex items-center gap-2">
-                    <FaSvgIcon icon="ri:bar-chart-2-line" class="text-lg" />
+                    <ArtSvgIcon icon="ri:bar-chart-2-line" class="text-lg" />
                     <span class="font-medium">命令统计</span>
                   </div>
                 </template>
@@ -76,7 +76,7 @@
               <ElCard shadow="hover" class="flex-1 flex flex-col chart-card">
                 <template #header>
                   <div class="flex items-center gap-2">
-                    <FaSvgIcon icon="ri:pie-chart-2-line" class="text-lg" />
+                    <ArtSvgIcon icon="ri:pie-chart-2-line" class="text-lg" />
                     <span class="font-medium">内存信息</span>
                   </div>
                 </template>
@@ -97,7 +97,7 @@
                 <template #header>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                      <FaSvgIcon icon="ri:list-unordered" class="text-lg" />
+                      <ArtSvgIcon icon="ri:list-unordered" class="text-lg" />
                       <span class="font-medium">缓存列表</span>
                     </div>
                     <ElButton
@@ -157,7 +157,7 @@
                 <template #header>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                      <FaSvgIcon icon="ri:key-2-line" class="text-lg" />
+                      <ArtSvgIcon icon="ri:key-2-line" class="text-lg" />
                       <span class="font-medium">键名列表</span>
                     </div>
                     <ElButton
@@ -220,7 +220,7 @@
                 <template #header>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                      <FaSvgIcon icon="ri:file-text-line" class="text-lg" />
+                      <ArtSvgIcon icon="ri:file-text-line" class="text-lg" />
                       <span class="font-medium">缓存内容</span>
                     </div>
                     <ElButton

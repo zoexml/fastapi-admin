@@ -4,7 +4,7 @@
       <div class="title">
         <h4 class="text-2xl">
           <span>14.5k</span>
-          <FaSvgIcon icon="ri:arrow-right-up-line" class="text-success text-lg ml-1" />
+          <ArtSvgIcon icon="ri:arrow-right-up-line" class="text-success text-lg ml-1" />
         </h4>
         <p>销售量</p>
       </div>

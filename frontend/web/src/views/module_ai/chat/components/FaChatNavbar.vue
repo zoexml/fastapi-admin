@@ -2,14 +2,14 @@
   <div class="chat-navbar">
     <div class="navbar-left">
       <button class="collapse-btn" @click="toggleSidebar">
-        <FaSvgIcon
+        <ArtSvgIcon
           v-if="!props.isSidebarCollapsed"
-          :icon="resolveIconForFaSvgIcon('layout_leftbar_close_line')"
+          :icon="resolveIconForArtSvgIcon('layout_leftbar_close_line')"
           class="size-6"
         />
-        <FaSvgIcon
+        <ArtSvgIcon
           v-else
-          :icon="resolveIconForFaSvgIcon('layout_leftbar_open_line')"
+          :icon="resolveIconForArtSvgIcon('layout_leftbar_open_line')"
           class="size-6"
         />
       </button>
@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Connection, Loading, Warning, Delete, Setting } from "@element-plus/icons-vue";
-import { resolveIconForFaSvgIcon } from "@utils";
+import { resolveIconForArtSvgIcon } from "@utils";
 
 interface Props {
   connectionStatus: "connected" | "connecting" | "disconnected";

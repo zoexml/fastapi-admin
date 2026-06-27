@@ -13,7 +13,7 @@
           @click="goPage(link.url)"
         >
           <span class="text-g-700">{{ link.label }}</span>
-          <FaSvgIcon icon="ri:arrow-right-s-line" class="text-lg text-g-600" />
+          <ArtSvgIcon icon="ri:arrow-right-s-line" class="text-lg text-g-600" />
         </div>
       </div>
     </div>

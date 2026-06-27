@@ -22,7 +22,7 @@
             class="w-10 h-10 mr-3 text-lg rounded-md flex items-center justify-center"
             :class="item.iconClass"
           >
-            <FaSvgIcon :icon="item.icon" />
+            <ArtSvgIcon :icon="item.icon" />
           </div>
 
           <div class="flex flex-col items-start">

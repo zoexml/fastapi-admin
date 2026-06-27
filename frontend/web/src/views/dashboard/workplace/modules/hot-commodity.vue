@@ -20,7 +20,7 @@
           class="size-10.5 flex items-center justify-center rounded-lg"
           :class="item.iconBgClass"
         >
-          <FaSvgIcon :icon="item.icon" class="text-xl" />
+          <ArtSvgIcon :icon="item.icon" class="text-xl" />
         </div>
         <div class="ml-2.5">
           <p class="text-sm font-medium text-g-800">{{ item.title }}</p>

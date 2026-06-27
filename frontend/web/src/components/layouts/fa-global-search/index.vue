@@ -22,7 +22,7 @@
           <div
             class="h-4.5 flex items-center justify-center rounded border border-g-300 dark:bg-g-200/50! bg-box! px-1.5 text-g-500"
           >
-            <FaSvgIcon icon="fluent:arrow-enter-left-20-filled" />
+            <ArtSvgIcon icon="fluent:arrow-enter-left-20-filled" />
           </div>
         </template>
       </ElInput>
@@ -40,7 +40,7 @@
               @mouseenter="highlightOnHover(index)"
             >
               {{ formatMenuTitle(item.meta.title) }}
-              <FaSvgIcon v-show="isHighlighted(index)" icon="fluent:arrow-enter-left-20-filled" />
+              <ArtSvgIcon v-show="isHighlighted(index)" icon="fluent:arrow-enter-left-20-filled" />
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
                 class="size-5 selected-icon select-none rounded-full text-g-500 flex items-center justify-center cursor-pointer"
                 @click.stop="deleteHistory(index)"
               >
-                <FaSvgIcon icon="ri:close-large-fill" class="text-xs" />
+                <ArtSvgIcon icon="ri:close-large-fill" class="text-xs" />
               </div>
             </div>
           </div>
@@ -77,18 +77,18 @@
           class="dialog-footer box-border flex items-center border-t border-(--default-border) pt-4.5 pb-1"
         >
           <div class="flex items-center justify-center">
-            <FaSvgIcon
+            <ArtSvgIcon
               icon="fluent:arrow-enter-left-20-filled"
               class="mr-2 box-border h-5 w-5.5 rounded border border-g-400 px-1 text-g-500 shadow-[0_2px_0_var(--default-border-dashed)]"
             />
             <span class="mr-3.5 text-xs text-g-700">{{ $t("search.selectKeydown") }}</span>
           </div>
           <div class="flex items-center">
-            <FaSvgIcon
+            <ArtSvgIcon
               icon="ri:arrow-up-wide-fill"
               class="mr-2 box-border h-5 w-5.5 rounded border border-g-400 px-1 text-g-500 shadow-[0_2px_0_var(--default-border-dashed)]"
             />
-            <FaSvgIcon
+            <ArtSvgIcon
               icon="ri:arrow-down-wide-fill"
               class="mr-2 box-border h-5 w-5.5 rounded border border-g-400 px-1 text-g-500 shadow-[0_2px_0_var(--default-border-dashed)]"
             />

@@ -12,7 +12,7 @@
           class="flex items-center justify-center mr-3 size-10 rounded-lg"
           :class="item.class"
         >
-          <FaSvgIcon :icon="item.icon" class="text-xl" />
+          <ArtSvgIcon :icon="item.icon" class="text-xl" />
         </div>
         <div class="flex-1">
           <div class="mb-1 text-sm">{{ item.title }}</div>

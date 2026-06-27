@@ -25,7 +25,7 @@
         <div
           class="flex items-center justify-center size-10.5 mr-2.5 text-theme bg-theme/10 rounded-lg"
         >
-          <FaSvgIcon icon="ri:money-cny-circle-line" class="text-xl" />
+          <ArtSvgIcon icon="ri:money-cny-circle-line" class="text-xl" />
         </div>
         <div>
           <p class="text-lg">¥500,458</p>
@@ -36,7 +36,7 @@
         <div
           class="flex items-center justify-center size-10.5 mr-2.5 text-theme bg-theme/10 rounded-lg"
         >
-          <FaSvgIcon icon="ri:heart-3-line" class="text-xl" />
+          <ArtSvgIcon icon="ri:heart-3-line" class="text-xl" />
         </div>
         <div>
           <p class="text-lg">¥130,580</p>

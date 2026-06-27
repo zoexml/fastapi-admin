@@ -24,11 +24,11 @@
         <div class="absolute bottom-4 left-0 px-4 flex items-center justify-between w-full">
           <div class="flex items-center">
             <div class="flex items-center mr-5 text-xs text-g-600">
-              <FaSvgIcon icon="ri:heart-line" class="mr-1 text-base" />
+              <ArtSvgIcon icon="ri:heart-line" class="mr-1 text-base" />
               <span>{{ item.collection }}</span>
             </div>
             <div class="flex items-center mr-5 text-xs text-g-600">
-              <FaSvgIcon icon="ri:message-3-line" class="mr-1 text-base" />
+              <ArtSvgIcon icon="ri:message-3-line" class="mr-1 text-base" />
               <span>{{ item.comment }}</span>
             </div>
           </div>
@@ -53,11 +53,11 @@
           <div class="absolute bottom-4 left-0 px-4 flex items-center justify-between w-full">
             <div class="flex items-center">
               <div class="flex items-center mr-5 text-xs text-g-600">
-                <FaSvgIcon icon="ri:heart-line" class="mr-1 text-base" />
+                <ArtSvgIcon icon="ri:heart-line" class="mr-1 text-base" />
                 <span>{{ clickItem.collection }}</span>
               </div>
               <div class="flex items-center mr-5 text-xs text-g-600">
-                <FaSvgIcon icon="ri:message-3-line" class="mr-1 text-base" />
+                <ArtSvgIcon icon="ri:message-3-line" class="mr-1 text-base" />
                 <span>{{ clickItem.comment }}</span>
               </div>
             </div>

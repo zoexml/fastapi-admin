@@ -12,7 +12,7 @@
       @contextmenu.prevent="fabCollapsed = true"
       @click="handleOpen"
     >
-      <FaSvgIcon :icon="resolveIconForFaSvgIcon('ai')" class="ai-icon" />
+      <ArtSvgIcon :icon="resolveIconForArtSvgIcon('ai')" class="ai-icon" />
     </ElButton>
 
     <!-- 收缩态：贴边小标签，避免遮挡表单控件 -->
@@ -36,7 +36,7 @@
     >
       <template #header>
         <div class="dialog-header">
-          <FaSvgIcon :icon="resolveIconForFaSvgIcon('ai')" class="header-icon" />
+          <ArtSvgIcon :icon="resolveIconForArtSvgIcon('ai')" class="header-icon" />
           <span class="title">AI 智能助手</span>
         </div>
       </template>
@@ -121,7 +121,7 @@
 <script setup lang="ts">
 defineOptions({ name: "FaAiAssistant" });
 
-import { resolveIconForFaSvgIcon } from "@utils";
+import { resolveIconForArtSvgIcon } from "@utils";
 import { nextTick, onBeforeUnmount, onMounted, watch, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";

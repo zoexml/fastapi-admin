@@ -3,7 +3,7 @@
   <ElTooltip :content="t('sizeSelect.tooltip')" effect="dark" placement="bottom">
     <ElDropdown trigger="click" @command="handleSizeChange">
       <span class="inline-flex outline-none leading-none">
-        <FaIconButton :icon="resolveIconForFaSvgIcon('size')" class="size-select-btn text-[19px]" />
+        <FaIconButton :icon="resolveIconForArtSvgIcon('size')" class="size-select-btn text-[19px]" />
       </span>
       <template #dropdown>
         <ElDropdownMenu>
@@ -26,7 +26,7 @@ defineOptions({ name: "FaSizeSelect" });
 
 import { ComponentSize } from "@/enums/settings/layout.enum";
 import { useAppStore } from "@stores";
-import { resolveIconForFaSvgIcon } from "@utils";
+import { resolveIconForArtSvgIcon } from "@utils";
 import { computed } from "vue";
 import { ElMessage } from "element-plus";
 

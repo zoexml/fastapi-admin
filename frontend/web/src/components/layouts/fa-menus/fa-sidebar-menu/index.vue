@@ -11,7 +11,7 @@
       class="dual-menu-left"
       :style="{ width: dualMenuShowText ? '80px' : '64px', background: getMenuTheme.background }"
     >
-      <FaLogo v-if="showAppLogo" class="logo" :src="sidebarLogoSrc" @click="navigateToHome" />
+      <ArtLogo v-if="showAppLogo" class="logo" :src="sidebarLogoSrc" @click="navigateToHome" />
 
       <ElScrollbar :style="{ height: 'calc(100% - 135px)' }">
         <ul>
@@ -75,7 +75,7 @@
           background: getMenuTheme.background,
         }"
       >
-        <FaLogo v-if="!isDualMenu" class="logo" :src="sidebarLogoSrc" />
+        <ArtLogo v-if="!isDualMenu" class="logo" :src="sidebarLogoSrc" />
 
         <p
           :class="{ 'is-dual-menu-name': isDualMenu }"
@@ -111,7 +111,7 @@
 
       <!-- 双列菜单右侧折叠按钮 -->
       <div class="dual-menu-collapse-btn" v-if="isDualMenu" @click="toggleMenuVisibility">
-        <FaSvgIcon
+        <ArtSvgIcon
           class="text-g-500/70"
           :icon="menuOpen ? 'ri:arrow-left-wide-fill' : 'ri:arrow-right-wide-fill'"
         />

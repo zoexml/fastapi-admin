@@ -19,7 +19,7 @@
           :aria-label="item.tip"
           @click="$emit('oauth', item.provider)"
         >
-          <FaSvgIcon :icon="item.icon" :class="item.iconClass" />
+          <ArtSvgIcon :icon="item.icon" :class="item.iconClass" />
         </button>
       </ElTooltip>
     </div>

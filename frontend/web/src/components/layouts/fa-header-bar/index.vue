@@ -3,15 +3,13 @@
   <div
     class="w-full bg-(--default-bg-color)"
     :class="[
-      tabStyle === 'tab-card' || tabStyle === 'tab-google' || tabStyle === 'tab-default'
-        ? 'max-sm:mb-3 bg-box!'
-        : '',
+      tabStyle === 'tab-card' || tabStyle === 'tab-google' ? 'max-sm:mb-3 bg-box!' : '',
     ]"
   >
     <div
       class="relative box-border flex justify-between h-15 leading-15 select-none"
       :class="[
-        tabStyle === 'tab-card' || tabStyle === 'tab-google' || tabStyle === 'tab-default'
+        tabStyle === 'tab-card' || tabStyle === 'tab-google'
           ? 'border-b border-(--fa-card-border)'
           : '',
       ]"
@@ -23,11 +21,11 @@
           @click="toHome"
           v-if="isTopMenu && showAppLogo"
         >
-          <FaLogo class="pl-4.5" :src="headerLogoSrc" />
+          <ArtLogo class="pl-4.5" :src="headerLogoSrc" />
           <p v-if="width >= 1400" class="my-0 mx-2 ml-2 text-lg">{{ headerSystemName }}</p>
         </div>
 
-        <FaLogo
+        <ArtLogo
           v-if="showAppLogo"
           class="hidden! pl-3.5 overflow-hidden align-[-0.15em] fill-current"
           :src="headerLogoSrc"
@@ -76,12 +74,12 @@
           @click="openSearchDialog"
         >
           <div class="flex items-center">
-            <FaSvgIcon icon="ri:search-line" class="text-sm text-g-500" />
+            <ArtSvgIcon icon="ri:search-line" class="text-sm text-g-500" />
             <span class="ml-1 text-xs font-normal text-g-500">{{ $t("topBar.search.title") }}</span>
           </div>
           <div class="flex items-center h-5 px-1.5 text-g-500/80 border border-g-400 rounded">
-            <FaSvgIcon v-if="isWindows" icon="vaadin:ctrl-a" class="text-sm" />
-            <FaSvgIcon v-else icon="ri:command-fill" class="text-xs" />
+            <ArtSvgIcon v-if="isWindows" icon="vaadin:ctrl-a" class="text-sm" />
+            <ArtSvgIcon v-else icon="ri:command-fill" class="text-xs" />
             <span class="ml-0.5 text-xs">k</span>
           </div>
         </div>
@@ -118,7 +116,7 @@
                   :class="{ 'is-selected': locale === item.value }"
                 >
                   <span class="menu-txt">{{ item.label }}</span>
-                  <FaSvgIcon icon="ri:check-fill" v-if="locale === item.value" />
+                  <ArtSvgIcon icon="ri:check-fill" v-if="locale === item.value" />
                 </ElDropdownItem>
               </div>
             </ElDropdownMenu>

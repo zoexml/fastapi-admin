@@ -13,7 +13,7 @@
       class="fixed right-10 bottom-15 size-9.5 flex items-center justify-center cursor-pointer border border-g-300 rounded-md transition duration-300 hover:bg-g-200"
       @click="scrollToTop"
     >
-      <FaSvgIcon icon="ri:arrow-up-wide-line" class="text-g-500 text-lg" />
+      <ArtSvgIcon icon="ri:arrow-up-wide-line" class="text-g-500 text-lg" />
     </div>
   </Transition>
 </template>

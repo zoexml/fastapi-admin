@@ -32,7 +32,7 @@
             <div
               class="app-icon size-12 flex items-center justify-center rounded-lg bg-g-200/80 dark:bg-g-300/30"
             >
-              <FaSvgIcon
+              <ArtSvgIcon
                 class="text-xl"
                 :icon="application.icon"
                 :style="{ color: application.iconColor }"
@@ -74,7 +74,7 @@
         <div
           class="flex items-center justify-center size-14 rounded-xl bg-linear-to-br from-purple-400 to-indigo-500"
         >
-          <FaSvgIcon icon="ri:loader-line" class="text-2xl text-white" />
+          <ArtSvgIcon icon="ri:loader-line" class="text-2xl text-white" />
         </div>
         <div class="flex-1">
           <h4 class="m-0 text-base font-semibold">节日礼花动画</h4>

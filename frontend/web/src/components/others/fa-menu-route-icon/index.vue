@@ -11,7 +11,7 @@
     <component :is="elementComponent" />
   </ElIcon>
 
-  <FaSvgIcon
+  <ArtSvgIcon
     v-else-if="isInvalidElementPrefix"
     :icon="epFallback"
     :color="color"
@@ -19,7 +19,7 @@
     :style="mergedStyle"
   />
 
-  <FaSvgIcon v-else :icon="resolvedFaIcon" :color="color" :class="iconClass" :style="mergedStyle" />
+  <ArtSvgIcon v-else :icon="resolvedFaIcon" :color="color" :class="iconClass" :style="mergedStyle" />
 </template>
 
 <script setup lang="ts">
@@ -28,7 +28,7 @@ import {
   elementMenuIconToEpIconify,
   isElementPlusStoredIcon,
   resolveElementPlusIconComponent,
-  resolveIconForFaSvgIcon,
+  resolveIconForArtSvgIcon,
 } from "@utils";
 
 defineOptions({ name: "FaMenuRouteIcon", inheritAttrs: false });
@@ -55,7 +55,7 @@ const isInvalidElementPrefix = computed(
 const epFallback = computed(() => elementMenuIconToEpIconify(trimmedIcon.value));
 
 /** Iconify（含历史本地 SVG 文件名 → Remix `ri:`） */
-const resolvedFaIcon = computed(() => resolveIconForFaSvgIcon(trimmedIcon.value));
+const resolvedFaIcon = computed(() => resolveIconForArtSvgIcon(trimmedIcon.value));
 
 const iconClass = computed(() =>
   props.class === false || props.class == null ? undefined : props.class

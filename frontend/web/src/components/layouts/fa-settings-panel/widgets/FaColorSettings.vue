@@ -10,7 +10,7 @@
           :style="{ background: `${color} !important` }"
           @click="colorHandlers.selectColor(color)"
         >
-          <FaSvgIcon
+          <ArtSvgIcon
             icon="ri:check-fill"
             class="text-base text-white!"
             v-show="color === systemThemeColor"

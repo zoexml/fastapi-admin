@@ -141,8 +141,8 @@
           </ElInput>
           <div class="flex items-center justify-between mt-3">
             <div class="flex items-center">
-              <FaSvgIcon icon="ri:image-line" class="mr-5 cursor-pointer text-g-600 text-lg" />
-              <FaSvgIcon
+              <ArtSvgIcon icon="ri:image-line" class="mr-5 cursor-pointer text-g-600 text-lg" />
+              <ArtSvgIcon
                 icon="ri:emotion-happy-line"
                 class="mr-5 cursor-pointer text-g-600 text-lg"
               />

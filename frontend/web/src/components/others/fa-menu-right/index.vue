@@ -17,7 +17,7 @@
               :style="menuItemStyle"
               @click="handleMenuClick(item)"
             >
-              <FaSvgIcon
+              <ArtSvgIcon
                 v-if="item.icon"
                 class="mr-2 shrink-0 text-base text-g-800"
                 :icon="item.icon"
@@ -36,7 +36,7 @@
               :style="menuItemStyle"
             >
               <div class="submenu-title flex items-center w-full">
-                <FaSvgIcon
+                <ArtSvgIcon
                   v-if="item.icon"
                   class="mr-2 shrink-0 text-base text-g-800"
                   :icon="item.icon"
@@ -46,7 +46,7 @@
                 >
                   {{ item.label }}
                 </span>
-                <FaSvgIcon
+                <ArtSvgIcon
                   icon="ri:arrow-right-s-line"
                   class="ubmenu-arrow ml-auto mr-0 text-base text-g-500 transition-transform duration-150"
                 />
@@ -63,7 +63,7 @@
                   :style="menuItemStyle"
                   @click="handleMenuClick(child)"
                 >
-                  <FaSvgIcon
+                  <ArtSvgIcon
                     v-if="child.icon"
                     class="r-2 shrink-0 text-base text-g-800 mr-1"
                     :icon="child.icon"

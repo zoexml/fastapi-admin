@@ -34,7 +34,7 @@
       ref="handler"
       :style="handlerStyle"
     >
-      <FaSvgIcon :icon="value ? successIcon : handlerIcon" class="text-g-600"></FaSvgIcon>
+      <ArtSvgIcon :icon="value ? successIcon : handlerIcon" class="text-g-600" />
     </div>
   </div>
 </template>

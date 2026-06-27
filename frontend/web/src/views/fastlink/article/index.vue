@@ -24,7 +24,7 @@
         :style="'display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: end'"
       >
         <ElButton @click="commentWallOpen = true">
-          <FaSvgIcon icon="ri:message-3-line" class="mr-1" />
+          <ArtSvgIcon icon="ri:message-3-line" class="mr-1" />
           留言墙
         </ElButton>
         <ElButton type="primary" @click="toAddArticle">新增文章</ElButton>
@@ -57,10 +57,10 @@
             <h2 class="text-base text-g-800 font-medium">{{ item.title }}</h2>
             <div class="flex justify-between w-full h-6 mt-1">
               <div class="flex items-center text-g-500">
-                <FaSvgIcon icon="ri:time-line" class="mr-1 text-sm" />
+                <ArtSvgIcon icon="ri:time-line" class="mr-1 text-sm" />
                 <span class="text-sm">{{ useDateFormat(item.create_time, "YYYY-MM-DD") }}</span>
                 <div class="w-px h-3 bg-g-400 mx-3.5"></div>
-                <FaSvgIcon icon="ri:eye-line" class="mr-1 text-sm" />
+                <ArtSvgIcon icon="ri:eye-line" class="mr-1 text-sm" />
                 <span class="text-sm">{{ item.count }}</span>
               </div>
               <ElButton

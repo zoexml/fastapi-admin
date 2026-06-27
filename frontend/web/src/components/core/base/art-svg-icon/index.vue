@@ -1,21 +1,26 @@
-<!-- 兼容 artpro-ui 调用约定的 svg-icon 组件（薄壳，复用主项目 FaSvgIcon） -->
+<!-- 图标组件 -->
 <template>
-  <FaSvgIcon v-if="icon" :icon="localIcon" v-bind="$attrs" class="art-svg-icon inline" />
+  <Icon v-if="icon" :icon="icon" v-bind="bindAttrs" class="art-svg-icon inline" />
 </template>
 
 <script setup lang="ts">
-  import FaSvgIcon from "@/components/base/fa-svg-icon/index.vue"
+import { Icon } from "@iconify/vue"
 
-  defineOptions({ name: "ArtSvgIcon", inheritAttrs: false })
+defineOptions({ name: "ArtSvgIcon", inheritAttrs: false })
 
-  interface Props {
-    /** Iconify icon name */
-    icon?: string
-  }
+interface Props {
+  /** Iconify icon name */
+  icon?: string
+}
 
-  const props = defineProps<Props>()
+withDefaults(defineProps<Props>(), {
+  icon: "",
+})
 
-  // 主项目 FaSvgIcon 已通过 useIconify() 注册 ri/svg-spinners/line-md 集合，
-  // 离线图标前缀可直接传入；不识别的图标交由 iconify 默认行为（CDN 兜底）
-  const localIcon = computed(() => props.icon || "")
+const attrs = useAttrs()
+
+const bindAttrs = computed<{ class: string; style: string }>(() => ({
+  class: (attrs.class as string) || "",
+  style: (attrs.style as string) || "",
+}))
 </script>
