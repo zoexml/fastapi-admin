@@ -18,11 +18,7 @@
       @reset="onResetSearch"
     />
 
-    <ElCard
-     
-      class="fa-table-card"
-      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
-    >
+    <ElCard class="fa-table-card" :style="{ 'margin-top': showSearchBar ? '12px' : '0' }">
       <FaTableHeader
         v-model:columns="columnChecks"
         v-model:showSearchBar="showSearchBar"
@@ -420,14 +416,14 @@ const {
         },
       },
       { prop: "contact_name", label: "联系人", minWidth: 100, showOverflowTooltip: true },
-      { prop: "contact_phone", label: "联系电话", width: 110, showOverflowTooltip: true },
-      { prop: "start_time", label: "开始时间", width: 110, showOverflowTooltip: true },
-      { prop: "end_time", label: "结束时间", width: 110, showOverflowTooltip: true },
+      { prop: "contact_phone", label: "联系电话", width: 140, showOverflowTooltip: true },
+      { prop: "start_time", label: "开始时间", width: 150, showOverflowTooltip: true },
+      { prop: "end_time", label: "结束时间", width: 150, showOverflowTooltip: true },
       { prop: "created_time", label: "创建时间", width: 140, showOverflowTooltip: true },
       {
         prop: "operation",
         label: "操作",
-        width: 200,
+        width: 260,
         fixed: "right",
         align: "right",
         formatter: (row: TenantTable) =>

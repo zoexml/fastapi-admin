@@ -351,7 +351,7 @@ const {
       {
         prop: "operation",
         label: "操作",
-        width: 200,
+        width: 280,
         fixed: "right",
         align: "right",
         formatter: (row: PackageTable) => formatPkgOperationCell(row, opCtx),

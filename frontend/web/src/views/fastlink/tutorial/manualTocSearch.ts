@@ -15,7 +15,6 @@ export const MANUAL_MODULE_SEARCH_ALIASES: Readonly<Record<string, readonly stri
   "mod-dashboard": ["仪表盘", "首页", "工作台", "教程"],
   "mod-layout": ["布局", "顶栏", "侧栏", "主题", "锁屏"],
   "mod-exception": ["错误页", "404", "403"],
-  "mod-swagger": ["接口", "API", "文档", "swagger", "redoc"],
 };
 
 /** 页面级补充检索词（anchor 与 MANUAL_TOC 一致） */
@@ -30,9 +29,6 @@ export const MANUAL_PAGE_SEARCH_ALIASES: Readonly<Record<string, readonly string
   "page-ai-memory": ["记忆管理", "memory"],
   "page-portal": ["应用门户", "portal"],
   "page-demo": ["示例", "demo"],
-  "page-swagger": ["Swagger", "swagger"],
-  "page-redoc": ["Redoc", "redoc"],
-  "page-ljdoc": ["LJDoc", "ljdoc", "LangJin"],
   "page-db-article": ["文章", "article"],
   "page-db-tutorial": ["操作手册", "手册", "教程"],
   "page-login": ["登录", "auth"],

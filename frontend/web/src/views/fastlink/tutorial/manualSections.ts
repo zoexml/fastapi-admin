@@ -528,38 +528,4 @@ export const MANUAL_MODULES_AFTER_SYSTEM: ManualModuleSection[] = [
       },
     ],
   },
-  {
-    anchor: "mod-swagger",
-    heading: "十一、接口文档（API）",
-    pkgTag: "module_swagger",
-    pages: [
-      {
-        anchor: "page-swagger",
-        title: "Swagger文档",
-        path: "module_swagger/docs/index.vue",
-        notes: [
-          "父级菜单「接口管理」；默认 iframe `VITE_APP_BASE_API + /docs`，可由 `IframeRouteManager` 覆盖 link。",
-          "完整性：iframe 加载、loading 消失；需后端文档地址可达。",
-        ],
-      },
-      {
-        anchor: "page-redoc",
-        title: "Redoc文档",
-        path: "module_swagger/redoc/index.vue",
-        notes: [
-          "Redoc 文档 iframe 页；链接来自 env 或 iframe 路由 meta（与同模块 docs 一致范式）。",
-          "完整性：页面全高 iframe、加载完成。",
-        ],
-      },
-      {
-        anchor: "page-ljdoc",
-        title: "LangJin文档",
-        path: "module_swagger/ljdoc/index.vue",
-        notes: [
-          "LangJin 文档 iframe；platform_menu 中节点类型可为 4（菜单页）。",
-          "完整性：同上，依赖后端或 meta 配置的文档 URL。",
-        ],
-      },
-    ],
-  },
 ];

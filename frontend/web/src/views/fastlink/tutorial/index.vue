@@ -356,24 +356,6 @@
                             <ElLink href="#page-500" type="primary" underline="never">500</ElLink>
                           </div>
                         </li>
-                        <li>
-                          <ElLink href="#mod-swagger" type="primary" underline="never">
-                            十一、接口文档（API）
-                          </ElLink>
-                          <div class="toc-l2">
-                            <ElLink href="#page-swagger" type="primary" underline="never">
-                              Swagger文档
-                            </ElLink>
-                            ·
-                            <ElLink href="#page-redoc" type="primary" underline="never">
-                              Redoc文档
-                            </ElLink>
-                            ·
-                            <ElLink href="#page-ljdoc" type="primary" underline="never">
-                              LangJin文档
-                            </ElLink>
-                          </div>
-                        </li>
                       </ul>
                     </ElCard>
 
@@ -1165,17 +1147,7 @@ const MANUAL_TOC: ManualModule[] = [
     pages: [
       { anchor: "page-401", title: "401" },
       { anchor: "page-403", title: "403" },
-      { anchor: "page-404", title: "404" },
       { anchor: "page-500", title: "500" },
-    ],
-  },
-  {
-    anchor: "mod-swagger",
-    title: "十一、接口文档（API）",
-    pages: [
-      { anchor: "page-swagger", title: "Swagger文档" },
-      { anchor: "page-redoc", title: "Redoc文档" },
-      { anchor: "page-ljdoc", title: "LangJin文档" },
     ],
   },
 ];
