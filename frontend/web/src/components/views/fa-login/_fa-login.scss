@@ -1,8 +1,8 @@
 /**
- * 登录根布局
- * - 顶栏 fixed 透明叠在页面上（不占一条实体顶区）；仅插画列 / 表单区随布局切换
- * - left / right：插画列与表单列横向排列（约 65% / 35%）
- * - center：全宽 + 视口级背景；登录卡居中、阴影高亮
+ * 登录根布局 - artpro-ui 风格
+ * - 顶栏 fixed 透明叠在页面上；左侧品牌区使用 grid 背景 + 径向光晕
+ * - left / right：插画列与表单列横向排列
+ * - center：全宽 + 视口级背景；登录卡居中、玻璃拟态
  */
 .login-auth-split {
   display: flex;
@@ -22,7 +22,7 @@
   min-height: 0;
 }
 
-/* 横向：插画 ~65%，表单列占剩余 */
+/* 横向：插画列占 60%，表单列占剩余 */
 .login-auth-split--left,
 .login-auth-split--right {
   flex-direction: row;
@@ -30,7 +30,7 @@
 
 .login-auth-split--left .login-auth-split__col--illustration,
 .login-auth-split--right .login-auth-split__col--illustration {
-  flex: 0 0 65%;
+  flex: 0 0 60%;
 }
 
 .login-auth-split--left .login-auth-split__col--form,
@@ -46,7 +46,7 @@
 @media only screen and (width <= 1600px) {
   .login-auth-split--left .login-auth-split__col--illustration,
   .login-auth-split--right .login-auth-split__col--illustration {
-    flex: 0 0 60%;
+    flex: 0 0 58%;
   }
 }
 

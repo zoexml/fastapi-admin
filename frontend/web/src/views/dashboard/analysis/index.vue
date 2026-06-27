@@ -246,6 +246,35 @@
         </div>
       </ElCol>
     </ElRow>
+
+    <div class="workplace-container">
+      <div class="card-group">
+        <ElRow :gutter="24">
+          <ElCol :sm="12" :md="12" :lg="6"><TotalOrderVolume /></ElCol>
+          <ElCol :sm="12" :md="12" :lg="6"><TotalProducts /></ElCol>
+          <ElCol :sm="24" :md="12" :lg="6"><ProductSales /></ElCol>
+          <ElCol :sm="24" :md="12" :lg="6"><SalesGrowth /></ElCol>
+        </ElRow>
+
+        <ElRow :gutter="24">
+          <ElCol :span="24"><CartConversionRate /></ElCol>
+        </ElRow>
+
+        <ElRow :gutter="24">
+          <ElCol :sm="12" :md="12" :lg="6"><SalesTrend /></ElCol>
+          <ElCol :sm="12" :md="12" :lg="6"><SalesClassification /></ElCol>
+          <ElCol :sm="24" :md="12" :lg="6"><HotCommodity /></ElCol>
+          <ElCol :sm="24" :md="12" :lg="6"><AnnualSales /></ElCol>
+        </ElRow>
+      </div>
+
+      <div class="card-group">
+        <ElRow :gutter="24">
+          <ElCol :sm="24" :md="12" :lg="12" class="mb-5"><ActiveUser /></ElCol>
+          <ElCol :sm="24" :md="12" :lg="12" class="mb-5"><SalesOverview /></ElCol>
+        </ElRow>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -261,6 +290,17 @@ import TargetVsReality from "./modules/target-vs-reality.vue";
 import TopProducts from "./modules/top-products.vue";
 import SalesMappingByCountry from "./modules/sales-mapping-by-country.vue";
 import VolumeServiceLevel from "./modules/volume-service-level.vue";
+import ActiveUser from "../workplace/modules/active-user.vue";
+import SalesOverview from "../workplace/modules/sales-overview.vue";
+import TotalOrderVolume from "../workplace/modules/total-order-volume.vue";
+import TotalProducts from "../workplace/modules/total-products.vue";
+import SalesTrend from "../workplace/modules/sales-trend.vue";
+import SalesClassification from "../workplace/modules/sales-classification.vue";
+import HotCommodity from "../workplace/modules/hot-commodity.vue";
+import AnnualSales from "../workplace/modules/annual-sales.vue";
+import ProductSales from "../workplace/modules/product-sales.vue";
+import SalesGrowth from "../workplace/modules/sales-growth.vue";
+import CartConversionRate from "../workplace/modules/cart-conversion-rate.vue";
 
 defineOptions({ name: "DashboardAnalysis" });
 
@@ -290,32 +330,40 @@ const stackBarData = ref([
 const stackXAxisData = ref(["产品A", "产品B", "产品C", "产品D", "产品E"]);
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 :deep(.el-card) {
   --el-card-border-radius: calc(var(--custom-radius) + 2px);
 
   border: 1px solid var(--fa-card-border);
 }
 
-.page-title {
-  margin: 1.25rem 0;
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.75rem;
-}
-
-.page-title:first-child {
-  margin-top: 0;
-}
-
 .fa-card {
   padding: 1.25rem;
 }
 
-.console-cards-showcase {
-  padding: 16px;
-  background: var(--el-bg-color);
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: var(--el-border-radius-base);
+.workplace-container {
+  display: flex;
+  flex-direction: column;
+
+  > * {
+    margin-bottom: 16px;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  &::after {
+    display: block;
+    flex-shrink: 0;
+    height: 16px;
+    content: "";
+  }
+}
+
+.card-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 </style>

@@ -102,8 +102,6 @@ export default ({ mode }: { mode: string }) => {
         "@plugins": resolvePath("src/plugins"),
         "@styles": resolvePath("src/styles"),
         "@api": resolvePath("src/api"),
-        "@fa_imgs": resolvePath("src/assets/fa_imgs"),
-        "@fa_imgs/*": resolvePath("src/assets/fa_imgs/*"),
       },
     },
     build: {

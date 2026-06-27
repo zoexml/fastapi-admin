@@ -1,7 +1,7 @@
 import type { App } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
-import { HOME_ROUTE_NAME, ROOT_LAYOUT_ROUTE_NAME, staticRoutes } from "./staticRoutes";
-import { setupAfterEachGuard } from "./afterEach";
+import { ROOT_LAYOUT_ROUTE_NAME, staticRoutes } from "./routes/staticRoutes";
+import { setupAfterEachGuard } from "./guards/afterEach";
 import "@utils/ui";
 
 /**
@@ -20,19 +20,19 @@ export const router = createRouter({
 });
 
 export async function initRouter(app: App<Element>): Promise<void> {
-  const { setupBeforeEachGuard } = await import("./beforeEach");
+  const { setupBeforeEachGuard } = await import("./guards/beforeEach");
   setupBeforeEachGuard(router);
   setupAfterEachGuard(router);
   app.use(router);
 }
 
-/** 须与 `staticRoutes` 首页子路由 path 一致 */
-export const HOME_PAGE_PATH = "/home";
+/** 应用首页入口；原 `/home` 路径已移除，由工作台承接首页内容 */
+export const HOME_PAGE_PATH = "/dashboard/workplace";
 
-export { HOME_ROUTE_NAME, ROOT_LAYOUT_ROUTE_NAME };
+export { ROOT_LAYOUT_ROUTE_NAME };
 
 /** 动态路由注册与菜单转换（一般从 `@/router` 按需导入） */
 export { RouteRegistry, ComponentLoader, RouteTransformer, RouteValidator } from "./core";
 export type { ValidationResult } from "./core";
-export { IframeRouteManager } from "./staticRoutes";
-export { MenuProcessor, builtinFrontendRoutes } from "./MenuProcessor";
+export { IframeRouteManager } from "./routes/staticRoutes";
+export { MenuProcessor, builtinFrontendRoutes } from "./core/MenuProcessor";

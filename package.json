@@ -1,0 +1,15 @@
+{
+  "name": "fastapiadmin",
+  "private": true,
+  "version": "2.0.0",
+  "description": "FastapiAdmin - root scripts for development",
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "dev": "concurrently --names BACKEND,FRONTEND --prefix-colors cyan,green \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
+    "dev:backend": "cd backend && uv run main.py run --env=dev",
+    "dev:frontend": "cd frontend/web && pnpm dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

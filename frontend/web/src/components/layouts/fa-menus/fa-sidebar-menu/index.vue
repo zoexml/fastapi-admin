@@ -229,7 +229,7 @@ const menuList = computed(() => {
       allMenus.find((menu) => !menu.meta?.isHide && menu.children?.length) ?? allMenus[0];
   }
   const sub = currentMenu?.children ?? [];
-  // 顶部+左侧 / 双列：顶级为叶子（如 /home）时右侧展示自身
+  // 顶部+左侧 / 双列：顶级为叶子时右侧展示自身
   if (sub.length === 0 && currentMenu?.path && !currentMenu.meta?.isHide) {
     return [currentMenu];
   }

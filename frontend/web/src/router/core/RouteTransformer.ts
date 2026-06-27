@@ -5,7 +5,7 @@
 import type { RouteRecordRaw } from "vue-router";
 import type { AppRouteRecord } from "@/types/router";
 import { ComponentLoader } from "./ComponentLoader";
-import { IframeRouteManager, ROUTE_COMPONENT_LAYOUT } from "../staticRoutes";
+import { IframeRouteManager, ROUTE_COMPONENT_LAYOUT } from "../routes/staticRoutes";
 
 interface ConvertedRoute extends Omit<RouteRecordRaw, "children"> {
   id?: number;

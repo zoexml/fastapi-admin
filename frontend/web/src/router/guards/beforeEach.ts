@@ -23,7 +23,7 @@ import type { AppRouteRecord } from "@/types/router";
 import type { Router, RouteLocationNormalized } from "vue-router";
 import { nextTick } from "vue";
 import { useSettingsStore, useUserStore, useMenuStore, useWorktabStore } from "@stores";
-import { IframeRouteManager, ROUTE_PATH_LOGIN_ALT, staticRoutes } from "./staticRoutes";
+import { IframeRouteManager, ROUTE_PATH_LOGIN_ALT, staticRoutes } from "../routes/staticRoutes";
 import { useCommon } from "@/hooks/core/useCommon";
 import {
   NProgress,
@@ -35,8 +35,8 @@ import {
   resetStorageInvalidated,
   checkStorageInvalidated,
 } from "@utils";
-import { RouteRegistry } from "./core";
-import { MenuProcessor } from "./MenuProcessor";
+import { RouteRegistry } from "../core";
+import { MenuProcessor } from "../core/MenuProcessor";
 
 // --- 模块级单例与守卫状态 ---
 
@@ -207,7 +207,7 @@ function isLoginRoute(to: RouteLocationNormalized): boolean {
 
 /**
  * 无需登录即可访问的路径（登录页由 isLoginRoute 处理，此处为错误页、重定向等）。
- * 勿将挂载 Layout 的业务路由（如 `/home`、`/dashboard/*`、`/profile`）列入此处。
+ * 勿将挂载 Layout 的业务路由（如 `/dashboard/*`、`/profile`）列入此处。
  */
 function isAnonymousPublicPath(path: string): boolean {
   if (path.startsWith("/redirect")) return true;
@@ -215,7 +215,7 @@ function isAnonymousPublicPath(path: string): boolean {
   return allow.has(path);
 }
 
-/** 将父级绝对路径与相对子 path 拼成完整路径（用于识别如 `/` + `home` → `/home`） */
+/** 将父级绝对路径与相对子 path 拼成完整路径（用于识别如 `/` + `dashboard` → `/dashboard`） */
 function resolveStaticChildFullPath(parentFullPath: string, segment: string): string {
   const seg = segment.replace(/^\/+/, "");
   if (!parentFullPath || parentFullPath === "/") {

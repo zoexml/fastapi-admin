@@ -6,7 +6,7 @@ import type { AppRouteRecord } from "@/types/router";
 import { ComponentLoader } from "./ComponentLoader";
 import { RouteValidator } from "./RouteValidator";
 import { RouteTransformer } from "./RouteTransformer";
-import { ROOT_LAYOUT_ROUTE_NAME } from "../staticRoutes";
+import { ROOT_LAYOUT_ROUTE_NAME } from "../routes/staticRoutes";
 
 /** 与静态壳层冲突的一级 path 段，动态注册时跳过以免覆盖首页 / 仪表盘等 */
 const RESERVED_SHELL_SEGMENTS = new Set(["home", "profile", "changelog", "dashboard"]);

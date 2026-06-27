@@ -8,7 +8,7 @@ import {
   mergeAppRouteRecords,
   ROUTE_COMPONENT_LAYOUT,
   ROUTE_COMPONENT_NESTED_PARENT,
-} from "./staticRoutes";
+} from "../routes/staticRoutes";
 import { MenuTypeEnum } from "@/enums/system/menu.enum";
 
 /**

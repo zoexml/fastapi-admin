@@ -13,14 +13,6 @@ import type { RouteRecordRaw } from "vue-router";
 import { RouterView, useRoute } from "vue-router";
 import { t } from "@wangeditor-next/editor";
 
-/** 首页 / 仪表盘父级 meta（侧栏、静态子路由共用） */
-export const HOME_MENU_META: RouteMeta = {
-  title: "menus.home.title",
-  icon: "ri:home-smile-2-line",
-  keepAlive: true,
-  fixedTab: true,
-};
-
 export const DASHBOARD_PARENT_META: RouteMeta = {
   title: "menus.dashboard.title",
   icon: "ri:pie-chart-line",
@@ -80,9 +72,6 @@ export class IframeRouteManager {
 
 /** 根 Layout 的 route.name；动态路由 `addRoute` 父级须与此一致 */
 export const ROOT_LAYOUT_ROUTE_NAME = "RootLayout" as const;
-
-/** 静态首页子路由 name（面包屑等） */
-export const HOME_ROUTE_NAME = "Home" as const;
 
 /** 目录占位：仅嵌一层 RouterView（与 ComponentLoader 中占位同源） */
 export const NestedRouterParent = defineComponent({
@@ -153,6 +142,7 @@ export const dashboardLayoutChildren: AppRouteRecordRaw[] = [
       title: "menus.dashboard.workplace",
       icon: "ri:bar-chart-box-line",
       keepAlive: true,
+      fixedTab: true,
     },
   },
   {
@@ -179,13 +169,7 @@ export const dashboardLayoutChildren: AppRouteRecordRaw[] = [
 ];
 
 // -----------------------------------------------------------------------------
-// 静态壳层菜单：后端未下发 /home、/dashboard 时补全侧栏；混合模式路由按 name 去重合并
-
-export const mergeShellHomeMenu: AppRouteRecord = {
-  path: "/home",
-  name: "Home",
-  meta: { ...HOME_MENU_META, shellRoute: true },
-};
+// 静态壳层菜单：后端未下发 /dashboard 时补全侧栏；混合模式路由按 name 去重合并
 
 /** 去掉组件与 redirect，供侧栏合并（菜单节点不需要懒加载引用） */
 function stripRouteRecordForShell(route: RouteRecordRaw): AppRouteRecord {
@@ -294,8 +278,6 @@ export function mergeShellRoutesIntoMenu(menuList: AppRouteRecord[]): AppRouteRe
     }
   };
 
-  tryPush(mergeShellHomeMenu);
-
   if (!paths.has("/dashboard")) {
     tryPush(dashboardRoutesToShellMenu(structuredClone(getDashboardMenuTreeForMerge())));
   }
@@ -360,16 +342,9 @@ export const staticRoutes: AppRouteRecordRaw[] = [
   {
     path: "/",
     name: ROOT_LAYOUT_ROUTE_NAME,
-    redirect: "/home",
+    redirect: "/dashboard/workplace",
     component: Layout,
     children: [
-      /** 首页（侧栏补入逻辑见同文件 `mergeShellRoutesIntoMenu`） */
-      {
-        path: "home",
-        name: HOME_ROUTE_NAME,
-        component: () => import("@views/dashboard/home/index.vue"),
-        meta: HOME_MENU_META,
-      },
       /** 仪表盘子路由定义见同文件导出的 `dashboardLayoutChildren` */
       {
         path: "dashboard",

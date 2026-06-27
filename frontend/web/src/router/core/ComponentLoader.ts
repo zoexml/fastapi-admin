@@ -9,7 +9,7 @@ import {
   NestedRouterParent,
   ROUTE_COMPONENT_LAYOUT,
   ROUTE_COMPONENT_NESTED_PARENT,
-} from "../staticRoutes";
+} from "../routes/staticRoutes";
 
 export class ComponentLoader {
   private modules: Record<string, () => Promise<any>>;
