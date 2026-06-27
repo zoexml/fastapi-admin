@@ -17,8 +17,8 @@ export const useTableStore = defineStore(
     // --- 表格样式 ---
     const tableSize = ref(TableSizeEnum.DEFAULT);
     const isZebra = ref(false);
-    const isBorder = ref(false);
-    const isHeaderBackground = ref(false);
+    const isBorder = ref(true);
+    const isHeaderBackground = ref(true);
 
     // --- 交互 ---
     const isFullScreen = ref(false);

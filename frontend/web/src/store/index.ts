@@ -72,7 +72,7 @@ export async function refreshAppCaches(opts: RefreshCacheOptions = {}) {
   await Promise.allSettled(tasks);
 
   if (refreshRoutes) {
-    const { refreshMenuAndRoutes } = await import("@/router/beforeEach");
+    const { refreshMenuAndRoutes } = await import("@/router/guards/beforeEach");
     await refreshMenuAndRoutes();
   }
 

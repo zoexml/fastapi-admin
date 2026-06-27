@@ -43,7 +43,7 @@ import { router } from "@/router";
 import { LocationQueryRaw, Router } from "vue-router";
 import { WorkTab } from "@/types";
 import { useCommon } from "@/hooks/core/useCommon";
-import { ROUTE_PATH_LOGIN_ALT } from "@/router/staticRoutes";
+import { ROUTE_PATH_LOGIN_ALT } from "@/router/routes/staticRoutes";
 
 interface WorktabState {
   current: Partial<WorkTab>;

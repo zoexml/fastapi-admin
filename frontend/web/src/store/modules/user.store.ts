@@ -19,9 +19,9 @@ import { store, useDictStore } from "@stores";
 import type { UserInfo } from "@/api/module_system/user";
 
 /** 延迟加载 beforeEach 工具函数，避免 user.store 与 beforeEach 的循环依赖 */
-let _routerUtilsPromise: Promise<typeof import("@/router/beforeEach")> | null = null;
+let _routerUtilsPromise: Promise<typeof import("@/router/guards/beforeEach")> | null = null;
 const getRouterUtils = () => {
-  if (!_routerUtilsPromise) _routerUtilsPromise = import("@/router/beforeEach");
+  if (!_routerUtilsPromise) _routerUtilsPromise = import("@/router/guards/beforeEach");
   return _routerUtilsPromise;
 };
 
