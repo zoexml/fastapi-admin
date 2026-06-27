@@ -21,7 +21,7 @@
         />
 
         <ElCard
-          shadow="hover"
+         
           class="fa-table-card"
           :style="{ 'margin-top': orderShowSearchBar ? '12px' : '0' }"
         >
@@ -46,7 +46,7 @@
 
       <!-- 支付记录 -->
       <ElTabPane label="支付记录" name="payments">
-        <ElCard shadow="hover" class="fa-table-card" :style="{ 'margin-top': '0' }">
+        <ElCard class="fa-table-card" :style="{ 'margin-top': '0' }">
           <FaTableHeader :loading="paymentLoading" @refresh="getPaymentData" />
 
           <FaTable
@@ -81,7 +81,7 @@
         />
 
         <ElCard
-          shadow="hover"
+         
           class="fa-table-card"
           :style="{ 'margin-top': refundShowSearchBar ? '12px' : '0' }"
         >

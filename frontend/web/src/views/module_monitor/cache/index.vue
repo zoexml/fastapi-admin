@@ -6,7 +6,7 @@
         <div class="monitor-tab">
           <ElRow :gutter="16">
             <ElCol :span="24">
-              <ElCard shadow="hover">
+              <ElCard>
                 <template #header>
                   <div class="flex items-center gap-2">
                     <ArtSvgIcon icon="ri:database-2-line" class="text-lg" />
@@ -62,7 +62,7 @@
 
           <ElRow :gutter="16" class="flex-1 min-h-0">
             <ElCol :span="12" class="flex flex-col min-h-0">
-              <ElCard shadow="hover" class="flex-1 flex flex-col chart-card">
+              <ElCard class="flex-1 flex flex-col chart-card">
                 <template #header>
                   <div class="flex items-center gap-2">
                     <ArtSvgIcon icon="ri:bar-chart-2-line" class="text-lg" />
@@ -73,7 +73,7 @@
               </ElCard>
             </ElCol>
             <ElCol :span="12" class="flex flex-col min-h-0">
-              <ElCard shadow="hover" class="flex-1 flex flex-col chart-card">
+              <ElCard class="flex-1 flex flex-col chart-card">
                 <template #header>
                   <div class="flex items-center gap-2">
                     <ArtSvgIcon icon="ri:pie-chart-2-line" class="text-lg" />
@@ -93,7 +93,7 @@
           <ElRow :gutter="16" class="flex-1 min-h-0">
             <!-- 缓存列表 -->
             <ElCol :span="8" class="cache-mgmt-col">
-              <ElCard :loading="loading" shadow="hover" class="cache-mgmt-card">
+              <ElCard :loading="loading" class="cache-mgmt-card">
                 <template #header>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -153,7 +153,7 @@
 
             <!-- 键名列表 -->
             <ElCol :span="8" class="cache-mgmt-col">
-              <ElCard :loading="loading" shadow="hover" class="cache-mgmt-card">
+              <ElCard :loading="loading" class="cache-mgmt-card">
                 <template #header>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -216,7 +216,7 @@
 
             <!-- 缓存内容 -->
             <ElCol :span="8" class="cache-mgmt-col">
-              <ElCard :loading="loading" shadow="hover" class="cache-mgmt-card">
+              <ElCard :loading="loading" class="cache-mgmt-card">
                 <template #header>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">

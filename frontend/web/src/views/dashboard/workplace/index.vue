@@ -93,7 +93,7 @@
         <ElRow :gutter="20">
           <ElCol :xs="24" :sm="12" :md="12" class="mb-5">
             <ElCard
-              shadow="hover"
+             
               class="overflow-hidden border border-(--el-border-color-lighter) rounded-xl flex flex-col h-full"
             >
               <template #header>

@@ -153,7 +153,7 @@
             :lg="4"
             class="job-card-col"
           >
-            <ElCard shadow="hover" :class="`job-card job-card--${getJobStatusClass(job.status)}`">
+            <ElCard :class="`job-card job-card--${getJobStatusClass(job.status)}`">
               <template #header>
                 <div class="job-card-title">
                   <span

@@ -5,7 +5,7 @@
       class="user-manage-body box-border flex gap-4 h-full max-md:block max-md:gap-0 max-md:h-auto"
     >
       <div class="user-dept-panel shrink-0 w-58 h-full max-md:w-full max-md:h-auto max-md:mb-5">
-        <ElCard class="tree-card fa-card-xs flex flex-col h-full mt-0" shadow="hover">
+        <ElCard class="tree-card fa-card-xs flex flex-col h-full mt-0">
           <template #header>
             <b>部门</b>
           </template>
@@ -39,7 +39,7 @@
         />
 
         <ElCard
-          shadow="hover"
+         
           class="fa-table-card"
           :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
         >

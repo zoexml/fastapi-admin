@@ -18,7 +18,7 @@
     />
 
     <ElCard
-      shadow="hover"
+     
       class="fa-table-card"
       :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
     >

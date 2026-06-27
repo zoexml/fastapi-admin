@@ -1,6 +1,6 @@
 <template>
   <div class="page-content box-border px-20! py-3.5 text-center max-md:px-5!" :class="type">
-    <FaSvgIcon
+    <ArtSvgIcon
       class="icon size-22 p-2 mt-16 block rounded-full text-white!"
       :icon="iconCode"
       :class="type === 'success' ? 'bg-[#19BE6B]' : 'bg-[#ED4014]'"

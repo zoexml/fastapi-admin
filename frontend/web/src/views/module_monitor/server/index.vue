@@ -3,7 +3,7 @@
     <ElRow :gutter="16" class="server-row">
       <!-- CPU 使用情况 -->
       <ElCol :span="12" class="server-col">
-        <ElCard :loading="loading" shadow="hover" class="server-card">
+        <ElCard :loading="loading" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
               <ArtSvgIcon icon="ri:cpu-line" class="text-lg" />
@@ -46,7 +46,7 @@
 
       <!-- 内存使用情况 -->
       <ElCol :span="12" class="server-col">
-        <ElCard :loading="loading" shadow="hover" class="server-card">
+        <ElCard :loading="loading" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
               <ArtSvgIcon icon="ri:ram-line" class="text-lg" />
@@ -91,7 +91,7 @@
     <ElRow :gutter="16" class="server-row">
       <!-- 服务器基本信息 -->
       <ElCol :span="12" class="server-col">
-        <ElCard :loading="loading" shadow="hover" class="server-card">
+        <ElCard :loading="loading" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
               <ArtSvgIcon icon="ri:server-line" class="text-lg" />
@@ -117,7 +117,7 @@
 
       <!-- Python运行环境 -->
       <ElCol :span="12" class="server-col">
-        <ElCard :loading="loading" shadow="hover" class="server-card">
+        <ElCard :loading="loading" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
               <ArtSvgIcon icon="ri:code-s-slash-line" class="text-lg" />
@@ -151,7 +151,7 @@
     <!-- 磁盘使用情况 -->
     <ElRow :gutter="16" class="server-row">
       <ElCol :span="24" class="server-col">
-        <ElCard :loading="loading" shadow="hover" class="server-card">
+        <ElCard :loading="loading" class="server-card">
           <template #header>
             <div class="flex items-center gap-2">
               <ArtSvgIcon icon="ri:hard-drive-2-line" class="text-lg" />

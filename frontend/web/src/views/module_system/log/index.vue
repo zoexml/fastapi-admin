@@ -22,7 +22,7 @@
         />
 
         <ElCard
-          shadow="hover"
+         
           class="fa-table-card"
           :style="{ 'margin-top': opShowSearchBar ? '12px' : '0' }"
         >
@@ -126,7 +126,7 @@
         />
 
         <ElCard
-          shadow="hover"
+         
           class="fa-table-card"
           :style="{ 'margin-top': loginShowSearchBar ? '12px' : '0' }"
         >
