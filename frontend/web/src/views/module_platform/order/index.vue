@@ -1,109 +1,98 @@
 <template>
   <div class="fa-full-height">
-    <ElTabs v-model="activeTab" @tab-change="onTabChange">
-      <!-- 订单列表 -->
-      <ElTabPane label="订单列表" name="orders">
-        <FaSearchBar
-          v-show="orderShowSearchBar"
-          ref="orderSearchBarRef"
-          v-model="orderSearchForm"
-          :items="orderSearchItems"
-          :rules="{}"
-          :is-expand="false"
-          :show-expand="true"
-          :show-reset="true"
-          :show-search="true"
-          :disabled-search="false"
-          :default-expanded="false"
-          include-audit
-          @search="handleOrderSearch"
-          @reset="handleOrderReset"
+    <FaPageSegmented v-model="activeTab" :options="orderTabOptions" @change="onTabChange" />
+
+    <div v-show="activeTab === 'orders'" class="flex flex-1 flex-col min-h-0">
+      <FaSearchBar
+        v-show="orderShowSearchBar"
+        ref="orderSearchBarRef"
+        v-model="orderSearchForm"
+        :items="orderSearchItems"
+        :rules="{}"
+        :is-expand="false"
+        :show-expand="true"
+        :show-reset="true"
+        :show-search="true"
+        :disabled-search="false"
+        :default-expanded="false"
+        include-audit
+        @search="handleOrderSearch"
+        @reset="handleOrderReset"
+      />
+
+      <ElCard class="fa-table-card" :style="{ 'margin-top': orderShowSearchBar ? '12px' : '0' }">
+        <FaTableHeader
+          v-model:columns="orderColumnChecks"
+          v-model:showSearchBar="orderShowSearchBar"
+          :loading="orderLoading"
+          @refresh="getOrderData"
         />
 
-        <ElCard
-         
-          class="fa-table-card"
-          :style="{ 'margin-top': orderShowSearchBar ? '12px' : '0' }"
-        >
-          <FaTableHeader
-            v-model:columns="orderColumnChecks"
-            v-model:showSearchBar="orderShowSearchBar"
-            :loading="orderLoading"
-            @refresh="getOrderData"
-          />
+        <FaTable
+          ref="orderTableRef"
+          :loading="orderLoading"
+          :data="orderData"
+          :columns="orderColumns"
+          :pagination="orderPagination"
+          @pagination:size-change="handleOrderSizeChange"
+          @pagination:current-change="handleOrderCurrentChange"
+        />
+      </ElCard>
+    </div>
 
-          <FaTable
-            ref="orderTableRef"
-            :loading="orderLoading"
-            :data="orderData"
-            :columns="orderColumns"
-            :pagination="orderPagination"
-            @pagination:size-change="handleOrderSizeChange"
-            @pagination:current-change="handleOrderCurrentChange"
-          />
-        </ElCard>
-      </ElTabPane>
+    <div v-show="activeTab === 'payments'" class="flex flex-1 flex-col min-h-0">
+      <ElCard class="fa-table-card">
+        <FaTableHeader :loading="paymentLoading" @refresh="getPaymentData" />
 
-      <!-- 支付记录 -->
-      <ElTabPane label="支付记录" name="payments">
-        <ElCard class="fa-table-card" :style="{ 'margin-top': '0' }">
-          <FaTableHeader :loading="paymentLoading" @refresh="getPaymentData" />
+        <FaTable
+          ref="paymentTableRef"
+          :loading="paymentLoading"
+          :data="paymentData"
+          :columns="paymentColumns"
+          :pagination="paymentPagination"
+          @pagination:size-change="handlePaymentSizeChange"
+          @pagination:current-change="handlePaymentCurrentChange"
+        />
+      </ElCard>
+    </div>
 
-          <FaTable
-            ref="paymentTableRef"
-            :loading="paymentLoading"
-            :data="paymentData"
-            :columns="paymentColumns"
-            :pagination="paymentPagination"
-            @pagination:size-change="handlePaymentSizeChange"
-            @pagination:current-change="handlePaymentCurrentChange"
-          />
-        </ElCard>
-      </ElTabPane>
+    <div v-show="activeTab === 'refunds'" class="flex flex-1 flex-col min-h-0">
+      <FaSearchBar
+        v-show="refundShowSearchBar"
+        ref="refundSearchBarRef"
+        v-model="refundSearchForm"
+        :items="refundSearchItems"
+        :rules="{}"
+        :is-expand="false"
+        :show-expand="true"
+        :show-reset="true"
+        :show-search="true"
+        :disabled-search="false"
+        :default-expanded="false"
+        :button-left-limit="0"
+        @search="handleRefundSearch"
+        @reset="handleRefundReset"
+      />
 
-      <!-- 退款审核 -->
-      <ElTabPane label="退款审核" name="refunds">
-        <FaSearchBar
-          v-show="refundShowSearchBar"
-          ref="refundSearchBarRef"
-          v-model="refundSearchForm"
-          :items="refundSearchItems"
-          :rules="{}"
-          :is-expand="false"
-          :show-expand="true"
-          :show-reset="true"
-          :show-search="true"
-          :disabled-search="false"
-          :default-expanded="false"
-          :button-left-limit="0"
-          @search="handleRefundSearch"
-          @reset="handleRefundReset"
+      <ElCard class="fa-table-card" :style="{ 'margin-top': refundShowSearchBar ? '12px' : '0' }">
+        <FaTableHeader
+          v-model:columns="refundColumnChecks"
+          v-model:showSearchBar="refundShowSearchBar"
+          :loading="refundLoading"
+          @refresh="getRefundData"
         />
 
-        <ElCard
-         
-          class="fa-table-card"
-          :style="{ 'margin-top': refundShowSearchBar ? '12px' : '0' }"
-        >
-          <FaTableHeader
-            v-model:columns="refundColumnChecks"
-            v-model:showSearchBar="refundShowSearchBar"
-            :loading="refundLoading"
-            @refresh="getRefundData"
-          />
-
-          <FaTable
-            ref="refundTableRef"
-            :loading="refundLoading"
-            :data="refundData"
-            :columns="refundColumns"
-            :pagination="refundPagination"
-            @pagination:size-change="handleRefundSizeChange"
-            @pagination:current-change="handleRefundCurrentChange"
-          />
-        </ElCard>
-      </ElTabPane>
-    </ElTabs>
+        <FaTable
+          ref="refundTableRef"
+          :loading="refundLoading"
+          :data="refundData"
+          :columns="refundColumns"
+          :pagination="refundPagination"
+          @pagination:size-change="handleRefundSizeChange"
+          @pagination:current-change="handleRefundCurrentChange"
+        />
+      </ElCard>
+    </div>
 
     <!-- 订单详情弹窗 -->
     <FaDialog v-model="detailVisible" title="订单详情" width="560px" :show-footer="false">
@@ -135,7 +124,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from "vue";
-import { ElMessageBox, ElButton, ElTabs, ElTabPane } from "element-plus";
+import { ElMessageBox, ElButton } from "element-plus";
 import { useTable } from "@/hooks/core/useTable";
 import { useAuth } from "@/hooks/core/useAuth";
 import OrderAPI from "@/api/module_platform/order";
@@ -149,7 +138,14 @@ defineOptions({ name: "Order" });
 const { hasAuth } = useAuth();
 
 // ══════════════════ Tab ════════════════════
-const activeTab = ref("orders");
+type OrderTab = "orders" | "payments" | "refunds";
+
+const activeTab = ref<OrderTab>("orders");
+const orderTabOptions = [
+  { label: "订单列表", value: "orders" },
+  { label: "支付记录", value: "payments" },
+  { label: "退款审核", value: "refunds" },
+];
 const orderShowSearchBar = ref(true);
 const refundShowSearchBar = ref(true);
 
@@ -625,34 +621,13 @@ async function submitReject() {
 
 // ══════════════════ Tab 切换 ════════════════════
 
-function onTabChange(tab: string | number) {
+const onTabChange = (tab: string | number) => {
   if (tab === "orders") getOrderData();
   else if (tab === "payments") getPaymentData();
   else if (tab === "refunds") getRefundData();
-}
+};
 
 // ══════════════════ 初始化 ════════════════════
 
 getOrderData();
 </script>
-
-<style scoped lang="scss">
-:deep(.el-tabs) {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-height: 0;
-}
-
-:deep(.el-tabs__content) {
-  flex: 1;
-  min-height: 0;
-  overflow: visible;
-}
-
-:deep(.el-tab-pane) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-</style>

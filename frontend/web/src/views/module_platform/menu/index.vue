@@ -1,6 +1,6 @@
 <!-- 菜单管理：Art + 树形表格；操作列最多 3 个外露，其余「更多」 -->
 <template>
-  <div class="fa-full-height">
+  <div class="fa-full-height flex flex-col">
     <FaSearchBar
       v-show="showSearchBar"
       ref="searchBarRef"
@@ -18,16 +18,14 @@
       @reset="onResetSearch"
     />
 
-    <ElTabs v-model="menuClientTab" @tab-change="handleMenuClientTabChange">
-      <ElTabPane label="PC 桌面菜单管理" name="pc" />
-      <ElTabPane label="APP 移动端菜单管理" name="app" />
-    </ElTabs>
+    <FaPageSegmented
+      v-model="menuClientTab"
+      :options="menuClientOptions"
+      with-top-margin
+      @change="handleMenuClientTabChange"
+    />
 
-    <ElCard
-     
-      class="fa-table-card"
-      :style="{ 'margin-top': showSearchBar ? '12px' : '0' }"
-    >
+    <ElCard class="fa-table-card flex-1 min-h-0" style="margin-top: 0">
       <FaTableHeader
         v-model:columns="columnChecks"
         v-model:showSearchBar="showSearchBar"
@@ -437,6 +435,10 @@ function formatMenuOperationCell(row: MenuTable, ctx: Parameters<typeof buildMen
 }
 
 const menuClientTab = ref<"pc" | "app">("pc");
+const menuClientOptions = [
+  { label: "PC桌面菜单管理", value: "pc" },
+  { label: "APP移动端菜单管理", value: "app" },
+];
 const searchForm = ref<MenuSearchForm>({
   name: undefined,
   status: undefined,

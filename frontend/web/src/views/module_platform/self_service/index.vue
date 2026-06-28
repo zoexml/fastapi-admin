@@ -1,205 +1,196 @@
 <template>
   <div class="fa-full-height">
-    <ElTabs v-model="activeTab" @tab-change="onTabChange">
-      <!-- ─── 工作台 ─── -->
-      <ElTabPane label="工作台" name="workspace">
-        <ElScrollbar
-          v-if="workspace"
-          class="workspace-scroll"
-          :view-style="{ paddingRight: '4px' }"
+    <FaPageSegmented v-model="activeTab" :options="selfServiceTabOptions" @change="onTabChange" />
+
+    <div v-show="activeTab === 'workspace'" class="flex flex-1 flex-col min-h-0">
+      <ElScrollbar v-if="workspace" class="workspace-scroll" :view-style="{ paddingRight: '4px' }">
+        <!-- 欢迎横幅 -->
+        <FaBasicBanner
+          class="workspace-banner"
+          :title="`${workspace.tenant.name}（${workspace.tenant.code}）`"
+          :subtitle="
+            workspace.package
+              ? `${workspace.package.name} · ${workspace.package.period === 'year' ? '年付' : '月付'} · 剩余 ${workspace.tenant.days_remaining} 天 · ${workspace.tenant.status_label}`
+              : `暂无套餐 · 剩余 ${workspace.tenant.days_remaining} 天 · ${workspace.tenant.status_label}`
+          "
+          boxStyle="bg-theme/5!"
+          titleColor="var(--fa-gray-900)"
+          subtitleColor="var(--fa-gray-500)"
+          :decoration="false"
+        />
+
+        <!-- 统计卡片行 -->
+        <ElRow :gutter="16" class="workspace-section">
+          <ElCol :xs="24" :sm="12" :md="6">
+            <FaStatsCard
+              icon="ri:user-line"
+              iconStyle="bg-theme"
+              boxStyle="bg-theme/10!"
+              title="用户"
+              :description="`上限 ${workspace.quota.max_users || '—'}`"
+              :count="workspace.quota.current_users"
+              textColor="var(--theme-color)"
+              :showArrow="false"
+            />
+          </ElCol>
+          <ElCol :xs="24" :sm="12" :md="6">
+            <FaStatsCard
+              icon="ri:shield-user-line"
+              iconStyle="bg-success"
+              boxStyle="bg-success/10!"
+              title="角色"
+              :description="`上限 ${workspace.quota.max_roles || '—'}`"
+              :count="workspace.quota.current_roles"
+              textColor="var(--el-color-success)"
+              :showArrow="false"
+            />
+          </ElCol>
+          <ElCol :xs="24" :sm="12" :md="6">
+            <FaStatsCard
+              icon="ri:organization-chart"
+              iconStyle="bg-info"
+              boxStyle="bg-info/10!"
+              title="部门"
+              :description="`上限 ${workspace.quota.max_depts || '—'}`"
+              :count="workspace.quota.current_depts"
+              textColor="var(--el-color-info)"
+              :showArrow="false"
+            />
+          </ElCol>
+          <ElCol :xs="24" :sm="12" :md="6">
+            <FaStatsCard
+              icon="ri:money-cny-box-line"
+              iconStyle="bg-warning"
+              boxStyle="bg-warning/10!"
+              title="套餐价格"
+              :description="
+                workspace.package ? `${workspace.package.period === 'year' ? '年付' : '月付'}` : '—'
+              "
+              :count="workspace.package ? +(workspace.package.price / 100).toFixed(0) : 0"
+              separator=","
+              textColor="var(--el-color-warning)"
+              :showArrow="false"
+            />
+          </ElCol>
+        </ElRow>
+
+        <!-- 配额使用进度 -->
+        <ElRow :gutter="16" class="workspace-section">
+          <ElCol :xs="24" :sm="8" :md="8">
+            <FaProgressCard
+              :percentage="workspace.quota.usage_percent.users"
+              title="用户用量"
+              color="var(--theme-color)"
+              icon="ri:user-line"
+              iconStyle="bg-theme/12 text-theme"
+            />
+          </ElCol>
+          <ElCol :xs="24" :sm="8" :md="8">
+            <FaProgressCard
+              :percentage="workspace.quota.usage_percent.roles"
+              title="角色用量"
+              color="#67c23a"
+              icon="ri:shield-user-line"
+              iconStyle="bg-success/12 text-success"
+            />
+          </ElCol>
+          <ElCol :xs="24" :sm="8" :md="8">
+            <FaProgressCard
+              :percentage="workspace.quota.usage_percent.depts"
+              title="部门用量"
+              color="#409EFF"
+              icon="ri:organization-chart"
+              iconStyle="bg-info/12 text-info"
+            />
+          </ElCol>
+        </ElRow>
+
+        <!-- 近期订单时间轴 -->
+        <ElRow :gutter="16" class="workspace-section">
+          <ElCol :span="24">
+            <FaTimelineListCard
+              :list="recentOrderTimeline"
+              title="近期订单"
+              :subtitle="`共 ${recentOrderTimeline.length} 条记录`"
+              :maxCount="5"
+            />
+          </ElCol>
+        </ElRow>
+      </ElScrollbar>
+      <div v-else-if="workspaceLoading" class="workspace-loading">
+        <ElSkeleton :rows="10" animated />
+      </div>
+    </div>
+
+    <div v-show="activeTab === 'packages'" class="flex flex-1 flex-col min-h-0">
+      <div v-if="!packagesLoading && packages.length" class="package-grid">
+        <div
+          v-for="pkg in packages"
+          :key="pkg.id"
+          class="package-card"
+          :class="{ 'package-card--current': pkg.is_current }"
         >
-          <!-- 欢迎横幅 -->
-          <FaBasicBanner
-            class="workspace-banner"
-            :title="`${workspace.tenant.name}（${workspace.tenant.code}）`"
-            :subtitle="
-              workspace.package
-                ? `${workspace.package.name} · ${workspace.package.period === 'year' ? '年付' : '月付'} · 剩余 ${workspace.tenant.days_remaining} 天 · ${workspace.tenant.status_label}`
-                : `暂无套餐 · 剩余 ${workspace.tenant.days_remaining} 天 · ${workspace.tenant.status_label}`
-            "
-            boxStyle="bg-theme/5!"
-            titleColor="var(--fa-gray-900)"
-            subtitleColor="var(--fa-gray-500)"
-            :decoration="false"
-          />
-
-          <!-- 统计卡片行 -->
-          <ElRow :gutter="16" class="workspace-section">
-            <ElCol :xs="24" :sm="12" :md="6">
-              <FaStatsCard
-                icon="ri:user-line"
-                iconStyle="bg-theme"
-                boxStyle="bg-theme/10!"
-                title="用户"
-                :description="`上限 ${workspace.quota.max_users || '—'}`"
-                :count="workspace.quota.current_users"
-                textColor="var(--theme-color)"
-                :showArrow="false"
-              />
-            </ElCol>
-            <ElCol :xs="24" :sm="12" :md="6">
-              <FaStatsCard
-                icon="ri:shield-user-line"
-                iconStyle="bg-success"
-                boxStyle="bg-success/10!"
-                title="角色"
-                :description="`上限 ${workspace.quota.max_roles || '—'}`"
-                :count="workspace.quota.current_roles"
-                textColor="var(--el-color-success)"
-                :showArrow="false"
-              />
-            </ElCol>
-            <ElCol :xs="24" :sm="12" :md="6">
-              <FaStatsCard
-                icon="ri:organization-chart"
-                iconStyle="bg-info"
-                boxStyle="bg-info/10!"
-                title="部门"
-                :description="`上限 ${workspace.quota.max_depts || '—'}`"
-                :count="workspace.quota.current_depts"
-                textColor="var(--el-color-info)"
-                :showArrow="false"
-              />
-            </ElCol>
-            <ElCol :xs="24" :sm="12" :md="6">
-              <FaStatsCard
-                icon="ri:money-cny-box-line"
-                iconStyle="bg-warning"
-                boxStyle="bg-warning/10!"
-                title="套餐价格"
-                :description="
-                  workspace.package
-                    ? `${workspace.package.period === 'year' ? '年付' : '月付'}`
-                    : '—'
-                "
-                :count="workspace.package ? +(workspace.package.price / 100).toFixed(0) : 0"
-                separator=","
-                textColor="var(--el-color-warning)"
-                :showArrow="false"
-              />
-            </ElCol>
-          </ElRow>
-
-          <!-- 配额使用进度 -->
-          <ElRow :gutter="16" class="workspace-section">
-            <ElCol :xs="24" :sm="8" :md="8">
-              <FaProgressCard
-                :percentage="workspace.quota.usage_percent.users"
-                title="用户用量"
-                color="var(--theme-color)"
-                icon="ri:user-line"
-                iconStyle="bg-theme/12 text-theme"
-              />
-            </ElCol>
-            <ElCol :xs="24" :sm="8" :md="8">
-              <FaProgressCard
-                :percentage="workspace.quota.usage_percent.roles"
-                title="角色用量"
-                color="#67c23a"
-                icon="ri:shield-user-line"
-                iconStyle="bg-success/12 text-success"
-              />
-            </ElCol>
-            <ElCol :xs="24" :sm="8" :md="8">
-              <FaProgressCard
-                :percentage="workspace.quota.usage_percent.depts"
-                title="部门用量"
-                color="#409EFF"
-                icon="ri:organization-chart"
-                iconStyle="bg-info/12 text-info"
-              />
-            </ElCol>
-          </ElRow>
-
-          <!-- 近期订单时间轴 -->
-          <ElRow :gutter="16" class="workspace-section">
-            <ElCol :span="24">
-              <FaTimelineListCard
-                :list="recentOrderTimeline"
-                title="近期订单"
-                :subtitle="`共 ${recentOrderTimeline.length} 条记录`"
-                :maxCount="5"
-              />
-            </ElCol>
-          </ElRow>
-        </ElScrollbar>
-        <div v-else-if="workspaceLoading" class="workspace-loading">
-          <ElSkeleton :rows="10" animated />
-        </div>
-      </ElTabPane>
-
-      <!-- ─── 选购套餐 ─── -->
-      <ElTabPane label="选购套餐" name="packages">
-        <div v-if="!packagesLoading && packages.length" class="package-grid">
-          <div
-            v-for="pkg in packages"
-            :key="pkg.id"
-            class="package-card"
-            :class="{ 'package-card--current': pkg.is_current }"
-          >
-            <div class="package-card__header">
-              <h3>{{ pkg.name }}</h3>
-              <ElTag v-if="pkg.is_current" type="warning" size="small">当前套餐</ElTag>
+          <div class="package-card__header">
+            <h3>{{ pkg.name }}</h3>
+            <ElTag v-if="pkg.is_current" type="warning" size="small">当前套餐</ElTag>
+          </div>
+          <div class="package-card__price">
+            <span class="price-value">¥{{ (pkg.price / 100).toFixed(2) }}</span>
+            <span class="price-period">/{{ pkg.period === "year" ? "年" : "月" }}</span>
+          </div>
+          <div class="package-card__specs">
+            <div class="spec-item">
+              <span class="spec-label">最大用户数</span>
+              <span class="spec-value">{{ pkg.max_users || "无限" }}</span>
             </div>
-            <div class="package-card__price">
-              <span class="price-value">¥{{ (pkg.price / 100).toFixed(2) }}</span>
-              <span class="price-period">/{{ pkg.period === "year" ? "年" : "月" }}</span>
+            <div class="spec-item">
+              <span class="spec-label">最大角色数</span>
+              <span class="spec-value">{{ pkg.max_roles || "无限" }}</span>
             </div>
-            <div class="package-card__specs">
-              <div class="spec-item">
-                <span class="spec-label">最大用户数</span>
-                <span class="spec-value">{{ pkg.max_users || "无限" }}</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">最大角色数</span>
-                <span class="spec-value">{{ pkg.max_roles || "无限" }}</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">最大部门数</span>
-                <span class="spec-value">{{ pkg.max_depts || "无限" }}</span>
-              </div>
-              <div class="spec-item" v-if="pkg.trial_days > 0">
-                <span class="spec-label">试用天数</span>
-                <span class="spec-value">{{ pkg.trial_days }} 天</span>
-              </div>
+            <div class="spec-item">
+              <span class="spec-label">最大部门数</span>
+              <span class="spec-value">{{ pkg.max_depts || "无限" }}</span>
             </div>
-            <div class="package-card__actions">
-              <ElButton
-                v-for="action in pkg.available_actions"
-                :key="action"
-                :type="action === 'upgrade' ? 'primary' : 'default'"
-                @click="handleAction(action, pkg)"
-              >
-                {{ actionLabel(action) }}
-              </ElButton>
+            <div class="spec-item" v-if="pkg.trial_days > 0">
+              <span class="spec-label">试用天数</span>
+              <span class="spec-value">{{ pkg.trial_days }} 天</span>
             </div>
           </div>
+          <div class="package-card__actions">
+            <ElButton
+              v-for="action in pkg.available_actions"
+              :key="action"
+              :type="action === 'upgrade' ? 'primary' : 'default'"
+              @click="handleAction(action, pkg)"
+            >
+              {{ actionLabel(action) }}
+            </ElButton>
+          </div>
         </div>
-        <ElEmpty v-else-if="!packagesLoading" description="暂无可用套餐" />
-        <ElSkeleton v-else :rows="6" animated />
-      </ElTabPane>
+      </div>
+      <ElEmpty v-else-if="!packagesLoading" description="暂无可用套餐" />
+      <ElSkeleton v-else :rows="6" animated />
+    </div>
 
-      <!-- ─── 我的订单 ─── -->
-      <ElTabPane label="我的订单" name="orders">
-        <ElCard class="fa-table-card">
-          <FaTableHeader
-            v-model:columns="orderColumnChecks"
-            :loading="orderLoading"
-            @refresh="getOrderData"
-          />
+    <div v-show="activeTab === 'orders'" class="flex flex-1 flex-col min-h-0">
+      <ElCard class="fa-table-card">
+        <FaTableHeader
+          v-model:columns="orderColumnChecks"
+          :loading="orderLoading"
+          @refresh="getOrderData"
+        />
 
-          <FaTable
-            ref="orderTableRef"
-            :loading="orderLoading"
-            :data="orderData"
-            :columns="orderColumns"
-            :pagination="orderPagination"
-            @pagination:size-change="handleOrderSizeChange"
-            @pagination:current-change="handleOrderCurrentChange"
-          />
-        </ElCard>
-      </ElTabPane>
-    </ElTabs>
+        <FaTable
+          ref="orderTableRef"
+          :loading="orderLoading"
+          :data="orderData"
+          :columns="orderColumns"
+          :pagination="orderPagination"
+          @pagination:size-change="handleOrderSizeChange"
+          @pagination:current-change="handleOrderCurrentChange"
+        />
+      </ElCard>
+    </div>
 
     <!-- ─── 套餐操作确认弹窗 ─── -->
     <FaDialog v-model="actionDialogVisible" :title="actionDialogTitle" width="560px">
@@ -275,7 +266,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import type { TabPaneName } from "element-plus";
 import { useRouter } from "vue-router";
 import { useTable } from "@/hooks/core/useTable";
 import FaStatsCard from "@/components/cards/fa-stats-card/index.vue";
@@ -295,7 +285,14 @@ import type { DescriptionsItem } from "@/components/others/fa-descriptions/index
 defineOptions({ name: "SelfService" });
 
 const router = useRouter();
-const activeTab = ref("workspace");
+type SelfServiceTab = "workspace" | "packages" | "orders";
+
+const activeTab = ref<SelfServiceTab>("workspace");
+const selfServiceTabOptions = [
+  { label: "工作台", value: "workspace" },
+  { label: "选购套餐", value: "packages" },
+  { label: "我的订单", value: "orders" },
+];
 
 // ─── 工作台 ───
 const workspace = ref<WorkspaceData | null>(null);
@@ -449,11 +446,11 @@ async function loadPackages() {
   }
 }
 
-function onTabChange(tab: TabPaneName) {
+const onTabChange = (tab: string | number) => {
   if (tab === "workspace") loadWorkspace();
   else if (tab === "packages") loadPackages();
   else if (tab === "orders") getOrderData();
-}
+};
 
 // ─── 动作处理 ───
 async function handleAction(action: string, pkg: AvailablePackage) {
@@ -508,25 +505,6 @@ onMounted(() => {
   flex: 1;
   flex-direction: column;
   min-height: 0;
-
-  :deep(.el-tabs) {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-height: 0;
-
-    .el-tabs__content {
-      flex: 1;
-      min-height: 0;
-      overflow: visible;
-    }
-
-    .el-tab-pane {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-  }
 }
 
 /* ─── 工作台 ─── */

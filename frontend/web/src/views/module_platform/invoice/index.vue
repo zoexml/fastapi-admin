@@ -1,74 +1,68 @@
 <template>
   <div class="fa-full-height">
-    <ElTabs v-model="activeTab" @tab-change="onTabChange">
-      <!-- 平台端：全部发票 -->
-      <ElTabPane v-if="isSuperAdmin" label="发票管理" name="platform">
-        <FaSearchBar
-          v-show="platformShowSearchBar"
-          ref="platformSearchBarRef"
-          v-model="platformSearchForm"
-          :items="platformSearchItems"
-          :rules="{}"
-          :is-expand="false"
-          :show-expand="true"
-          :show-reset="true"
-          :show-search="true"
-          :disabled-search="false"
-          :default-expanded="false"
-          include-audit
-          @search="handlePlatformSearch"
-          @reset="handlePlatformReset"
+    <FaPageSegmented v-model="activeTab" :options="invoiceTabOptions" @change="onTabChange" />
+
+    <div v-show="activeTab === 'platform' && isSuperAdmin" class="flex flex-1 flex-col min-h-0">
+      <FaSearchBar
+        v-show="platformShowSearchBar"
+        ref="platformSearchBarRef"
+        v-model="platformSearchForm"
+        :items="platformSearchItems"
+        :rules="{}"
+        :is-expand="false"
+        :show-expand="true"
+        :show-reset="true"
+        :show-search="true"
+        :disabled-search="false"
+        :default-expanded="false"
+        include-audit
+        @search="handlePlatformSearch"
+        @reset="handlePlatformReset"
+      />
+
+      <ElCard class="fa-table-card">
+        <FaTableHeader
+          v-model:columns="platformColumnChecks"
+          v-model:showSearchBar="platformShowSearchBar"
+          :loading="platformLoading"
+          @refresh="getPlatformData"
         />
 
-        <ElCard
-         
-          class="fa-table-card"
-          :style="{ 'margin-top': platformShowSearchBar ? '12px' : '0' }"
-        >
-          <FaTableHeader
-            v-model:columns="platformColumnChecks"
-            v-model:showSearchBar="platformShowSearchBar"
-            :loading="platformLoading"
-            @refresh="getPlatformData"
-          />
+        <FaTable
+          ref="platformTableRef"
+          :loading="platformLoading"
+          :data="platformData"
+          :columns="platformColumns"
+          :pagination="platformPagination"
+          @pagination:size-change="handlePlatformSizeChange"
+          @pagination:current-change="handlePlatformCurrentChange"
+        />
+      </ElCard>
+    </div>
 
-          <FaTable
-            ref="platformTableRef"
-            :loading="platformLoading"
-            :data="platformData"
-            :columns="platformColumns"
-            :pagination="platformPagination"
-            @pagination:size-change="handlePlatformSizeChange"
-            @pagination:current-change="handlePlatformCurrentChange"
-          />
-        </ElCard>
-      </ElTabPane>
+    <div v-show="activeTab === 'my'" class="flex flex-1 flex-col min-h-0">
+      <ElCard class="fa-table-card" style="margin-top: 0">
+        <FaTableHeader :loading="myLoading" @refresh="getMyData">
+          <template #left>
+            <FaTableHeaderLeft
+              perm-create="tenant:admin"
+              :create-loading="createLoading"
+              @add="handleAdd"
+            />
+          </template>
+        </FaTableHeader>
 
-      <!-- 租户端：我的发票 -->
-      <ElTabPane label="我的发票" name="my">
-        <ElCard class="fa-table-card" :style="{ 'margin-top': '0' }">
-          <FaTableHeader :loading="myLoading" @refresh="getMyData">
-            <template #left>
-              <FaTableHeaderLeft
-                perm-create="tenant:admin"
-                :create-loading="createLoading"
-                @add="handleAdd"
-              />
-            </template>
-          </FaTableHeader>
-
-          <FaTable
-            ref="myTableRef"
-            :loading="myLoading"
-            :data="myData"
-            :columns="myColumns"
-            :pagination="myPagination"
-            @pagination:size-change="handleMySizeChange"
-            @pagination:current-change="handleMyCurrentChange"
-          />
-        </ElCard>
-      </ElTabPane>
-    </ElTabs>
+        <FaTable
+          ref="myTableRef"
+          :loading="myLoading"
+          :data="myData"
+          :columns="myColumns"
+          :pagination="myPagination"
+          @pagination:size-change="handleMySizeChange"
+          @pagination:current-change="handleMyCurrentChange"
+        />
+      </ElCard>
+    </div>
 
     <!-- 申请开票弹窗 -->
     <FaDialog v-model="applyDialogVisible" title="申请开票" width="520px">
@@ -89,7 +83,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from "vue";
-import { ElMessageBox, ElButton, ElTabs, ElTabPane } from "element-plus";
+import { ElMessageBox, ElButton } from "element-plus";
 import { useTable } from "@/hooks/core/useTable";
 import { useAuth } from "@/hooks/core/useAuth";
 import InvoiceAPI from "@/api/module_platform/invoice";
@@ -102,9 +96,19 @@ defineOptions({ name: "Invoice" });
 
 const { hasAuth } = useAuth();
 
-const activeTab = ref("my");
+type InvoiceTab = "platform" | "my";
+
+const activeTab = ref<InvoiceTab>("my");
 const isSuperAdmin = ref(true);
 const platformShowSearchBar = ref(true);
+const invoiceTabOptions = computed(() =>
+  isSuperAdmin.value
+    ? [
+        { label: "发票管理", value: "platform" },
+        { label: "我的发票", value: "my" },
+      ]
+    : [{ label: "我的发票", value: "my" }]
+);
 
 // ══════════════════ 平台端：全部发票 ════════════════════
 
@@ -464,33 +468,12 @@ async function submitApply() {
 
 // ══════════════════ Tab 切换 ════════════════════
 
-function onTabChange(tab: string | number) {
+const onTabChange = (tab: string | number) => {
   if (tab === "platform") getPlatformData();
   else if (tab === "my") getMyData();
-}
+};
 
 // ══════════════════ 初始化 ════════════════════
 
 getMyData();
 </script>
-
-<style scoped lang="scss">
-:deep(.el-tabs) {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-height: 0;
-}
-
-:deep(.el-tabs__content) {
-  flex: 1;
-  min-height: 0;
-  overflow: visible;
-}
-
-:deep(.el-tab-pane) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-</style>

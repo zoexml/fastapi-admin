@@ -1,188 +1,180 @@
 <!-- 日志管理：登录日志 + 操作日志 -->
 <template>
   <div class="fa-full-height">
-    <ElTabs v-model="activeTab" type="card">
-      <ElTabPane label="操作日志" name="operation">
-        <FaSearchBar
-          v-show="opShowSearchBar"
-          ref="opSearchBarRef"
-          v-model="opSearchForm"
-          :items="opSearchItems"
-          :rules="opSearchBarRules"
-          :is-expand="false"
-          :show-expand="true"
-          :show-reset="true"
-          :show-search="true"
-          :disabled-search="false"
-          :default-expanded="false"
-          include-audit
-          :audit-item-options="{ showTenantId: true }"
-          @search="handleOpSearch"
-          @reset="onOpResetSearch"
+    <FaPageSegmented v-model="activeTab" :options="logTabOptions" />
+
+    <div v-show="activeTab === 'operation'" class="flex flex-1 flex-col min-h-0">
+      <FaSearchBar
+        v-show="opShowSearchBar"
+        ref="opSearchBarRef"
+        v-model="opSearchForm"
+        :items="opSearchItems"
+        :rules="opSearchBarRules"
+        :is-expand="false"
+        :show-expand="true"
+        :show-reset="true"
+        :show-search="true"
+        :disabled-search="false"
+        :default-expanded="false"
+        include-audit
+        :audit-item-options="{ showTenantId: true }"
+        @search="handleOpSearch"
+        @reset="onOpResetSearch"
+      />
+
+      <ElCard class="fa-table-card" :style="{ 'margin-top': opShowSearchBar ? '12px' : '0' }">
+        <FaTableHeader
+          v-model:columns="opColumnChecks"
+          v-model:showSearchBar="opShowSearchBar"
+          :loading="opLoading"
+          @refresh="opRefreshData"
+        >
+          <template #left>
+            <FaTableHeaderLeft
+              :remove-ids="opSelectedIds"
+              :perm-export="['module_system:log:export']"
+              :perm-delete="['module_system:log:delete']"
+              :delete-loading="opBatchDeleting"
+              @export="openOpExport"
+              @delete="handleOpBatchDelete"
+            />
+          </template>
+        </FaTableHeader>
+
+        <FaTable
+          ref="opTableRef"
+          :loading="opLoading"
+          :data="opData"
+          :columns="opColumns"
+          :pagination="opPagination"
+          @selection-change="onOpTableSelectionChange"
+          @pagination:size-change="opHandleSizeChange"
+          @pagination:current-change="opHandleCurrentChange"
         />
+      </ElCard>
 
-        <ElCard
-         
-          class="fa-table-card"
-          :style="{ 'margin-top': opShowSearchBar ? '12px' : '0' }"
+      <FaDialog
+        v-model="opDialogVisible.visible"
+        :title="opDialogVisible.title"
+        width="960px"
+        dialog-class="crud-embed-dialog"
+        modal-class="crud-embed-dialog"
+        form-mode="detail"
+        @confirm="handleOpCloseDialog"
+      >
+        <FaDescriptions
+          :column="8"
+          :data="opFormData"
+          :items="opDetailItems"
+          label-width="200px"
+          max-height="75vh"
         >
-          <FaTableHeader
-            v-model:columns="opColumnChecks"
-            v-model:showSearchBar="opShowSearchBar"
-            :loading="opLoading"
-            @refresh="opRefreshData"
-          >
-            <template #left>
-              <FaTableHeaderLeft
-                :remove-ids="opSelectedIds"
-                :perm-export="['module_system:log:export']"
-                :perm-delete="['module_system:log:delete']"
-                :delete-loading="opBatchDeleting"
-                @export="openOpExport"
-                @delete="handleOpBatchDelete"
-              />
-            </template>
-          </FaTableHeader>
+          <template #request_method="{ row }">
+            <ElTag :type="getMethodType(row?.request_method as string)">{{
+              row?.request_method
+            }}</ElTag>
+          </template>
+          <template #response_code="{ row }">
+            <ElTag :type="getStatusCodeType(row?.response_code as number)">{{
+              row?.response_code
+            }}</ElTag>
+          </template>
+          <template #request_payload="{ row }">
+            <FaJsonPretty
+              :value="(row as unknown as OperationLogTable)?.request_payload"
+              height="80px"
+            />
+          </template>
+          <template #response_json="{ row }">
+            <FaJsonPretty
+              :value="(row as unknown as OperationLogTable)?.response_json"
+              height="140px"
+            />
+          </template>
+        </FaDescriptions>
+      </FaDialog>
 
-          <FaTable
-            ref="opTableRef"
-            :loading="opLoading"
-            :data="opData"
-            :columns="opColumns"
-            :pagination="opPagination"
-            @selection-change="onOpTableSelectionChange"
-            @pagination:size-change="opHandleSizeChange"
-            @pagination:current-change="opHandleCurrentChange"
-          />
-        </ElCard>
+      <FaExportDialog
+        v-model="opExportVisible"
+        :content-config="opExportContentConfig"
+        :query-params="opExportQueryParams"
+        :page-data="opData"
+        :selection-data="opSelectedRows"
+      />
+    </div>
 
-        <FaDialog
-          v-model="opDialogVisible.visible"
-          :title="opDialogVisible.title"
-          width="960px"
-          dialog-class="crud-embed-dialog"
-          modal-class="crud-embed-dialog"
-          form-mode="detail"
-          @confirm="handleOpCloseDialog"
+    <div v-show="activeTab === 'login'" class="flex flex-1 flex-col min-h-0">
+      <FaSearchBar
+        v-show="loginShowSearchBar"
+        ref="loginSearchBarRef"
+        v-model="loginSearchForm"
+        :items="loginSearchItems"
+        :rules="loginSearchBarRules"
+        :is-expand="false"
+        :show-expand="true"
+        :show-reset="true"
+        :show-search="true"
+        :disabled-search="false"
+        :default-expanded="false"
+        include-audit
+        :audit-item-options="{ showTenantId: true }"
+        @search="handleLoginSearch"
+        @reset="onLoginResetSearch"
+      />
+
+      <ElCard class="fa-table-card" :style="{ 'margin-top': loginShowSearchBar ? '12px' : '0' }">
+        <FaTableHeader
+          v-model:columns="loginColumnChecks"
+          v-model:showSearchBar="loginShowSearchBar"
+          :loading="loginLoading"
+          @refresh="loginRefreshData"
         >
-          <FaDescriptions
-            :column="8"
-            :data="opFormData"
-            :items="opDetailItems"
-            label-width="200px"
-            max-height="75vh"
-          >
-            <template #request_method="{ row }">
-              <ElTag :type="getMethodType(row?.request_method as string)">{{
-                row?.request_method
-              }}</ElTag>
-            </template>
-            <template #response_code="{ row }">
-              <ElTag :type="getStatusCodeType(row?.response_code as number)">{{
-                row?.response_code
-              }}</ElTag>
-            </template>
-            <template #request_payload="{ row }">
-              <FaJsonPretty
-                :value="(row as unknown as OperationLogTable)?.request_payload"
-                height="80px"
-              />
-            </template>
-            <template #response_json="{ row }">
-              <FaJsonPretty
-                :value="(row as unknown as OperationLogTable)?.response_json"
-                height="140px"
-              />
-            </template>
-          </FaDescriptions>
-        </FaDialog>
+          <template #left>
+            <FaTableHeaderLeft
+              :remove-ids="loginSelectedIds"
+              :perm-delete="['module_system:login_log:delete']"
+              :delete-loading="loginBatchDeleting"
+              @delete="handleLoginBatchDelete"
+            />
+          </template>
+        </FaTableHeader>
 
-        <FaExportDialog
-          v-model="opExportVisible"
-          :content-config="opExportContentConfig"
-          :query-params="opExportQueryParams"
-          :page-data="opData"
-          :selection-data="opSelectedRows"
+        <FaTable
+          ref="loginTableRef"
+          :loading="loginLoading"
+          :data="loginData"
+          :columns="loginColumns"
+          :pagination="loginPagination"
+          @selection-change="onLoginTableSelectionChange"
+          @pagination:size-change="loginHandleSizeChange"
+          @pagination:current-change="loginHandleCurrentChange"
         />
-      </ElTabPane>
+      </ElCard>
 
-      <ElTabPane label="登录日志" name="login">
-        <FaSearchBar
-          v-show="loginShowSearchBar"
-          ref="loginSearchBarRef"
-          v-model="loginSearchForm"
-          :items="loginSearchItems"
-          :rules="loginSearchBarRules"
-          :is-expand="false"
-          :show-expand="true"
-          :show-reset="true"
-          :show-search="true"
-          :disabled-search="false"
-          :default-expanded="false"
-          include-audit
-          :audit-item-options="{ showTenantId: true }"
-          @search="handleLoginSearch"
-          @reset="onLoginResetSearch"
-        />
-
-        <ElCard
-         
-          class="fa-table-card"
-          :style="{ 'margin-top': loginShowSearchBar ? '12px' : '0' }"
+      <FaDialog
+        v-model="loginDialogVisible.visible"
+        :title="loginDialogVisible.title"
+        width="640px"
+        dialog-class="crud-embed-dialog"
+        modal-class="crud-embed-dialog"
+        form-mode="detail"
+        @confirm="handleLoginCloseDialog"
+      >
+        <FaDescriptions
+          :column="2"
+          :data="loginFormData"
+          :items="loginDetailItems"
+          label-width="120px"
+          max-height="75vh"
         >
-          <FaTableHeader
-            v-model:columns="loginColumnChecks"
-            v-model:showSearchBar="loginShowSearchBar"
-            :loading="loginLoading"
-            @refresh="loginRefreshData"
-          >
-            <template #left>
-              <FaTableHeaderLeft
-                :remove-ids="loginSelectedIds"
-                :perm-delete="['module_system:login_log:delete']"
-                :delete-loading="loginBatchDeleting"
-                @delete="handleLoginBatchDelete"
-              />
-            </template>
-          </FaTableHeader>
-
-          <FaTable
-            ref="loginTableRef"
-            :loading="loginLoading"
-            :data="loginData"
-            :columns="loginColumns"
-            :pagination="loginPagination"
-            @selection-change="onLoginTableSelectionChange"
-            @pagination:size-change="loginHandleSizeChange"
-            @pagination:current-change="loginHandleCurrentChange"
-          />
-        </ElCard>
-
-        <FaDialog
-          v-model="loginDialogVisible.visible"
-          :title="loginDialogVisible.title"
-          width="640px"
-          dialog-class="crud-embed-dialog"
-          modal-class="crud-embed-dialog"
-          form-mode="detail"
-          @confirm="handleLoginCloseDialog"
-        >
-          <FaDescriptions
-            :column="2"
-            :data="loginFormData"
-            :items="loginDetailItems"
-            label-width="120px"
-            max-height="75vh"
-          >
-            <template #status="{ row }">
-              <ElTag :type="row?.status === 1 ? 'success' : 'danger'">{{
-                row?.status === 1 ? "成功" : "失败"
-              }}</ElTag>
-            </template>
-          </FaDescriptions>
-        </FaDialog>
-      </ElTabPane>
-    </ElTabs>
+          <template #status="{ row }">
+            <ElTag :type="row?.status === 1 ? 'success' : 'danger'">{{
+              row?.status === 1 ? "成功" : "失败"
+            }}</ElTag>
+          </template>
+        </FaDescriptions>
+      </FaDialog>
+    </div>
   </div>
 </template>
 
@@ -221,7 +213,13 @@ defineOptions({
 
 const { hasAuth } = useAuth();
 
-const activeTab = ref<"operation" | "login">("operation");
+type LogTab = "operation" | "login";
+
+const activeTab = ref<LogTab>("operation");
+const logTabOptions = [
+  { label: "操作日志", value: "operation" },
+  { label: "登录日志", value: "login" },
+];
 
 // ==================== 操作日志 ====================
 
@@ -704,24 +702,3 @@ function getMethodType(method?: string): ElStatusType {
   return "info";
 }
 </script>
-
-<style scoped lang="scss">
-:deep(.el-tabs) {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-height: 0;
-}
-
-:deep(.el-tabs__content) {
-  flex: 1;
-  min-height: 0;
-  overflow: visible;
-}
-
-:deep(.el-tab-pane) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-</style>

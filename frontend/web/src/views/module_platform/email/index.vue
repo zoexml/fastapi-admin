@@ -1,156 +1,141 @@
 <!-- 邮件管理：Fa 布局 + useTable，3Tab 各自独立数据 -->
 <template>
   <div class="fa-full-height">
-    <ElTabs v-model="activeTab" @tab-change="onTabChange">
-      <!-- Tab 1: SMTP 配置 -->
-      <ElTabPane label="SMTP 配置" name="config">
-        <FaSearchBar
-          v-show="configShowSearchBar"
-          v-model="configSearchForm"
-          :items="configSearchItems"
-          :is-expand="false"
-          :show-expand="true"
-          :show-reset="true"
-          :show-search="true"
-          :disabled-search="false"
-          :default-expanded="false"
-          include-audit
-          @search="handleConfigSearch"
-          @reset="onConfigResetSearch"
+    <FaPageSegmented v-model="activeTab" :options="emailTabOptions" @change="onTabChange" />
+
+    <div v-show="activeTab === 'config'" class="flex flex-1 flex-col min-h-0">
+      <FaSearchBar
+        v-show="configShowSearchBar"
+        v-model="configSearchForm"
+        :items="configSearchItems"
+        :is-expand="false"
+        :show-expand="true"
+        :show-reset="true"
+        :show-search="true"
+        :disabled-search="false"
+        :default-expanded="false"
+        include-audit
+        @search="handleConfigSearch"
+        @reset="onConfigResetSearch"
+      />
+
+      <ElCard class="fa-table-card" :style="{ 'margin-top': configShowSearchBar ? '12px' : '0' }">
+        <FaTableHeader
+          v-model:columns="configColumnChecks"
+          v-model:showSearchBar="configShowSearchBar"
+          :loading="configLoading"
+          @refresh="refreshConfig"
+        >
+          <template #left>
+            <FaTableHeaderLeft
+              :remove-ids="configSelectedIds"
+              :perm-create="['module_platform:email:update']"
+              :perm-delete="['module_platform:email:update']"
+              :delete-loading="configBatchDeleting"
+              :create-loading="configCreateLoading"
+              @add="handleConfigAdd"
+              @delete="handleConfigBatchDelete"
+            />
+          </template>
+        </FaTableHeader>
+
+        <FaTable
+          ref="configTableRef"
+          :loading="configLoading"
+          :data="configData"
+          :columns="configColumns"
+          :pagination="configPagination"
+          @selection-change="onConfigSelectionChange"
+          @pagination:size-change="handleConfigSizeChange"
+          @pagination:current-change="handleConfigCurrentChange"
+        />
+      </ElCard>
+    </div>
+
+    <div v-show="activeTab === 'template'" class="flex flex-1 flex-col min-h-0">
+      <FaSearchBar
+        v-show="templateShowSearchBar"
+        v-model="templateSearchForm"
+        :items="templateSearchItems"
+        :is-expand="false"
+        :show-expand="true"
+        :show-reset="true"
+        :show-search="true"
+        :disabled-search="false"
+        :default-expanded="false"
+        include-audit
+        @search="handleTemplateSearch"
+        @reset="onTemplateResetSearch"
+      />
+
+      <ElCard class="fa-table-card" :style="{ 'margin-top': templateShowSearchBar ? '12px' : '0' }">
+        <FaTableHeader
+          v-model:columns="templateColumnChecks"
+          v-model:showSearchBar="templateShowSearchBar"
+          :loading="templateLoading"
+          @refresh="refreshTemplate"
+        >
+          <template #left>
+            <FaTableHeaderLeft
+              :remove-ids="templateSelectedIds"
+              :perm-create="['module_platform:email:update']"
+              :perm-delete="['module_platform:email:update']"
+              :delete-loading="templateBatchDeleting"
+              :create-loading="templateCreateLoading"
+              @add="handleTemplateAdd"
+              @delete="handleTemplateBatchDelete"
+            />
+          </template>
+        </FaTableHeader>
+
+        <FaTable
+          ref="templateTableRef"
+          :loading="templateLoading"
+          :data="templateData"
+          :columns="templateColumns"
+          :pagination="templatePagination"
+          @selection-change="onTemplateSelectionChange"
+          @pagination:size-change="handleTemplateSizeChange"
+          @pagination:current-change="handleTemplateCurrentChange"
+        />
+      </ElCard>
+    </div>
+
+    <div v-show="activeTab === 'log'" class="flex flex-1 flex-col min-h-0">
+      <FaSearchBar
+        v-show="logShowSearchBar"
+        v-model="logSearchForm"
+        :items="logSearchItems"
+        :is-expand="false"
+        :show-expand="true"
+        :show-reset="true"
+        :show-search="true"
+        :disabled-search="false"
+        :default-expanded="false"
+        include-audit
+        :audit-item-options="{ showTenantId: true }"
+        @search="handleLogSearch"
+        @reset="onLogResetSearch"
+      />
+
+      <ElCard class="fa-table-card" :style="{ 'margin-top': logShowSearchBar ? '12px' : '0' }">
+        <FaTableHeader
+          v-model:columns="logColumnChecks"
+          v-model:showSearchBar="logShowSearchBar"
+          :loading="logLoading"
+          @refresh="refreshLog"
         />
 
-        <ElCard
-         
-          class="fa-table-card"
-          :style="{ 'margin-top': configShowSearchBar ? '12px' : '0' }"
-        >
-          <FaTableHeader
-            v-model:columns="configColumnChecks"
-            v-model:showSearchBar="configShowSearchBar"
-            :loading="configLoading"
-            @refresh="refreshConfig"
-          >
-            <template #left>
-              <FaTableHeaderLeft
-                :remove-ids="configSelectedIds"
-                :perm-create="['module_platform:email:update']"
-                :perm-delete="['module_platform:email:update']"
-                :delete-loading="configBatchDeleting"
-                :create-loading="configCreateLoading"
-                @add="handleConfigAdd"
-                @delete="handleConfigBatchDelete"
-              />
-            </template>
-          </FaTableHeader>
-
-          <FaTable
-            ref="configTableRef"
-            :loading="configLoading"
-            :data="configData"
-            :columns="configColumns"
-            :pagination="configPagination"
-            @selection-change="onConfigSelectionChange"
-            @pagination:size-change="handleConfigSizeChange"
-            @pagination:current-change="handleConfigCurrentChange"
-          />
-        </ElCard>
-      </ElTabPane>
-
-      <!-- Tab 2: 邮件模板 -->
-      <ElTabPane label="邮件模板" name="template">
-        <FaSearchBar
-          v-show="templateShowSearchBar"
-          v-model="templateSearchForm"
-          :items="templateSearchItems"
-          :is-expand="false"
-          :show-expand="true"
-          :show-reset="true"
-          :show-search="true"
-          :disabled-search="false"
-          :default-expanded="false"
-          include-audit
-          @search="handleTemplateSearch"
-          @reset="onTemplateResetSearch"
+        <FaTable
+          :loading="logLoading"
+          :data="logData"
+          :columns="logColumns"
+          :pagination="logPagination"
+          @pagination:size-change="handleLogSizeChange"
+          @pagination:current-change="handleLogCurrentChange"
         />
-
-        <ElCard
-         
-          class="fa-table-card"
-          :style="{ 'margin-top': templateShowSearchBar ? '12px' : '0' }"
-        >
-          <FaTableHeader
-            v-model:columns="templateColumnChecks"
-            v-model:showSearchBar="templateShowSearchBar"
-            :loading="templateLoading"
-            @refresh="refreshTemplate"
-          >
-            <template #left>
-              <FaTableHeaderLeft
-                :remove-ids="templateSelectedIds"
-                :perm-create="['module_platform:email:update']"
-                :perm-delete="['module_platform:email:update']"
-                :delete-loading="templateBatchDeleting"
-                :create-loading="templateCreateLoading"
-                @add="handleTemplateAdd"
-                @delete="handleTemplateBatchDelete"
-              />
-            </template>
-          </FaTableHeader>
-
-          <FaTable
-            ref="templateTableRef"
-            :loading="templateLoading"
-            :data="templateData"
-            :columns="templateColumns"
-            :pagination="templatePagination"
-            @selection-change="onTemplateSelectionChange"
-            @pagination:size-change="handleTemplateSizeChange"
-            @pagination:current-change="handleTemplateCurrentChange"
-          />
-        </ElCard>
-      </ElTabPane>
-
-      <!-- Tab 3: 发送日志 -->
-      <ElTabPane label="发送日志" name="log">
-        <FaSearchBar
-          v-show="logShowSearchBar"
-          v-model="logSearchForm"
-          :items="logSearchItems"
-          :is-expand="false"
-          :show-expand="true"
-          :show-reset="true"
-          :show-search="true"
-          :disabled-search="false"
-          :default-expanded="false"
-          include-audit
-          :audit-item-options="{ showTenantId: true }"
-          @search="handleLogSearch"
-          @reset="onLogResetSearch"
-        />
-
-        <ElCard
-         
-          class="fa-table-card"
-          :style="{ 'margin-top': logShowSearchBar ? '12px' : '0' }"
-        >
-          <FaTableHeader
-            v-model:columns="logColumnChecks"
-            v-model:showSearchBar="logShowSearchBar"
-            :loading="logLoading"
-            @refresh="refreshLog"
-          />
-
-          <FaTable
-            :loading="logLoading"
-            :data="logData"
-            :columns="logColumns"
-            :pagination="logPagination"
-            @pagination:size-change="handleLogSizeChange"
-            @pagination:current-change="handleLogCurrentChange"
-          />
-        </ElCard>
-      </ElTabPane>
-    </ElTabs>
+      </ElCard>
+    </div>
 
     <!-- SMTP 配置弹窗 -->
     <FaDialog
@@ -299,7 +284,14 @@ import FaStatusTag from "@/components/others/fa-status-tag/index.vue";
 defineOptions({ name: "Email" });
 
 const { hasAuth } = useAuth();
-const activeTab = ref("config");
+type EmailTab = "config" | "template" | "log";
+
+const activeTab = ref<EmailTab>("config");
+const emailTabOptions = [
+  { label: "SMTP 配置", value: "config" },
+  { label: "邮件模板", value: "template" },
+  { label: "发送日志", value: "log" },
+];
 
 // ══════════════════ SMTP 配置 Tab ════════════════════
 
@@ -1160,11 +1152,11 @@ function onLogResetSearch() {
 
 // ══════════════════ Tab 切换 ════════════════════
 
-function onTabChange(tab: string | number) {
+const onTabChange = (tab: string | number) => {
   if (tab === "config") getConfigData();
   else if (tab === "template") getTemplateData();
   else if (tab === "log") getLogData();
-}
+};
 
 // ══════════════════ 工具函数 ════════════════════
 
@@ -1183,24 +1175,3 @@ function bizTypeLabel(type: string): string {
   return map[type] || type;
 }
 </script>
-
-<style scoped lang="scss">
-:deep(.el-tabs) {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-height: 0;
-}
-
-:deep(.el-tabs__content) {
-  flex: 1;
-  min-height: 0;
-  overflow: visible;
-}
-
-:deep(.el-tab-pane) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-</style>
