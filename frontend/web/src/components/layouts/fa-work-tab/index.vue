@@ -145,7 +145,7 @@
       </div>
     </div>
 
-    <FaMenuRight
+    <FContextMenu
       ref="menuRef"
       :menu-items="menuItems"
       :menu-width="140"
@@ -167,104 +167,104 @@
  * 核心流程：路由切换 → setWorktab (utils/navigation) 同步 → 本组件响应式渲染。
  * 关闭/切换/Pin 操作全部通过 worktabStore 管理。
  */
-import { computed, onMounted, ref, watch, nextTick, onUnmounted } from "vue";
-import { LocationQueryRaw, useRoute, useRouter } from "vue-router";
-import { useI18n } from "vue-i18n";
-import { storeToRefs } from "pinia";
-import { ElMessage } from "element-plus";
-import { refreshAppCaches, useWorktabStore, useUserStore, useSettingsStore } from "@stores";
-import { MenuItemType } from "@/components/others/fa-menu-right/index.vue";
-import { useCommon } from "@/hooks/core/useCommon";
-import { formatMenuTitle, quickStartManager } from "@utils";
-import { WorkTab } from "@/types";
+import { computed, onMounted, ref, watch, nextTick, onUnmounted } from 'vue'
+import { LocationQueryRaw, useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { storeToRefs } from 'pinia'
+import { ElMessage } from 'element-plus'
+import { refreshAppCaches, useWorktabStore, useUserStore, useSettingsStore } from '@stores'
+import type { MenuItemType } from '@fireflymit/ui'
+import { useCommon } from '@/hooks/core/useCommon'
+import { formatMenuTitle, quickStartManager } from '@utils'
+import { WorkTab } from '@/types'
 
-defineOptions({ name: "FaWorkTab" });
+defineOptions({ name: 'FaWorkTab' })
 
 // 类型定义
 interface ScrollState {
-  translateX: number;
-  transition: string;
+  translateX: number
+  transition: string
 }
 
 interface TouchState {
-  startX: number;
-  currentX: number;
+  startX: number
+  currentX: number
 }
 
-type TabCloseType = "current" | "left" | "right" | "other" | "all";
+type TabCloseType = 'current' | 'left' | 'right' | 'other' | 'all'
 
 // 基础设置
-const { t } = useI18n();
-const store = useWorktabStore();
-const userStore = useUserStore();
-const route = useRoute();
-const router = useRouter();
-const { currentRoute } = router;
-const settingStore = useSettingsStore();
-const { tabStyle, showWorkTab } = storeToRefs(settingStore);
+const { t } = useI18n()
+const store = useWorktabStore()
+const userStore = useUserStore()
+const route = useRoute()
+const router = useRouter()
+const { currentRoute } = router
+const settingStore = useSettingsStore()
+const { tabStyle, showWorkTab } = storeToRefs(settingStore)
 
 /** tab-google：Chrome 顶栏标签（tab-default / tab-card 走原有样式） */
-const chromeTabStrip = computed(() => tabStyle.value === "tab-google");
-const isCardTabs = computed(() => tabStyle.value === "tab-card");
+const chromeTabStrip = computed(() => tabStyle.value === 'tab-google')
+const isCardTabs = computed(() => tabStyle.value === 'tab-card')
 
 // DOM 引用
-const scrollRef = ref<HTMLElement | null>(null);
-const tabsRef = ref<HTMLElement | null>(null);
-const menuRef = ref();
+const scrollRef = ref<HTMLElement | null>(null)
+const tabsRef = ref<HTMLElement | null>(null)
+const menuRef = ref()
 
 // 状态管理
 const scrollState = ref<ScrollState>({
   translateX: 0,
-  transition: "",
-});
+  transition: '',
+})
 
 const touchState = ref<TouchState>({
   startX: 0,
   currentX: 0,
-});
+})
 
-const clickedPath = ref("");
+const clickedPath = ref('')
 
 /** 标签总宽度超过可视区时才显示左右滚动按钮（与常见控制台一致） */
-const tabOverflow = ref(false);
+const tabOverflow = ref(false)
 
 function measureTabOverflow(): void {
   requestAnimationFrame(() => {
-    const wrap = scrollRef.value;
-    const tabs = tabsRef.value;
+    const wrap = scrollRef.value
+    const tabs = tabsRef.value
     if (!wrap || !tabs) {
-      tabOverflow.value = false;
-      return;
+      tabOverflow.value = false
+      return
     }
-    tabOverflow.value = tabs.scrollWidth > wrap.clientWidth + 1;
-  });
+    tabOverflow.value = tabs.scrollWidth > wrap.clientWidth + 1
+  })
 }
 
-let tabOverflowResizeObserver: ResizeObserver | null = null;
+let tabOverflowResizeObserver: ResizeObserver | null = null
 
 function setupTabOverflowObserver(): void {
-  teardownTabOverflowObserver();
-  if (typeof ResizeObserver === "undefined") return;
-  tabOverflowResizeObserver = new ResizeObserver(() => measureTabOverflow());
-  if (scrollRef.value) tabOverflowResizeObserver.observe(scrollRef.value);
-  if (tabsRef.value) tabOverflowResizeObserver.observe(tabsRef.value);
+  teardownTabOverflowObserver()
+  if (typeof ResizeObserver === 'undefined') return
+  tabOverflowResizeObserver = new ResizeObserver(() => measureTabOverflow())
+  if (scrollRef.value) tabOverflowResizeObserver.observe(scrollRef.value)
+  if (tabsRef.value) tabOverflowResizeObserver.observe(tabsRef.value)
 }
 
 function teardownTabOverflowObserver(): void {
-  tabOverflowResizeObserver?.disconnect();
-  tabOverflowResizeObserver = null;
+  tabOverflowResizeObserver?.disconnect()
+  tabOverflowResizeObserver = null
 }
 
 // 计算属性
-const list = computed(() => store.opened);
-const activeTab = computed(() => currentRoute.value.path);
-const activeTabIndex = computed(() => list.value.findIndex((tab) => tab.path === activeTab.value));
+const list = computed(() => store.opened)
+const activeTab = computed(() => currentRoute.value.path)
+const activeTabIndex = computed(() => list.value.findIndex((tab) => tab.path === activeTab.value))
 
 // 右键菜单逻辑
 const useContextMenu = () => {
   const getClickedTabInfo = () => {
-    const clickedIndex = list.value.findIndex((tab) => tab.path === clickedPath.value);
-    const currentTab = list.value[clickedIndex];
+    const clickedIndex = list.value.findIndex((tab) => tab.path === clickedPath.value)
+    const currentTab = list.value[clickedIndex]
 
     return {
       clickedIndex,
@@ -272,103 +272,103 @@ const useContextMenu = () => {
       isLastTab: clickedIndex === list.value.length - 1,
       isOneTab: list.value.length === 1,
       isCurrentTab: clickedPath.value === activeTab.value,
-    };
-  };
+    }
+  }
 
   // 检查标签页是否固定
   const checkTabsFixedStatus = (clickedIndex: number) => {
-    const leftTabs = list.value.slice(0, clickedIndex);
-    const rightTabs = list.value.slice(clickedIndex + 1);
-    const otherTabs = list.value.filter((_, index) => index !== clickedIndex);
+    const leftTabs = list.value.slice(0, clickedIndex)
+    const rightTabs = list.value.slice(clickedIndex + 1)
+    const otherTabs = list.value.filter((_, index) => index !== clickedIndex)
 
     return {
       areAllLeftTabsFixed: leftTabs.length > 0 && leftTabs.every((tab) => tab.fixedTab),
       areAllRightTabsFixed: rightTabs.length > 0 && rightTabs.every((tab) => tab.fixedTab),
       areAllOtherTabsFixed: otherTabs.length > 0 && otherTabs.every((tab) => tab.fixedTab),
       areAllTabsFixed: list.value.every((tab) => tab.fixedTab),
-    };
-  };
+    }
+  }
 
   // 右键菜单选项
   const menuItems = computed(() => {
-    const { clickedIndex, currentTab, isLastTab, isOneTab, isCurrentTab } = getClickedTabInfo();
-    const fixedStatus = checkTabsFixedStatus(clickedIndex);
+    const { clickedIndex, currentTab, isLastTab, isOneTab, isCurrentTab } = getClickedTabInfo()
+    const fixedStatus = checkTabsFixedStatus(clickedIndex)
 
     return [
       {
-        key: "refresh",
-        label: t("worktab.btn.refresh"),
-        icon: "ri:refresh-line",
+        key: 'refresh',
+        label: t('worktab.btn.refresh'),
+        icon: 'ri:refresh-line',
         disabled: !isCurrentTab,
       },
       {
-        key: "fixed",
-        label: currentTab?.fixedTab ? t("worktab.btn.unfixed") : t("worktab.btn.fixed"),
-        icon: "ri:pushpin-2-line",
+        key: 'fixed',
+        label: currentTab?.fixedTab ? t('worktab.btn.unfixed') : t('worktab.btn.fixed'),
+        icon: 'ri:pushpin-2-line',
         disabled: false,
         showLine: true,
       },
       {
-        key: "current",
-        label: t("worktab.btn.closeCurrent"),
-        icon: "ri:close-line",
+        key: 'current',
+        label: t('worktab.btn.closeCurrent'),
+        icon: 'ri:close-line',
         disabled: !!currentTab?.fixedTab,
       },
       {
-        key: "left",
-        label: t("worktab.btn.closeLeft"),
-        icon: "ri:arrow-left-s-line",
+        key: 'left',
+        label: t('worktab.btn.closeLeft'),
+        icon: 'ri:arrow-left-s-line',
         disabled: clickedIndex === 0 || fixedStatus.areAllLeftTabsFixed,
       },
       {
-        key: "right",
-        label: t("worktab.btn.closeRight"),
-        icon: "ri:arrow-right-s-line",
+        key: 'right',
+        label: t('worktab.btn.closeRight'),
+        icon: 'ri:arrow-right-s-line',
         disabled: isLastTab || fixedStatus.areAllRightTabsFixed,
       },
       {
-        key: "other",
-        label: t("worktab.btn.closeOther"),
-        icon: "ri:close-fill",
+        key: 'other',
+        label: t('worktab.btn.closeOther'),
+        icon: 'ri:close-fill',
         disabled: isOneTab || fixedStatus.areAllOtherTabsFixed,
       },
       {
-        key: "all",
-        label: t("worktab.btn.closeAll"),
-        icon: "ri:close-circle-line",
+        key: 'all',
+        label: t('worktab.btn.closeAll'),
+        icon: 'ri:close-circle-line',
         disabled: isOneTab || fixedStatus.areAllTabsFixed,
       },
-    ];
-  });
+    ]
+  })
 
-  return { menuItems };
-};
+  return { menuItems }
+}
 
 // 滚动逻辑
 const useScrolling = () => {
   const setTransition = () => {
-    scrollState.value.transition = "transform 0.5s cubic-bezier(0.15, 0, 0.15, 1)";
+    scrollState.value.transition = 'transform 0.5s cubic-bezier(0.15, 0, 0.15, 1)'
     setTimeout(() => {
-      scrollState.value.transition = "";
-    }, 250);
-  };
+      scrollState.value.transition = ''
+    }, 250)
+  }
 
   const getCurrentTabElement = (): HTMLElement | null => {
-    return document.getElementById(`scroll-li-${activeTabIndex.value}`);
-  };
+    return document.getElementById(`scroll-li-${activeTabIndex.value}`)
+  }
 
   const calculateScrollPosition = () => {
-    if (!scrollRef.value || !tabsRef.value) return;
+    if (!scrollRef.value || !tabsRef.value) return
 
-    const scrollWidth = scrollRef.value.offsetWidth;
-    const ulWidth = tabsRef.value.offsetWidth;
-    const curTabEl = getCurrentTabElement();
+    const scrollWidth = scrollRef.value.offsetWidth
+    const ulWidth = tabsRef.value.offsetWidth
+    const curTabEl = getCurrentTabElement()
 
-    if (!curTabEl) return;
+    if (!curTabEl) return
 
-    const { offsetLeft, clientWidth } = curTabEl;
-    const curTabRight = offsetLeft + clientWidth;
-    const targetLeft = scrollWidth - curTabRight;
+    const { offsetLeft, clientWidth } = curTabEl
+    const curTabRight = offsetLeft + clientWidth
+    const targetLeft = scrollWidth - curTabRight
 
     return {
       scrollWidth,
@@ -377,117 +377,117 @@ const useScrolling = () => {
       clientWidth,
       curTabRight,
       targetLeft,
-    };
-  };
+    }
+  }
 
   const autoPositionTab = () => {
-    const positions = calculateScrollPosition();
-    if (!positions) return;
+    const positions = calculateScrollPosition()
+    if (!positions) return
 
-    const { scrollWidth, ulWidth, offsetLeft, curTabRight, targetLeft } = positions;
+    const { scrollWidth, ulWidth, offsetLeft, curTabRight, targetLeft } = positions
 
     if (
       (offsetLeft > Math.abs(scrollState.value.translateX) && curTabRight <= scrollWidth) ||
       (scrollState.value.translateX < targetLeft && targetLeft < 0)
     ) {
-      return;
+      return
     }
 
     requestAnimationFrame(() => {
       if (curTabRight > scrollWidth) {
-        scrollState.value.translateX = Math.max(targetLeft - 6, scrollWidth - ulWidth);
+        scrollState.value.translateX = Math.max(targetLeft - 6, scrollWidth - ulWidth)
       } else if (offsetLeft < Math.abs(scrollState.value.translateX)) {
-        scrollState.value.translateX = -offsetLeft;
+        scrollState.value.translateX = -offsetLeft
       }
-    });
-  };
+    })
+  }
 
   const adjustPositionAfterClose = () => {
-    const positions = calculateScrollPosition();
-    if (!positions) return;
+    const positions = calculateScrollPosition()
+    if (!positions) return
 
-    const { scrollWidth, ulWidth, offsetLeft, clientWidth } = positions;
-    const curTabLeft = offsetLeft + clientWidth;
+    const { scrollWidth, ulWidth, offsetLeft, clientWidth } = positions
+    const curTabLeft = offsetLeft + clientWidth
 
     requestAnimationFrame(() => {
-      scrollState.value.translateX = curTabLeft > scrollWidth ? scrollWidth - ulWidth : 0;
-    });
-  };
+      scrollState.value.translateX = curTabLeft > scrollWidth ? scrollWidth - ulWidth : 0
+    })
+  }
 
   return {
     setTransition,
     autoPositionTab,
     adjustPositionAfterClose,
-  };
-};
+  }
+}
 
 // 事件处理逻辑
 const useEventHandlers = () => {
-  const { setTransition, adjustPositionAfterClose } = useScrolling();
+  const { setTransition, adjustPositionAfterClose } = useScrolling()
 
   const handleWheelScroll = (event: WheelEvent) => {
-    if (!scrollRef.value || !tabsRef.value) return;
+    if (!scrollRef.value || !tabsRef.value) return
 
-    event.preventDefault();
+    event.preventDefault()
 
-    if (tabsRef.value.offsetWidth <= scrollRef.value.offsetWidth) return;
+    if (tabsRef.value.offsetWidth <= scrollRef.value.offsetWidth) return
 
-    const xMax = 0;
-    const xMin = scrollRef.value.offsetWidth - tabsRef.value.offsetWidth;
-    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+    const xMax = 0
+    const xMin = scrollRef.value.offsetWidth - tabsRef.value.offsetWidth
+    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY
 
     scrollState.value.translateX = Math.min(
       Math.max(scrollState.value.translateX - delta, xMin),
       xMax
-    );
-  };
+    )
+  }
 
   const handleTouchStart = (event: TouchEvent) => {
-    touchState.value.startX = event.touches[0]!.clientX;
-  };
+    touchState.value.startX = event.touches[0]!.clientX
+  }
 
   const handleTouchMove = (event: TouchEvent) => {
-    if (!scrollRef.value || !tabsRef.value) return;
+    if (!scrollRef.value || !tabsRef.value) return
 
-    touchState.value.currentX = event.touches[0]!.clientX;
-    const deltaX = touchState.value.currentX - touchState.value.startX;
-    const xMin = scrollRef.value.offsetWidth - tabsRef.value.offsetWidth;
+    touchState.value.currentX = event.touches[0]!.clientX
+    const deltaX = touchState.value.currentX - touchState.value.startX
+    const xMin = scrollRef.value.offsetWidth - tabsRef.value.offsetWidth
 
     scrollState.value.translateX = Math.min(
       Math.max(scrollState.value.translateX + deltaX, xMin),
       0
-    );
-    touchState.value.startX = touchState.value.currentX;
-  };
+    )
+    touchState.value.startX = touchState.value.currentX
+  }
 
   const handleTouchEnd = () => {
-    setTransition();
-  };
+    setTransition()
+  }
 
   const setupEventListeners = () => {
     if (tabsRef.value) {
-      tabsRef.value.addEventListener("wheel", handleWheelScroll, { passive: false });
-      tabsRef.value.addEventListener("touchstart", handleTouchStart, { passive: true });
-      tabsRef.value.addEventListener("touchmove", handleTouchMove, { passive: true });
-      tabsRef.value.addEventListener("touchend", handleTouchEnd, { passive: true });
+      tabsRef.value.addEventListener('wheel', handleWheelScroll, { passive: false })
+      tabsRef.value.addEventListener('touchstart', handleTouchStart, { passive: true })
+      tabsRef.value.addEventListener('touchmove', handleTouchMove, { passive: true })
+      tabsRef.value.addEventListener('touchend', handleTouchEnd, { passive: true })
     }
-  };
+  }
 
   const cleanupEventListeners = () => {
     if (tabsRef.value) {
-      tabsRef.value.removeEventListener("wheel", handleWheelScroll);
-      tabsRef.value.removeEventListener("touchstart", handleTouchStart);
-      tabsRef.value.removeEventListener("touchmove", handleTouchMove);
-      tabsRef.value.removeEventListener("touchend", handleTouchEnd);
+      tabsRef.value.removeEventListener('wheel', handleWheelScroll)
+      tabsRef.value.removeEventListener('touchstart', handleTouchStart)
+      tabsRef.value.removeEventListener('touchmove', handleTouchMove)
+      tabsRef.value.removeEventListener('touchend', handleTouchEnd)
     }
-  };
+  }
 
   return {
     setupEventListeners,
     cleanupEventListeners,
     adjustPositionAfterClose,
-  };
-};
+  }
+}
 
 // 标签页操作逻辑
 const useTabOperations = (adjustPositionAfterClose: () => void) => {
@@ -495,11 +495,11 @@ const useTabOperations = (adjustPositionAfterClose: () => void) => {
     router.push({
       path: item.path,
       query: item.query as LocationQueryRaw,
-    });
-  };
+    })
+  }
 
   const closeWorktab = (type: TabCloseType, tabPath: string) => {
-    const path = typeof tabPath === "string" ? tabPath : route.path;
+    const path = typeof tabPath === 'string' ? tabPath : route.path
 
     const closeActions = {
       current: () => store.removeTab(path),
@@ -507,213 +507,213 @@ const useTabOperations = (adjustPositionAfterClose: () => void) => {
       right: () => store.removeRight(path),
       other: () => store.removeOthers(path),
       all: () => store.removeAll(),
-    };
+    }
 
-    closeActions[type]?.();
+    closeActions[type]?.()
 
     setTimeout(() => {
-      adjustPositionAfterClose();
-    }, 100);
-  };
+      adjustPositionAfterClose()
+    }, 100)
+  }
 
   const showMenu = (e: MouseEvent, path?: string) => {
-    clickedPath.value = path || "";
-    menuRef.value?.show(e);
-    e.preventDefault();
-    e.stopPropagation();
-  };
+    clickedPath.value = path || ''
+    menuRef.value?.show(e)
+    e.preventDefault()
+    e.stopPropagation()
+  }
 
   const handleSelect = (item: MenuItemType) => {
-    const { key } = item;
+    const { key } = item
 
-    if (key === "refresh") {
-      useCommon().refresh();
-      return;
+    if (key === 'refresh') {
+      useCommon().refresh()
+      return
     }
 
-    if (key === "fixed") {
-      useWorktabStore().toggleFixedTab(clickedPath.value);
-      return;
+    if (key === 'fixed') {
+      useWorktabStore().toggleFixedTab(clickedPath.value)
+      return
     }
 
-    const activeIndex = list.value.findIndex((tab) => tab.path === activeTab.value);
-    const clickedIndex = list.value.findIndex((tab) => tab.path === clickedPath.value);
+    const activeIndex = list.value.findIndex((tab) => tab.path === activeTab.value)
+    const clickedIndex = list.value.findIndex((tab) => tab.path === clickedPath.value)
 
     const navigationRules = {
       left: activeIndex < clickedIndex,
       right: activeIndex > clickedIndex,
       other: true,
-    } as const;
+    } as const
 
-    const shouldNavigate = navigationRules[key as keyof typeof navigationRules];
+    const shouldNavigate = navigationRules[key as keyof typeof navigationRules]
 
     if (shouldNavigate) {
-      const dest = list.value.find((tab) => tab.path === clickedPath.value);
+      const dest = list.value.find((tab) => tab.path === clickedPath.value)
       if (dest) {
         router.push({
           path: dest.path,
           query: dest.query as LocationQueryRaw,
-        });
+        })
       } else {
-        router.push(clickedPath.value);
+        router.push(clickedPath.value)
       }
     }
 
-    closeWorktab(key as TabCloseType, clickedPath.value);
-  };
+    closeWorktab(key as TabCloseType, clickedPath.value)
+  }
 
   return {
     clickTab,
     closeWorktab,
     showMenu,
     handleSelect,
-  };
-};
+  }
+}
 
 // 组合所有逻辑
-const { menuItems } = useContextMenu();
-const { setTransition, autoPositionTab } = useScrolling();
-const { setupEventListeners, cleanupEventListeners, adjustPositionAfterClose } = useEventHandlers();
+const { menuItems } = useContextMenu()
+const { setTransition, autoPositionTab } = useScrolling()
+const { setupEventListeners, cleanupEventListeners, adjustPositionAfterClose } = useEventHandlers()
 const { clickTab, closeWorktab, showMenu, handleSelect } =
-  useTabOperations(adjustPositionAfterClose);
+  useTabOperations(adjustPositionAfterClose)
 
 /** 标签横向滚动步长（px） */
-const SCROLL_STEP = 200;
+const SCROLL_STEP = 200
 
 /**
  * Chrome 条竖线：固定区右侧必显；其余仅在「两侧都未选中」时显示（与 Vben 类控制台一致，避免贴激活标签显得碎）
  */
 function showGoogleTabDivider(index: number): boolean {
-  const tabs = list.value;
-  if (index <= 0 || index >= tabs.length) return false;
-  const prev = tabs[index - 1]!;
-  const cur = tabs[index]!;
-  if (prev.fixedTab && !cur.fixedTab) return true;
-  if (prev.path === activeTab.value || cur.path === activeTab.value) return false;
-  return true;
+  const tabs = list.value
+  if (index <= 0 || index >= tabs.length) return false
+  const prev = tabs[index - 1]!
+  const cur = tabs[index]!
+  if (prev.fixedTab && !cur.fixedTab) return true
+  if (prev.path === activeTab.value || cur.path === activeTab.value) return false
+  return true
 }
 
 function scrollTabs(delta: number): void {
-  if (!scrollRef.value || !tabsRef.value) return;
-  const xMin = scrollRef.value.offsetWidth - tabsRef.value.offsetWidth;
-  const xMax = 0;
+  if (!scrollRef.value || !tabsRef.value) return
+  const xMin = scrollRef.value.offsetWidth - tabsRef.value.offsetWidth
+  const xMax = 0
   scrollState.value.translateX = Math.min(
     Math.max(scrollState.value.translateX + delta, xMin),
     xMax
-  );
-  setTransition();
+  )
+  setTransition()
 }
 
-const quickLinksRevision = ref(0);
+const quickLinksRevision = ref(0)
 function onQuickLinksChanged(): void {
-  quickLinksRevision.value++;
+  quickLinksRevision.value++
 }
 
 function bookmarkHref(item: WorkTab): string {
-  const q = item.query as LocationQueryRaw | undefined;
-  if (!q || !Object.keys(q).length) return item.path;
-  const sp = new URLSearchParams();
+  const q = item.query as LocationQueryRaw | undefined
+  if (!q || !Object.keys(q).length) return item.path
+  const sp = new URLSearchParams()
   Object.entries(q).forEach(([k, v]) => {
-    if (v === null || v === undefined) return;
-    if (Array.isArray(v)) v.forEach((x) => sp.append(k, String(x)));
-    else sp.set(k, String(v));
-  });
-  const s = sp.toString();
-  return s ? `${item.path}?${s}` : item.path;
+    if (v === null || v === undefined) return
+    if (Array.isArray(v)) v.forEach((x) => sp.append(k, String(x)))
+    else sp.set(k, String(v))
+  })
+  const s = sp.toString()
+  return s ? `${item.path}?${s}` : item.path
 }
 
 function isQuickLinkBookmarked(item: WorkTab): boolean {
-  void quickLinksRevision.value;
-  return quickStartManager.isLinkExists(bookmarkHref(item));
+  void quickLinksRevision.value
+  return quickStartManager.isLinkExists(bookmarkHref(item))
 }
 
 function toggleQuickBookmark(item: WorkTab): void {
-  const href = bookmarkHref(item);
-  const title = item.customTitle || formatMenuTitle(item.title);
+  const href = bookmarkHref(item)
+  const title = item.customTitle || formatMenuTitle(item.title)
   try {
     if (quickStartManager.isLinkExists(href)) {
-      quickStartManager.removeQuickLinkByHref(href);
-      ElMessage.success(t("worktab.bookmarkRemoved"));
+      quickStartManager.removeQuickLinkByHref(href)
+      ElMessage.success(t('worktab.bookmarkRemoved'))
     } else {
       const link = quickStartManager.createQuickLinkFromRoute(
         { ...item, title, fullPath: href, path: item.path },
         title
-      );
-      link.href = href;
+      )
+      link.href = href
       if (quickStartManager.addQuickLink(link)) {
-        ElMessage.success(t("worktab.bookmarkAdded"));
+        ElMessage.success(t('worktab.bookmarkAdded'))
       }
     }
   } catch (e) {
-    console.error(e);
-    ElMessage.error(t("worktab.bookmarkFail"));
+    console.error(e)
+    ElMessage.error(t('worktab.bookmarkFail'))
   }
 }
 
 function onMiddleClickClose(item: WorkTab): void {
   if (!item.fixedTab && list.value.length > 1) {
-    closeWorktab("current", item.path);
+    closeWorktab('current', item.path)
   }
 }
 
 async function handleRefreshCache(): Promise<void> {
   try {
-    await refreshAppCaches();
-    useCommon().refresh();
-    ElMessage.success(t("worktab.refreshCacheDone"));
+    await refreshAppCaches()
+    useCommon().refresh()
+    ElMessage.success(t('worktab.refreshCacheDone'))
   } catch (e) {
-    console.error(e);
-    ElMessage.error(t("worktab.refreshCacheFail"));
+    console.error(e)
+    ElMessage.error(t('worktab.refreshCacheFail'))
   }
 }
 
 // 生命周期
 onMounted(() => {
-  setupEventListeners();
-  quickStartManager.addListener(onQuickLinksChanged);
-  autoPositionTab();
+  setupEventListeners()
+  quickStartManager.addListener(onQuickLinksChanged)
+  autoPositionTab()
   nextTick(() => {
-    measureTabOverflow();
-    setupTabOverflowObserver();
-  });
-  window.addEventListener("resize", measureTabOverflow);
-});
+    measureTabOverflow()
+    setupTabOverflowObserver()
+  })
+  window.addEventListener('resize', measureTabOverflow)
+})
 
 onUnmounted(() => {
-  cleanupEventListeners();
-  quickStartManager.removeListener(onQuickLinksChanged);
-  teardownTabOverflowObserver();
-  window.removeEventListener("resize", measureTabOverflow);
-});
+  cleanupEventListeners()
+  quickStartManager.removeListener(onQuickLinksChanged)
+  teardownTabOverflowObserver()
+  window.removeEventListener('resize', measureTabOverflow)
+})
 
 // 监听器
 watch(tabOverflow, (overflow) => {
   if (!overflow) {
-    scrollState.value.translateX = 0;
+    scrollState.value.translateX = 0
   }
-});
+})
 
-watch(list, () => nextTick(measureTabOverflow), { deep: true });
+watch(list, () => nextTick(measureTabOverflow), { deep: true })
 
 watch(
   () => currentRoute.value,
   () => {
-    setTransition();
-    autoPositionTab();
-    nextTick(measureTabOverflow);
+    setTransition()
+    autoPositionTab()
+    nextTick(measureTabOverflow)
   }
-);
+)
 
 watch(
   () => userStore.language,
   () => {
-    scrollState.value.translateX = 0;
+    scrollState.value.translateX = 0
     nextTick(() => {
-      autoPositionTab();
-      measureTabOverflow();
-    });
+      autoPositionTab()
+      measureTabOverflow()
+    })
   }
-);
+)
 </script>
 
 <style scoped>
@@ -755,7 +755,7 @@ watch(
   bottom: 0;
   left: 0;
   width: 1px;
-  content: "";
+  content: '';
   background: var(--el-border-color-lighter);
 }
 
@@ -780,7 +780,7 @@ watch(
   bottom: 0;
   left: 0;
   width: 1px;
-  content: "";
+  content: '';
   background: var(--el-border-color-lighter);
 }
 
@@ -1068,7 +1068,7 @@ html:not(.dark) .worktab-tags-shell--google {
   bottom: 0;
   width: 20px;
   height: 20px;
-  content: "";
+  content: '';
   border-radius: 50%;
   box-shadow: 0 0 0 30px transparent;
 }
