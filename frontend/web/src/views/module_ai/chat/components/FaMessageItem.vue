@@ -1,12 +1,11 @@
 <template>
   <div :class="['message-group', message.type]">
     <div class="message-avatar">
-      <div v-if="message.type === 'user'" class="user-avatar">
-        <ElIcon><User /></ElIcon>
-      </div>
-      <div v-else class="ai-avatar">
-        <ElIcon><ChatDotRound /></ElIcon>
-      </div>
+      <FAvatar
+        :size="32"
+        :name="message.type === 'user' ? userName : 'AI'"
+        shape="square"
+      />
     </div>
     <div class="message-content">
       <div class="message-header">
@@ -65,8 +64,6 @@
 import { computed } from "vue";
 import { ElMessage } from "element-plus";
 import {
-  User,
-  ChatDotRound,
   CopyDocument,
   ArrowDown,
   ArrowUp,

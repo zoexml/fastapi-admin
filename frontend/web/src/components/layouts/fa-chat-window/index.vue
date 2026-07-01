@@ -29,7 +29,7 @@
                 message.isMe ? 'flex-row-reverse' : 'flex-row',
               ]"
             >
-              <ElAvatar :size="32" :src="message.avatar" class="shrink-0" />
+              <FAvatar :size="32" :src="message.avatar" :name="message.sender" shape="circle" class="shrink-0" />
               <div
                 :class="['flex max-w-[70%] flex-col', message.isMe ? 'items-end' : 'items-start']"
               >
@@ -93,8 +93,6 @@
 import { Picture, Paperclip, Close } from "@element-plus/icons-vue";
 import { ElScrollbar } from "element-plus";
 import { mittBus } from "@utils";
-import meAvatar from "@imgs/avatar/avatar5.webp";
-import aiAvatar from "@imgs/avatar/avatar10.webp";
 
 defineOptions({ name: "FaChatWindow" });
 
@@ -105,7 +103,7 @@ interface ChatMessage {
   content: string;
   time: string;
   isMe: boolean;
-  avatar: string;
+  avatar?: string;
 }
 
 // 常量定义
@@ -135,7 +133,6 @@ const initializeMessages = (): ChatMessage[] => [
     content: "你好！我是你的AI助手，有什么我可以帮你的吗？",
     time: "10:00",
     isMe: false,
-    avatar: aiAvatar,
   },
   {
     id: 2,
@@ -143,7 +140,6 @@ const initializeMessages = (): ChatMessage[] => [
     content: "我想了解一下系统的使用方法。",
     time: "10:01",
     isMe: true,
-    avatar: meAvatar,
   },
   {
     id: 3,
@@ -151,7 +147,6 @@ const initializeMessages = (): ChatMessage[] => [
     content: "好的，我来为您介绍系统的主要功能。首先，您可以通过左侧菜单访问不同的功能模块...",
     time: "10:02",
     isMe: false,
-    avatar: aiAvatar,
   },
   {
     id: 4,
@@ -159,7 +154,6 @@ const initializeMessages = (): ChatMessage[] => [
     content: "听起来很不错，能具体讲讲数据分析部分吗？",
     time: "10:05",
     isMe: true,
-    avatar: meAvatar,
   },
   {
     id: 5,
@@ -167,7 +161,6 @@ const initializeMessages = (): ChatMessage[] => [
     content: "当然可以。数据分析模块可以帮助您实时监控关键指标，并生成详细的报表...",
     time: "10:06",
     isMe: false,
-    avatar: aiAvatar,
   },
   {
     id: 6,
@@ -175,7 +168,6 @@ const initializeMessages = (): ChatMessage[] => [
     content: "太好了，那我如何开始使用呢？",
     time: "10:08",
     isMe: true,
-    avatar: meAvatar,
   },
   {
     id: 7,
@@ -183,7 +175,6 @@ const initializeMessages = (): ChatMessage[] => [
     content: "您可以先创建一个项目，然后在项目中添加相关的数据源，系统会自动进行分析。",
     time: "10:09",
     isMe: false,
-    avatar: aiAvatar,
   },
   {
     id: 8,
@@ -191,7 +182,6 @@ const initializeMessages = (): ChatMessage[] => [
     content: "明白了，谢谢你的帮助！",
     time: "10:10",
     isMe: true,
-    avatar: meAvatar,
   },
   {
     id: 9,
@@ -199,7 +189,6 @@ const initializeMessages = (): ChatMessage[] => [
     content: "不客气，有任何问题随时联系我。",
     time: "10:11",
     isMe: false,
-    avatar: aiAvatar,
   },
 ];
 
@@ -233,7 +222,6 @@ const sendMessage = (): void => {
     content: text,
     time: formatCurrentTime(),
     isMe: true,
-    avatar: meAvatar,
   };
 
   messages.value.push(newMessage);

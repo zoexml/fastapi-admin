@@ -27,7 +27,7 @@
         <ElTableColumn label="头像" prop="avatar" width="140px">
           <template #default="scope">
             <div class="flex items-center">
-              <img class="size-9 rounded-lg" :src="scope.row.avatar" alt="avatar" loading="eager" />
+              <FAvatar :src="scope.row.avatar" :name="scope.row.username" :size="36" shape="square" />
               <div class="flex flex-col ml-3">
                 <div class="font-medium">{{ scope.row.username }}</div>
                 <div class="text-xs text-slate-500">{{ scope.row.province }}</div>
@@ -67,13 +67,6 @@
 </template>
 
 <script setup lang="ts">
-import avatar1 from "@imgs/avatar/avatar1.webp";
-import avatar2 from "@imgs/avatar/avatar2.webp";
-import avatar3 from "@imgs/avatar/avatar3.webp";
-import avatar4 from "@imgs/avatar/avatar4.webp";
-import avatar5 from "@imgs/avatar/avatar5.webp";
-import avatar6 from "@imgs/avatar/avatar6.webp";
-
 interface UserTableItem {
   username: string;
   province: string;
@@ -85,7 +78,7 @@ interface UserTableItem {
   percentage: number;
   pro: number;
   color: string;
-  avatar: string;
+  avatar?: string;
 }
 
 const ANIMATION_DELAY = 100;
@@ -108,7 +101,6 @@ const tableData = reactive<UserTableItem[]>([
     percentage: 60,
     pro: 0,
     color: "var(--fa-primary)",
-    avatar: avatar1,
   },
   {
     username: "何小荷",
@@ -121,7 +113,7 @@ const tableData = reactive<UserTableItem[]>([
     percentage: 20,
     pro: 0,
     color: "var(--fa-secondary)",
-    avatar: avatar2,
+
   },
   {
     username: "誶誶淰",
@@ -134,7 +126,7 @@ const tableData = reactive<UserTableItem[]>([
     percentage: 60,
     pro: 0,
     color: "var(--fa-warning)",
-    avatar: avatar3,
+
   },
   {
     username: "发呆草",
@@ -147,7 +139,6 @@ const tableData = reactive<UserTableItem[]>([
     percentage: 50,
     pro: 0,
     color: "var(--fa-info)",
-    avatar: avatar4,
   },
   {
     username: "甜筒",
@@ -160,7 +151,6 @@ const tableData = reactive<UserTableItem[]>([
     percentage: 70,
     pro: 0,
     color: "var(--fa-error)",
-    avatar: avatar5,
   },
   {
     username: "冷月呆呆",
@@ -173,7 +163,6 @@ const tableData = reactive<UserTableItem[]>([
     percentage: 90,
     pro: 0,
     color: "var(--fa-success)",
-    avatar: avatar6,
   },
   {
     username: "冷呆呆",
@@ -186,7 +175,6 @@ const tableData = reactive<UserTableItem[]>([
     percentage: 90,
     pro: 0,
     color: "var(--fa-success)",
-    avatar: avatar6,
   },
   {
     username: "冷月呆呆",
@@ -199,7 +187,6 @@ const tableData = reactive<UserTableItem[]>([
     percentage: 90,
     pro: 0,
     color: "var(--fa-success)",
-    avatar: avatar6,
   },
 ]);
 

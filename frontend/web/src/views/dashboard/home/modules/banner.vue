@@ -26,13 +26,13 @@
     @click="handleBannerClick"
   >
     <div class="flex items-center gap-4 mt-2">
-      <ElAvatar
-        v-if="currentUser.avatar"
-        :size="80"
+      <FAvatar
         :src="currentUser.avatar"
+        :name="currentUser.name"
+        :size="80"
+        shape="circle"
         style="background-color: transparent"
       />
-      <ElIcon v-else :size="56" class="text-g-500"><UserFilled /></ElIcon>
       <div>
         <div class="text-lg font-semibold text-g-800">{{ currentUser.name }}</div>
         <div class="text-sm text-g-600">
@@ -49,7 +49,6 @@ import bannerCover from "@imgs/login/lf_icon2.webp";
 import FaBasicBanner from "@/components/banners/fa-basic-banner/index.vue";
 import { useUserStore } from "@stores";
 import { greetings } from "@utils";
-import { UserFilled } from "@element-plus/icons-vue";
 
 const userStore = useUserStore();
 

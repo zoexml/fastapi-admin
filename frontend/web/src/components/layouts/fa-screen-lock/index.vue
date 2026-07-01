@@ -29,14 +29,13 @@
         @opened="handleDialogOpen"
       >
         <div class="lock-dialog-content">
-          <img
-            v-if="userAvatar"
+          <FAvatar
             :src="userAvatar"
-            alt=""
-            class="lock-dialog-avatar object-cover"
-            loading="eager"
+            :name="displayName"
+            :size="80"
+            shape="circle"
+            class="lock-dialog-avatar"
           />
-          <img v-else class="lock-dialog-avatar" src="@imgs/user/avatar.webp" alt="" />
           <span class="lock-dialog-name">{{ displayName }}</span>
         </div>
         <ElForm ref="formRef" :model="formData" :rules="rules" @submit.prevent="handleLock">
@@ -82,8 +81,13 @@
         <div v-show="!showClock" class="entry-wrapper flex-cc">
           <div class="entry-content">
             <div class="avatar-container">
-              <img v-if="userAvatar" :src="userAvatar" alt="" class="avatar object-cover" />
-              <img v-else class="avatar" src="@imgs/user/avatar.webp" alt="" />
+              <FAvatar
+                :src="userAvatar"
+                :name="displayName"
+                :size="64"
+                shape="circle"
+                class="avatar"
+              />
               <span class="username">{{ displayName }}</span>
             </div>
             <ElInput

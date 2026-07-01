@@ -14,7 +14,12 @@
     >
       <div class="pb-5 max-md:hidden!">
         <div class="flex items-center gap-3">
-          <ElAvatar :size="50" :src="selectedPerson?.avatar" />
+          <FAvatar
+            :size="50"
+            :src="selectedPerson?.avatar"
+            :name="selectedPerson?.name"
+            shape="circle"
+          />
           <div>
             <div class="text-base font-medium">{{ selectedPerson?.name }}</div>
             <div class="mt-1 text-xs text-g-500">{{ selectedPerson?.email }}</div>
@@ -48,9 +53,7 @@
           @click="selectPerson(item)"
         >
           <div class="relative mr-3">
-            <ElAvatar :size="40" :src="item.avatar">
-              {{ item.name.charAt(0) }}
-            </ElAvatar>
+            <FAvatar :size="40" :src="item.avatar" :name="item.name" shape="circle" />
             <div
               class="absolute right-1 bottom-1 size-2 rounded-full"
               :class="item.online ? 'bg-success' : 'bg-error'"
@@ -76,7 +79,7 @@
           <span class="text-base font-medium">Art Bot</span>
           <div class="flex items-center gap-1 mt-1.5">
             <div class="w-2 h-2 rounded-full" :class="isOnline ? 'bg-success' : 'bg-danger'"></div>
-            <span class="text-xs text-g-600">{{ isOnline ? "在线" : "离线" }}</span>
+            <span class="text-xs text-g-600">{{ isOnline ? '在线' : '离线' }}</span>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -98,7 +101,13 @@
                 message.isMe ? 'flex-row-reverse' : 'flex-row justify-start',
               ]"
             >
-              <ElAvatar :size="32" :src="message.avatar" class="shrink-0" />
+              <FAvatar
+                :size="32"
+                :src="message?.avatar"
+                :name="message.sender"
+                shape="circle"
+                class="shrink-0"
+              />
               <div
                 class="flex flex-col max-w-[70%]"
                 :class="message.isMe ? 'items-end' : 'items-start'"
@@ -156,47 +165,35 @@
 </template>
 
 <script setup lang="ts">
-import { Picture, Paperclip, ArrowDown } from "@element-plus/icons-vue";
-import { ElScrollbar } from "element-plus";
-import { mittBus } from "@utils";
-import meAvatar from "@imgs/avatar/avatar5.webp";
-import aiAvatar from "@imgs/avatar/avatar10.webp";
-import avatar2 from "@imgs/avatar/avatar2.webp";
-import avatar3 from "@imgs/avatar/avatar3.webp";
-import avatar4 from "@imgs/avatar/avatar4.webp";
-import avatar5 from "@imgs/avatar/avatar5.webp";
-import avatar6 from "@imgs/avatar/avatar6.webp";
-import avatar7 from "@imgs/avatar/avatar7.webp";
-import avatar8 from "@imgs/avatar/avatar8.webp";
-import avatar9 from "@imgs/avatar/avatar9.webp";
-import avatar10 from "@imgs/avatar/avatar10.webp";
-import { useAutoLayoutHeight } from "@/hooks/core/useLayoutHeight";
+import { Picture, Paperclip, ArrowDown } from '@element-plus/icons-vue'
+import { ElScrollbar } from 'element-plus'
+import { mittBus } from '@utils'
+import { useAutoLayoutHeight } from '@/hooks/core/useLayoutHeight'
 
-defineOptions({ name: "FastlinkFachat" });
+defineOptions({ name: 'FastlinkFachat' })
 
-const { containerMinHeight } = useAutoLayoutHeight();
+const { containerMinHeight } = useAutoLayoutHeight()
 
 /**
  * 联系人类型定义
  */
 interface Person {
-  id: number;
-  name: string;
-  email: string;
-  avatar: string;
-  online?: boolean;
-  lastTime: string;
-  unread?: number;
+  id: number
+  name: string
+  email: string
+  avatar?: string
+  online?: boolean
+  lastTime: string
+  unread?: number
 }
 
-const searchQuery = ref("");
-const isDrawerVisible = ref(false);
-const isOnline = ref(true);
-const selectedPerson = ref<Person | null>(null);
-const messageText = ref("");
-const messageId = ref(10);
-const userAvatar = ref(meAvatar);
-const messageContainer = ref<InstanceType<typeof ElScrollbar> | null>(null);
+const searchQuery = ref('')
+const isDrawerVisible = ref(false)
+const isOnline = ref(true)
+const selectedPerson = ref<Person | null>(null)
+const messageText = ref('')
+const messageId = ref(10)
+const messageContainer = ref<InstanceType<typeof ElScrollbar> | null>(null)
 
 /**
  * 联系人列表数据
@@ -204,130 +201,117 @@ const messageContainer = ref<InstanceType<typeof ElScrollbar> | null>(null);
 const personList = ref<Person[]>([
   {
     id: 1,
-    name: "梅洛迪·梅西",
-    email: "melody@altbox.com",
-    avatar: meAvatar,
+    name: '梅洛迪·梅西',
+    email: 'melody@altbox.com',
     online: true,
-    lastTime: "20小时前",
+    lastTime: '20小时前',
     unread: 0,
   },
   {
     id: 2,
-    name: "马克·史密斯",
-    email: "max@kt.com",
-    avatar: avatar2,
+    name: '马克·史密斯',
+    email: 'max@kt.com',
     online: true,
-    lastTime: "2周前",
+    lastTime: '2周前',
     unread: 6,
   },
   {
     id: 3,
-    name: "肖恩·宾",
-    email: "sean@dellito.com",
-    avatar: avatar3,
+    name: '肖恩·宾',
+    email: 'sean@dellito.com',
     online: false,
-    lastTime: "5小时前",
+    lastTime: '5小时前',
     unread: 5,
   },
   {
     id: 4,
-    name: "爱丽丝·约翰逊",
-    email: "alice@domain.com",
-    avatar: avatar4,
+    name: '爱丽丝·约翰逊',
+    email: 'alice@domain.com',
     online: true,
-    lastTime: "1小时前",
+    lastTime: '1小时前',
     unread: 2,
   },
   {
     id: 5,
-    name: "鲍勃·布朗",
-    email: "bob@domain.com",
-    avatar: avatar5,
+    name: '鲍勃·布朗',
+    email: 'bob@domain.com',
     online: false,
-    lastTime: "3天前",
+    lastTime: '3天前',
     unread: 1,
   },
   {
     id: 6,
-    name: "查理·戴维斯",
-    email: "charlie@domain.com",
-    avatar: avatar6,
+    name: '查理·戴维斯',
+    email: 'charlie@domain.com',
     online: true,
-    lastTime: "10分钟前",
+    lastTime: '10分钟前',
     unread: 0,
   },
   {
     id: 7,
-    name: "戴安娜·普林斯",
-    email: "diana@domain.com",
-    avatar: avatar7,
+    name: '戴安娜·普林斯',
+    email: 'diana@domain.com',
     online: true,
-    lastTime: "15分钟前",
+    lastTime: '15分钟前',
     unread: 3,
   },
   {
     id: 8,
-    name: "伊桑·亨特",
-    email: "ethan@domain.com",
-    avatar: avatar8,
+    name: '伊桑·亨特',
+    email: 'ethan@domain.com',
     online: true,
-    lastTime: "5分钟前",
+    lastTime: '5分钟前',
     unread: 0,
   },
   {
     id: 9,
-    name: "杰西卡·琼斯",
-    email: "jessica@domain.com",
-    avatar: avatar9,
+    name: '杰西卡·琼斯',
+    email: 'jessica@domain.com',
     online: false,
-    lastTime: "1天前",
+    lastTime: '1天前',
     unread: 4,
   },
   {
     id: 10,
-    name: "彼得·帕克",
-    email: "peter@domain.com",
-    avatar: avatar10,
+    name: '彼得·帕克',
+    email: 'peter@domain.com',
     online: true,
-    lastTime: "2小时前",
+    lastTime: '2小时前',
     unread: 1,
   },
   {
     id: 11,
-    name: "克拉克·肯特",
-    email: "clark@domain.com",
-    avatar: avatar3,
+    name: '克拉克·肯特',
+    email: 'clark@domain.com',
     online: true,
-    lastTime: "30分钟前",
+    lastTime: '30分钟前',
     unread: 2,
   },
   {
     id: 12,
-    name: "布鲁斯·韦恩",
-    email: "bruce@domain.com",
-    avatar: avatar5,
+    name: '布鲁斯·韦恩',
+    email: 'bruce@domain.com',
     online: false,
-    lastTime: "3天前",
+    lastTime: '3天前',
     unread: 0,
   },
   {
     id: 13,
-    name: "韦德·威尔逊",
-    email: "wade@domain.com",
-    avatar: avatar6,
+    name: '韦德·威尔逊',
+    email: 'wade@domain.com',
     online: true,
-    lastTime: "10分钟前",
+    lastTime: '10分钟前',
     unread: 5,
   },
-]);
+])
 
 /**
  * 选择联系人
  * @param person 联系人对象
  */
 const selectPerson = (person: Person) => {
-  selectedPerson.value = person;
-};
+  selectedPerson.value = person
+}
 
 /**
  * 消息列表数据
@@ -335,124 +319,115 @@ const selectPerson = (person: Person) => {
 const messages = ref([
   {
     id: 1,
-    sender: "Art Bot",
-    content: "你好！我是你的AI助手，有什么我可以帮你的吗？",
-    time: "10:00",
+    sender: 'Art Bot',
+    content: '你好！我是你的AI助手，有什么我可以帮你的吗？',
+    time: '10:00',
     isMe: false,
-    avatar: aiAvatar,
+    avatar: undefined as string | undefined,
   },
   {
     id: 2,
-    sender: "Ricky",
-    content: "我想了解一下系统的使用方法。",
-    time: "10:01",
+    sender: 'Ricky',
+    content: '我想了解一下系统的使用方法。',
+    time: '10:01',
     isMe: true,
-    avatar: meAvatar,
   },
   {
     id: 3,
-    sender: "Art Bot",
-    content: "好的，我来为您介绍系统的主要功能。首先，您可以通过左侧菜单访问不同的功能模块...",
-    time: "10:02",
+    sender: 'Art Bot',
+    content: '好的，我来为您介绍系统的主要功能。首先，您可以通过左侧菜单访问不同的功能模块...',
+    time: '10:02',
     isMe: false,
-    avatar: aiAvatar,
   },
   {
     id: 4,
-    sender: "Ricky",
-    content: "听起来很不错，能具体讲讲数据分析部分吗？",
-    time: "10:05",
+    sender: 'Ricky',
+    content: '听起来很不错，能具体讲讲数据分析部分吗？',
+    time: '10:05',
     isMe: true,
-    avatar: meAvatar,
   },
   {
     id: 5,
-    sender: "Art Bot",
-    content: "当然可以。数据分析模块可以帮助您实时监控关键指标，并生成详细的报表...",
-    time: "10:06",
+    sender: 'Art Bot',
+    content: '当然可以。数据分析模块可以帮助您实时监控关键指标，并生成详细的报表...',
+    time: '10:06',
     isMe: false,
-    avatar: aiAvatar,
   },
   {
     id: 6,
-    sender: "Ricky",
-    content: "太好了，那我如何开始使用呢？",
-    time: "10:08",
+    sender: 'Ricky',
+    content: '太好了，那我如何开始使用呢？',
+    time: '10:08',
     isMe: true,
-    avatar: meAvatar,
   },
   {
     id: 7,
-    sender: "Art Bot",
-    content: "您可以先创建一个项目，然后在项目中添加相关的数据源，系统会自动进行分析。",
-    time: "10:09",
+    sender: 'Art Bot',
+    content: '您可以先创建一个项目，然后在项目中添加相关的数据源，系统会自动进行分析。',
+    time: '10:09',
     isMe: false,
-    avatar: aiAvatar,
   },
   {
     id: 8,
-    sender: "Ricky",
-    content: "明白了，谢谢你的帮助！",
-    time: "10:10",
+    sender: 'Ricky',
+    content: '明白了，谢谢你的帮助！',
+    time: '10:10',
     isMe: true,
-    avatar: meAvatar,
   },
   {
     id: 9,
-    sender: "Art Bot",
-    content: "不客气，有任何问题随时联系我。",
-    time: "10:11",
+    sender: 'Art Bot',
+    content: '不客气，有任何问题随时联系我。',
+    time: '10:11',
     isMe: false,
-    avatar: aiAvatar,
   },
-]);
+])
 
 /**
  * 发送消息
  * 添加新消息到消息列表并滚动到底部
  */
 const sendMessage = () => {
-  const text = messageText.value.trim();
-  if (!text) return;
+  const text = messageText.value.trim()
+  if (!text) return
 
   messages.value.push({
     id: messageId.value++,
-    sender: "Ricky",
+    sender: 'Ricky',
     content: text,
-    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     isMe: true,
-    avatar: userAvatar.value,
-  });
+  })
 
-  messageText.value = "";
-  scrollToBottom();
-};
+  messageText.value = ''
+  scrollToBottom()
+}
 
 /**
  * 滚动到消息列表底部
  */
 const scrollToBottom = () => {
   setTimeout(() => {
-    const wrap = messageContainer.value?.wrapRef;
-    if (wrap) wrap.scrollTop = wrap.scrollHeight;
-  }, 100);
-};
+    const wrap = messageContainer.value?.wrapRef
+    if (wrap) wrap.scrollTop = wrap.scrollHeight
+  }, 100)
+}
 
 /**
  * 打开聊天窗口
  */
 const openChat = () => {
-  isDrawerVisible.value = true;
-};
+  isDrawerVisible.value = true
+}
 
 onMounted(() => {
-  scrollToBottom();
-  mittBus.on("openChat", openChat);
-  const first = personList.value[0];
-  if (first) selectedPerson.value = first;
-});
+  scrollToBottom()
+  mittBus.on('openChat', openChat)
+  const first = personList.value[0]
+  if (first) selectedPerson.value = first
+})
 
 onUnmounted(() => {
-  mittBus.off("openChat", openChat);
-});
+  mittBus.off('openChat', openChat)
+})
 </script>

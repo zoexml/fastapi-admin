@@ -13,17 +13,11 @@
 
           <div class="relative z-10 mt-30 mx-auto">
             <div class="relative inline-block">
-              <img
-                v-if="infoFormState.avatar"
-                class="w-20 h-20 object-cover border-2 border-white rounded-full"
+              <FAvatar
                 :src="infoFormState.avatar"
-                alt=""
-              />
-              <img
-                v-else
-                class="w-20 h-20 object-cover border-2 border-white rounded-full"
-                src="@imgs/user/avatar.webp"
-                alt=""
+                :size="80"
+                shape="circle"
+                class="border-2 border-white"
               />
               <ElUpload
                 ref="uploadRef"

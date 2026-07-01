@@ -74,9 +74,7 @@
 
     <div class="sidebar-footer">
       <div v-if="!isCollapsed" class="user-info">
-        <ElAvatar :size="32" :src="userInfo.avatar">
-          <ElIcon><User /></ElIcon>
-        </ElAvatar>
+        <FAvatar :size="32" :src="userInfo.avatar" :name="userInfo.name" shape="circle" />
         <div class="user-details">
           <div class="user-name">{{ userInfo.name }}</div>
           <div class="user-status">在线</div>
@@ -94,9 +92,7 @@
       </div>
       <div v-else class="collapsed-user">
         <ElDropdown trigger="click" @command="handleUserCommand">
-          <ElAvatar :size="32" :src="userInfo.avatar">
-            <ElIcon><User /></ElIcon>
-          </ElAvatar>
+          <FAvatar :size="32" :src="userInfo.avatar" :name="userInfo.name" shape="circle" />
           <template #dropdown>
             <ElDropdownMenu>
               <ElDropdownItem command="profile">个人中心</ElDropdownItem>
@@ -116,7 +112,6 @@ import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox, ElScrollbar } from "element-plus";
 import {
   ChatLineRound,
-  User,
   Setting,
   MoreFilled,
   Plus,
