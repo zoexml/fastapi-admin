@@ -7,7 +7,6 @@
  * - 表格尺寸枚举（默认、紧凑、宽松）
  *
  * @module enums/formEnum
- * @author FastapiAdmin Team
  */
 
 // 页面类型
@@ -18,7 +17,7 @@ export enum PageModeEnum {
 
 // 表格大小
 export enum TableSizeEnum {
-  DEFAULT = "default",
-  SMALL = "small",
-  LARGE = "large",
+  DEFAULT = 'default',
+  SMALL = 'small',
+  LARGE = 'large',
 }

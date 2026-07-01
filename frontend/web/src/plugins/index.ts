@@ -1,25 +1,21 @@
 /**
- * Vue 应用插件注册 —— **唯一入口**：`initPlugins`（由 `main.ts` 调用）
- *
- * 约定：
- * - 凡对 `app.use(...)` 的封装，在本目录下独立文件导出 `initXxx(app)`（与 `icons.ts` 一致）。
- * - `echarts.ts` 为图表按需注册模块，供 `import { echarts } from '@/plugins/echarts'`，不由 `initPlugins` 挂载。
- * - 通用下载工具见 `@utils/download`，不属于 Vue 插件。
+ * 插件统一导出
+ * 集中管理第三方库的封装和配置
  */
 
-export * from "./echarts";
+export * from './echarts'
 
-import type { App } from "vue";
-import { initGlobDirectives } from "@/directives";
-import { initI18n } from "@/locales";
-import { initRouter } from "@/router";
-import { initStore } from "@stores";
-import { initErrorHandle } from "@utils";
-import { initCodeMirror } from "./codemirror";
-import { initElementPlus } from "./element-plus";
-import { initElIcons } from "./icons";
-import { initIconify } from "./iconify";
-import { initTerminal } from "./terminal";
+import type { App } from 'vue'
+import { initGlobDirectives } from '@/directives'
+import { initI18n } from '@/locales'
+import { initRouter } from '@/router'
+import { initStore } from '@stores'
+import { initErrorHandle } from '@utils'
+import { initCodeMirror } from './codemirror'
+import { initElementPlus } from './element-plus'
+import { initElIcons } from './icons'
+import { initIconify } from './iconify'
+import { initTerminal } from './terminal'
 
 /**
  * 插件注册入口 —— 调用顺序依赖说明：
@@ -35,14 +31,14 @@ import { initTerminal } from "./terminal";
  * 9. initElementPlus     最后注册 Element Plus，避免组件扫描过早触发（样式和组件完整注册）
  */
 export async function initPlugins(app: App<Element>): Promise<void> {
-  initElIcons(app);
-  initIconify();
-  initStore(app);
-  await initRouter(app);
-  initGlobDirectives(app);
-  initErrorHandle(app);
-  initTerminal(app);
-  initI18n(app);
-  initCodeMirror(app);
-  initElementPlus(app);
+  initElIcons(app)
+  initIconify()
+  initStore(app)
+  await initRouter(app)
+  initGlobDirectives(app)
+  initErrorHandle(app)
+  initTerminal(app)
+  initI18n(app)
+  initCodeMirror(app)
+  initElementPlus(app)
 }
