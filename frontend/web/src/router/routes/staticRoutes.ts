@@ -12,63 +12,16 @@ import { defineComponent, h, onMounted, ref } from "vue";
 import type { RouteRecordRaw } from "vue-router";
 import { RouterView, useRoute } from "vue-router";
 import { t } from "@wangeditor-next/editor";
+import { IframeRouteManager } from "../core/IframeRouteManager";
+
+// 向后兼容：从 core 重新导出
+export { IframeRouteManager };
 
 export const DASHBOARD_PARENT_META: RouteMeta = {
   title: "menus.dashboard.title",
   icon: "ri:pie-chart-line",
   alwaysShow: true,
 };
-
-/** iframe 路由注册表（与动态路由、守卫共用） */
-export class IframeRouteManager {
-  private static instance: IframeRouteManager;
-  private iframeRoutes: AppRouteRecord[] = [];
-
-  private constructor() {}
-
-  static getInstance(): IframeRouteManager {
-    if (!IframeRouteManager.instance) {
-      IframeRouteManager.instance = new IframeRouteManager();
-    }
-    return IframeRouteManager.instance;
-  }
-
-  add(route: AppRouteRecord): void {
-    if (!this.iframeRoutes.find((r) => r.path === route.path)) {
-      this.iframeRoutes.push(route);
-    }
-  }
-
-  getAll(): AppRouteRecord[] {
-    return this.iframeRoutes;
-  }
-
-  findByPath(path: string): AppRouteRecord | undefined {
-    return this.iframeRoutes.find((route) => route.path === path);
-  }
-
-  clear(): void {
-    this.iframeRoutes = [];
-  }
-
-  save(): void {
-    if (this.iframeRoutes.length > 0) {
-      sessionStorage.setItem("iframeRoutes", JSON.stringify(this.iframeRoutes));
-    }
-  }
-
-  load(): void {
-    try {
-      const data = sessionStorage.getItem("iframeRoutes");
-      if (data) {
-        this.iframeRoutes = JSON.parse(data);
-      }
-    } catch (error) {
-      console.error("[IframeRouteManager] 加载 iframe 路由失败:", error);
-      this.iframeRoutes = [];
-    }
-  }
-}
 
 /** 根 Layout 的 route.name；动态路由 `addRoute` 父级须与此一致 */
 export const ROOT_LAYOUT_ROUTE_NAME = "RootLayout" as const;

@@ -32,7 +32,16 @@ export const HOME_PAGE_PATH = "/dashboard/workplace";
 export { ROOT_LAYOUT_ROUTE_NAME };
 
 /** 动态路由注册与菜单转换（一般从 `@/router` 按需导入） */
-export { RouteRegistry, ComponentLoader, RouteTransformer, RouteValidator } from "./core";
+export {
+  RouteRegistry,
+  ComponentLoader,
+  RouteTransformer,
+  RouteValidator,
+  RoutePermissionValidator,
+  IframeRouteManager,
+} from "./core";
 export type { ValidationResult } from "./core";
-export { IframeRouteManager } from "./routes/staticRoutes";
 export { MenuProcessor, builtinFrontendRoutes } from "./core/MenuProcessor";
+
+/** 路由别名枚举 */
+export { RoutesAlias } from "./routesAlias";

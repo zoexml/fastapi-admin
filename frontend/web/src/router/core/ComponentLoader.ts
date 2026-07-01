@@ -5,11 +5,11 @@
 import { defineComponent, h, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import {
-  IframeRouteManager,
   NestedRouterParent,
   ROUTE_COMPONENT_LAYOUT,
   ROUTE_COMPONENT_NESTED_PARENT,
 } from "../routes/staticRoutes";
+import { IframeRouteManager } from "./IframeRouteManager";
 
 export class ComponentLoader {
   private modules: Record<string, () => Promise<any>>;

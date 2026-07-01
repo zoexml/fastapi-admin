@@ -38,3 +38,6 @@ export * from "./menuIcon";
 
 // 文件
 export * from "./file/dataUrl";
+
+// 系统
+export * from "./system";

@@ -256,6 +256,40 @@ export class MenuProcessor {
     return Array.isArray(menuList) && menuList.length > 0;
   }
 
+  /**
+   * 开发时校验：子路由不应使用 `/` 开头的路径。
+   * 在 vue-router 中，子路由如果以 `/` 开头会被当作绝对路径，可能导致路由匹配异常。
+   * @param menuList 菜单路由树
+   * @returns 校验是否通过
+   */
+  validateMenuPaths(menuList: AppRouteRecord[]): boolean {
+    if (!Array.isArray(menuList) || menuList.length === 0) return true;
+
+    const checkPaths = (items: AppRouteRecord[], parentPath = ""): string[] => {
+      const errors: string[] = [];
+      for (const item of items) {
+        const fullPath = parentPath
+          ? `${parentPath.replace(/\/$/, "")}/${item.path || ""}`
+          : item.path || "";
+        if (item.children?.length && item.path?.startsWith("/")) {
+          errors.push(
+            `路由 "${item.path}" (name: ${item.name != null ? String(item.name) : "未命名"}) 是父级路由但使用了以 '/' 开头的 path，应使用相对路径。完整路径: ${fullPath}`
+          );
+        }
+        if (item.children?.length) {
+          errors.push(...checkPaths(item.children, fullPath));
+        }
+      }
+      return errors;
+    };
+
+    const errors = checkPaths(menuList);
+    if (errors.length > 0) {
+      errors.forEach((msg) => console.warn("[MenuProcessor] 路由路径校验:", msg));
+    }
+    return errors.length === 0;
+  }
+
   private normalizeMenuPaths(menuList: AppRouteRecord[], parentPath = ""): AppRouteRecord[] {
     return menuList.map((item) => {
       const fullPath = this.buildFullPath(item.path || "", parentPath);
